@@ -1,0 +1,1 @@
+/home/wrath/nixpkgs-mozilla/firefox-overlay.nix
