@@ -1,0 +1,3 @@
+[submodule "firefox-overlay"]
+	path = firefox-overlay
+	url = https://github.com/mozilla/nixpkgs-mozilla

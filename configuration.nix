@@ -11,10 +11,20 @@
       ./cachix.nix
     ];
 
+#  nixpkgs.localSystem.platform = pkgs.lib.systems.platforms.pc64 // {
+#    gcc.arch = "zenv3";
+#    gcc.tune = "zenv3";
+# };
+#  nixpkgs.config.replaceStdenv = pkgs.clangStdenv;
+  nixpkgs.hostPlatform = {
+    gcc.arch = "znver3";
+    gcc.tune = "znver3";
+    system = "x86_64-linux";
+  };
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.efi.efiSysMountPoint = "/boot/efi";
+  boot.loader.efi.efiSysMountPoint = "/efi";
   nix.settings.trusted-users = [ "root" "wrath" ];
 
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
@@ -37,19 +47,20 @@
      useXkbConfig = true; # use xkb.options in tty.
    };
   fonts = {
-    fonts = with pkgs; [
+    packages = with pkgs; [
       source-sans-pro
       source-serif-pro
       (nerdfonts.override { fonts = [ "Iosevka" "FiraCode" "Inconsolata" "JetBrainsMono" "Hasklig" "Meslo" ]; })
     ];
     fontconfig = {
       defaultFonts = {
-        monospace = [ "Iosevka" ];
+        monospace = [ "Hasklig" ];
         sansSerif = [ "FiraGO" "Source Sans Pro" ];
         serif = [ "ETBembo" "Source Serif Pro" ];
       };
     };
-    enableFontDir = true;
+    fontDir.enable = true;
+#    enableFontDir = true;
   };
 
   # Enable the X11 windowing system.
@@ -57,7 +68,17 @@
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
-  
+  i18n.inputMethod = {
+    enabled = "fcitx5";
+    fcitx5.addons = with pkgs; [
+      fcitx5-mozc
+      fcitx5-table-other
+      fcitx5-chinese-addons
+      fcitx5-configtool
+      libsForQt5.fcitx5-qt
+      fcitx5-table-extra
+    ];
+  };  
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
@@ -72,20 +93,30 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
-
-  nixpkgs.overlays = [ (import /etc/nixos/firefox-overlay.nix)
+    
+  nixpkgs.overlays = [ #(import /etc/nixos/firefox-overlay.nix)
+                       (import "${fetchTarball "https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz"}/firefox-overlay.nix")
                        (import "${fetchTarball "https://github.com/nix-community/fenix/archive/main.tar.gz"}/overlay.nix")
                        (import (builtins.fetchGit {
                          url = "https://github.com/nix-community/emacs-overlay.git";
                          ref = "master";
 #                         rev = "bfc8f6edcb7bcf3cf24e4a7199b3f6fed96aaecf"; # change the revision
     }))
+#                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.impureUseNativeOptimizations pkgs'.clangStdenv;
+#                                     })
+#                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.clangStdenv;
+#                                     })
+#                       (final: prev: {
+#                         config = prev.config.override (attrs: { replaceStdenv = ({ pkgs }: pkgs.impureUseNativeOptimizations pkgs.Clangstdenv);});
+#                                     })
 #                     (_: super: let pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system}; in fenix.overlays.default pkgs pkgs)
   ];
 
 
 
   nixpkgs.config.allowUnfree = true;
+#  nixpkgs.config.replaceStdenv = pkgs.impureUseNativeOptimizations pkgs.Clangstdenv;
+#  nixpkgs.config.replaceStdenv = llvmPackages_17.stdenv;
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   users.users.root.initialHashedPassword = "";
@@ -96,74 +127,84 @@
     isNormalUser = true;
     home = "/home/wrath";
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-     packages = with pkgs; [
-       calibre
-       pavucontrol
-       obs-studio
-       telegram-desktop
-       blender
-       ldtk
-       strawberry
-#       rustup
-       yakuake
-       tree
-       qbittorrent
-       furnace
-       nmap
-       chromium
-       cmake
-       element-desktop
-       fontforge
-       gimp
-       lshw
-       libreoffice-qt
-       lutris
-       lyx
-       mpv
-       vscode # I probably don't need this since I got gluon lsp working with emacs
-     ];
-   };
+    
+    packages = with pkgs; [
+      (calibre.override {stdenv = llvmPackages_17.stdenv;})
+      (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
+      (obs-studio.override {stdenv = llvmPackages_17.stdenv;})
+      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
+      blender
+      ldtk
+      (strawberry.override {stdenv = llvmPackages_17.stdenv;})
+#      rustup
+#      (yakuake.override {stdenv = llvmPackages_17.stdenv;})
+      yakuake
+      (tree.override {stdenv = llvmPackages_17.stdenv;})
+      (qbittorrent.override {stdenv = llvmPackages_17.stdenv;})
+      (furnace.override {stdenv = llvmPackages_17.stdenv;})
+      (nmap.override {stdenv = llvmPackages_17.stdenv;})
+#      chromium
+      (cmake.override {stdenv = llvmPackages_17.stdenv;})
+      (element-desktop.override {stdenv = llvmPackages_17.stdenv;})
+      (fontforge.override {stdenv = llvmPackages_17.stdenv;})
+      (gimp.override {stdenv = llvmPackages_17.stdenv;})
+      (lshw.override {stdenv = llvmPackages_17.stdenv;})
+      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;})
+      #libreoffice-qt
+#      (lutris.override {stdenv = llvmPackages_17.stdenv;})
+      lutris
+#      (lyx.override {stdenv = llvmPackages_17.stdenv;})
+      lyx
+#      (mpv.override {stdenv = llvmPackages_17.stdenv;})
+      mpv
+#      vscode # I probably don't need this since I got gluon lsp working with emacs
+    ];
+  };
   services.emacs.enable = true;
 #  services.emacs.package = import /home/wrath/.emacs.d { pkgs = pkgs; };
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  
+  programs.firefox.enable = true;
+  programs.firefox.package = pkgs.latest.firefox-nightly-bin;
+
 security.sudo = {
   enable = true;
   wheelNeedsPassword = false;
 };
-  environment.systemPackages = with pkgs; [
-    lynx
-    tmux
-    htop
-    nvtop
-    iftop
+environment.systemPackages = with pkgs; [
+  (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  (nvtop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     (pkgs.emacsWithPackagesFromUsePackage {
-      package = pkgs.emacs;  # replace with pkgs.emacsPgtk, or another version if desired.
+      package = pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
       config = /home/wrath/.emacs.d/init.el;})
-    (ripgrep.override {withPCRE2 = true;})
-    gnutls              # for TLS connectivity
-    fd                  # faster projectile indexing
-    imagemagick         # for image-dired
-    zstd                # for undo-fu-session/undo-tree compression
+    (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
+  (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
+#  (fd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                  # faster projectile indexing
+  fd
+  (imagemagick.override {stdenv = pkgs.llvmPackages_17.stdenv;})         # for image-dired
+  (zstd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
-    sqlite
+  (sqlite.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     # :lang latex & :lang org (latex previews)
     texlive.combined.scheme-medium
-    openssh
-    latest.firefox-nightly-bin
-    mosh
-    git
-    git-lfs
-    wget
-     (fenix.complete.withComponents [
-      "cargo"
-      "clippy"
-      "rust-src"
-      "rustc"
-      "rustfmt"
-    ])
-    rust-analyzer-nightly
+  (openssh.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+#    latest.firefox-nightly-bin
+  (mosh.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  (git.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+#  (git-lfs.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  git-lfs
+  (wget.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+#     (fenix.complete.withComponents [
+#      "cargo"
+#      "clippy"
+#      "rust-src"
+#      "rustc"
+#      "rustfmt"
+#    ])
+#    rust-analyzer-nightly
   ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
