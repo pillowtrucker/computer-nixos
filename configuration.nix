@@ -281,6 +281,7 @@ security.sudo = {
 environment.systemPackages = with pkgs; [
 #  cpupower
   nixd
+  nil
   (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
