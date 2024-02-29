@@ -34,7 +34,8 @@ let
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/efi";
   nix.settings.trusted-users = [ "root" "wrath" ];
-
+  nix.settings.cores = 8;
+  nix.settings.max-jobs = 2;
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -56,6 +57,23 @@ let
    };
   fonts = {
     packages = with pkgs; [
+      hachimarupop
+      migmix
+      ricty
+      noto-fonts-extra
+      noto-fonts
+      samim-fonts
+      sahel-fonts
+      noto-fonts-monochrome-emoji
+      noto-fonts-color-emoji
+      twitter-color-emoji
+      wqy_zenhei
+      noto-fonts-cjk-serif
+      noto-fonts-cjk-sans
+      scheherazade-new
+      noto-fonts-lgc-plus
+      inconsolata-lgc
+      doulos-sil
       source-sans-pro
       source-serif-pro
       (nerdfonts.override { fonts = [ "Iosevka" "FiraCode" "Inconsolata" "JetBrainsMono" "Hasklig" "Meslo" ]; })
@@ -110,7 +128,7 @@ let
                          url = "https://github.com/nix-community/emacs-overlay.git";
                          ref = "master";
 #                         rev = "bfc8f6edcb7bcf3cf24e4a7199b3f6fed96aaecf"; # change the revision
-    }))
+                       }))
 #                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.impureUseNativeOptimizations pkgs'.clangStdenv;
 #                                     })
 #                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.clangStdenv;
@@ -118,7 +136,8 @@ let
 #                       (final: prev: {
 #                         config = prev.config.override (attrs: { replaceStdenv = ({ pkgs }: pkgs.impureUseNativeOptimizations pkgs.Clangstdenv);});
 #                                     })
-#                     (_: super: let pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system}; in fenix.overlays.default pkgs pkgs)
+#                     (_: super: let fenix = import (fetchTarball "https://github.com/nix-community/fenix/archive/main.tar.gz") { };
+#                                    pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system}; in fenix.overlays.default pkgs pkgs)
                        (final: prev: let pkgs = import <nixpkgs> {}; in {
                                            opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
@@ -183,6 +202,8 @@ let
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     
     packages = with pkgs; [
+      supercollider
+      w3m
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
@@ -231,11 +252,39 @@ security.sudo = {
   enable = true;
   wheelNeedsPassword = false;
 };
+#services.tlp = {
+#  enable = true;
+#  settings = {
+#    CPU_DRIVER_OPMODE_ON_AC="active";
+#    CPU_DRIVER_OPMODE_ON_BAT="active";
+#    CPU_SCALING_GOVERNOR_ON_AC = "performance";
+#    CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+#    
+#    CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+#    CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+#    CPU_HWP_DYN_BOOST_ON_AC=1;
+#    CPU_HWP_DYN_BOOST_ON_BAT=0;
+#    CPU_BOOST_ON_AC=1;
+#    CPU_BOOST_ON_BAT=0;
+#    CPU_MIN_PERF_ON_AC = 0;
+#    CPU_MAX_PERF_ON_AC = 100;
+#    CPU_MIN_PERF_ON_BAT = 0;
+#    CPU_MAX_PERF_ON_BAT = 20;
+    
+       #Optional helps save long term battery health
+#    START_CHARGE_THRESH_BAT0 = 40; # 40 and bellow it starts to charge
+#    STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
+    
+#  };
+#};
+
 environment.systemPackages = with pkgs; [
+#  cpupower
+  nixd
   (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-#  nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
+  nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     (pkgs.emacsWithPackagesFromUsePackage {
       package = pkgs.emacs;  # replace with pkgs.emacsPgtk, or another version if desired.
@@ -257,15 +306,15 @@ environment.systemPackages = with pkgs; [
 #  (git-lfs.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   git-lfs
   (wget.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-#     (fenix.complete.withComponents [
-#      "cargo"
-#      "clippy"
-#      "rust-src"
-#      "rustc"
-#      "rustfmt"
-#    ])
-#    rust-analyzer-nightly
-  ];
+  (fenix.complete.withComponents [
+    "cargo"
+    "clippy"
+    "rust-src"
+    "rustc"
+    "rustfmt"
+  ])
+  rust-analyzer-nightly
+];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
@@ -321,7 +370,7 @@ environment.systemPackages = with pkgs; [
     # Enable the Nvidia settings menu,
 	# accessible via `nvidia-settings`.
     nvidiaSettings = true;
-
+    dynamicBoost.enable = true;
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
