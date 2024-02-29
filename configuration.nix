@@ -12,7 +12,7 @@ let
       ./hardware-configuration.nix
       ./cachix.nix
     ];
-  boot.tmpOnTmpfs = false; # webkit explodes this, firefox nearly does
+  boot.tmp.useTmpfs = false; # webkit explodes this, firefox nearly does
 #  nixpkgs.localSystem.platform = pkgs.lib.systems.platforms.pc64 // {
 #    gcc.arch = "zenv3";
 #    gcc.tune = "zenv3";
@@ -23,6 +23,12 @@ let
     gcc.tune = "znver3";
     system = "x86_64-linux";
   };
+  nixpkgs.buildPlatform = {
+    gcc.arch = "znver3";
+    gcc.tune = "znver3";
+    system = "x86_64-linux";
+  }; # this might be needed to unjank some builds
+  
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -113,6 +119,31 @@ let
 #                         config = prev.config.override (attrs: { replaceStdenv = ({ pkgs }: pkgs.impureUseNativeOptimizations pkgs.Clangstdenv);});
 #                                     })
 #                     (_: super: let pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system}; in fenix.overlays.default pkgs pkgs)
+                       (final: prev: let pkgs = import <nixpkgs> {}; in {
+                                           opencolorio = prev.opencolorio.overrideAttrs (attrs: {
+                                             cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
+                                           });
+                                           blender_ = prev.blender.override {
+                                             colladaSupport = true;
+                                           };
+#                                           blender = blender_.overrideAttrs (attrs: {
+##                                             colladaSupport = true;
+#                                             cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
+#                                             buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
+#                                           });
+                                           
+                                           pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+                                             (
+                                               python-final: python-prev: {
+                                                 numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
+                                                   disabledTests = oldAttrs.disabledTests ++ ["test_umath_accuracy" "TestAccuracy::test_validate_transcendentals" "test_validate_transcendentals"];
+                                                 });
+                                               }
+                                             )
+                                           ];
+                                           
+                                         })
+                       
   ];
 
 
@@ -135,9 +166,12 @@ let
     packages = with pkgs; [
       (calibre.override {stdenv = llvmPackages_17.stdenv;})
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
-      (obs-studio.override {stdenv = llvmPackages_17.stdenv;})
+      obs-studio
       (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
-      blender
+      (blender.overrideAttrs (attrs: {colladaSupport = true;
+                                      cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
+                                      buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
+                                     }))
       ldtk
       (strawberry.override {stdenv = llvmPackages_17.stdenv;})
 #      rustup
@@ -153,7 +187,8 @@ let
       (fontforge.override {stdenv = llvmPackages_17.stdenv;})
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
-      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
+#      libreoffice-bin # fuck this, I barely even use this thing
+#      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
       nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
 
       #libreoffice-qt
@@ -181,7 +216,7 @@ environment.systemPackages = with pkgs; [
   (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (nvtop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+  nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     (pkgs.emacsWithPackagesFromUsePackage {
       package = pkgs.emacs;  # replace with pkgs.emacsPgtk, or another version if desired.
@@ -190,7 +225,7 @@ environment.systemPackages = with pkgs; [
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
 #  (fd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                  # faster projectile indexing
   fd
-  (imagemagick.override {stdenv = pkgs.llvmPackages_17.stdenv;})         # for image-dired
+#  (imagemagick.override {stdenv = pkgs.llvmPackages_17.stdenv;})         # for image-dired
   (zstd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
   (sqlite.override {stdenv = pkgs.llvmPackages_17.stdenv;})
