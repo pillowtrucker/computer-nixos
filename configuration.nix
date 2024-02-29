@@ -134,15 +134,26 @@ let
                                                sha256 = "1lhmskcyk7qqfikmasiw7wjry74gc8g5q6a3j1iya84yd7ll0cz6";
                                              };
                                            });
+                                           mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
 #                                           blender = blender_.overrideAttrs (attrs: {
 ##                                             colladaSupport = true;
 #                                             cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
 #                                             buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
 #                                           });
-                                           haskell-modules.x509-validation = pkgs.dontCheck prev.haskell-modules.x509-validation;
+                                           haskellPackages = prev.haskellPackages.override {
+                                             overrides = haskellSelf: haskellSuper: {
+                                               x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
+                                             };
+                                           };
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
+                                                 constantly = python-prev.constantly.overridePythonAttrs (oldAttrs: {src = pkgs.fetchFromGitHub {
+                                                   owner = "twisted";
+                                                   repo = "constantly";
+                                                   rev = "refs/tags/${python-prev.constantly.version}";
+                                                   hash = "sha256-yXPHQP4B83PuRNvDBnRTx/MaPaQxCl1g5Xrle+N/d7I=";
+                                                 };});
                                                  numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
                                                    disabledTests = oldAttrs.disabledTests ++ ["test_umath_accuracy" "TestAccuracy::test_validate_transcendentals" "test_validate_transcendentals"];
                                                  });
@@ -198,14 +209,14 @@ let
 #      libreoffice-bin # fuck this, I barely even use this thing
 #      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
       nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
-
+      mpv
       #libreoffice-qt
 #      (lutris.override {stdenv = llvmPackages_17.stdenv;})
       lutris
 #      (lyx.override {stdenv = llvmPackages_17.stdenv;})
       lyx
 #      (mpv.override {stdenv = llvmPackages_17.stdenv;})
-      mpv
+      
 #      vscode # I probably don't need this since I got gluon lsp working with emacs
     ];
   };
