@@ -12,7 +12,7 @@ let
       ./hardware-configuration.nix
       ./cachix.nix
     ];
-
+  boot.tmpOnTmpfs = false; # webkit explodes this, firefox nearly does
 #  nixpkgs.localSystem.platform = pkgs.lib.systems.platforms.pc64 // {
 #    gcc.arch = "zenv3";
 #    gcc.tune = "zenv3";
@@ -117,6 +117,7 @@ let
 
 
   zramSwap.enable = true;
+  zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
 #  nixpkgs.config.replaceStdenv = pkgs.impureUseNativeOptimizations pkgs.Clangstdenv;
 #  nixpkgs.config.replaceStdenv = llvmPackages_17.stdenv;
@@ -152,7 +153,7 @@ let
       (fontforge.override {stdenv = llvmPackages_17.stdenv;})
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
-      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;})
+      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
       nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
 
       #libreoffice-qt
