@@ -3,7 +3,9 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, lib, pkgs, programs, ... }:
-
+let
+  nix-gaming = import (builtins.fetchTarball "https://github.com/fufexan/nix-gaming/archive/master.tar.gz");
+  in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -114,7 +116,7 @@
   ];
 
 
-
+  zramSwap.enable = true;
   nixpkgs.config.allowUnfree = true;
 #  nixpkgs.config.replaceStdenv = pkgs.impureUseNativeOptimizations pkgs.Clangstdenv;
 #  nixpkgs.config.replaceStdenv = llvmPackages_17.stdenv;
@@ -151,6 +153,8 @@
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
       (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;})
+      nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
+
       #libreoffice-qt
 #      (lutris.override {stdenv = llvmPackages_17.stdenv;})
       lutris
@@ -166,8 +170,8 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   programs.firefox.enable = true;
-  programs.firefox.package = pkgs.latest.firefox-nightly-bin;
-
+  programs.firefox.package = pkgs.firefox-devedition;
+  programs.direnv.enable = true;
 security.sudo = {
   enable = true;
   wheelNeedsPassword = false;
@@ -179,7 +183,7 @@ environment.systemPackages = with pkgs; [
   (nvtop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     (pkgs.emacsWithPackagesFromUsePackage {
-      package = pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
+      package = pkgs.emacs;  # replace with pkgs.emacsPgtk, or another version if desired.
       config = /home/wrath/.emacs.d/init.el;})
     (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
