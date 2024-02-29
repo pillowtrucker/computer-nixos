@@ -23,11 +23,11 @@ let
     gcc.tune = "znver3";
     system = "x86_64-linux";
   };
-  nixpkgs.buildPlatform = {
-    gcc.arch = "znver3";
-    gcc.tune = "znver3";
-    system = "x86_64-linux";
-  }; # this might be needed to unjank some builds
+#  nixpkgs.buildPlatform = {
+#    gcc.arch = "znver3";
+#    gcc.tune = "znver3";
+#    system = "x86_64-linux";
+#  }; # this might be needed to unjank some builds # or it actually makes a different package fail..
   
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -123,15 +123,23 @@ let
                                            opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                            });
-                                           blender_ = prev.blender.override {
+                                           blender = prev.blender.override {
                                              colladaSupport = true;
                                            };
+                                           vamp-plugin-sdk = prev.vamp-plugin-sdk.overrideAttrs (attrs: {
+                                             src = pkgs.fetchFromGitHub {
+                                               owner = "vamp-plugins";
+                                               repo = "vamp-plugin-sdk";
+                                               rev = "vamp-plugin-sdk-v${prev.vamp-plugin-sdk.version}";
+                                               sha256 = "1lhmskcyk7qqfikmasiw7wjry74gc8g5q6a3j1iya84yd7ll0cz6";
+                                             };
+                                           });
 #                                           blender = blender_.overrideAttrs (attrs: {
 ##                                             colladaSupport = true;
 #                                             cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
 #                                             buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
 #                                           });
-                                           
+                                           haskell-modules.x509-validation = pkgs.dontCheck prev.haskell-modules.x509-validation;
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
@@ -164,10 +172,10 @@ let
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     
     packages = with pkgs; [
-      (calibre.override {stdenv = llvmPackages_17.stdenv;})
+      calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
-      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
+      telegram-desktop
       (blender.overrideAttrs (attrs: {colladaSupport = true;
                                       cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
                                       buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
@@ -184,7 +192,7 @@ let
 #      chromium
       (cmake.override {stdenv = llvmPackages_17.stdenv;})
       (element-desktop.override {stdenv = llvmPackages_17.stdenv;})
-      (fontforge.override {stdenv = llvmPackages_17.stdenv;})
+      fontforge
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
 #      libreoffice-bin # fuck this, I barely even use this thing
@@ -216,7 +224,7 @@ environment.systemPackages = with pkgs; [
   (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
+#  nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     (pkgs.emacsWithPackagesFromUsePackage {
       package = pkgs.emacs;  # replace with pkgs.emacsPgtk, or another version if desired.
