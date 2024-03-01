@@ -261,6 +261,12 @@ security.sudo = {
   enable = true;
   wheelNeedsPassword = false;
 };
+security.pam.loginLimits = [{
+    domain = "*";
+    type = "soft";
+    item = "nofile";
+    value = "65536";
+}];
 #services.tlp = {
 #  enable = true;
 #  settings = {
