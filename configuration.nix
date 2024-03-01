@@ -36,6 +36,7 @@ let
   nix.settings.trusted-users = [ "root" "wrath" ];
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -115,9 +116,17 @@ let
   services.printing.enable = true;
 
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
-
+#  sound.enable = true;
+#  hardware.pulseaudio.enable = true;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
+  };
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
     
@@ -307,13 +316,13 @@ environment.systemPackages = with pkgs; [
 #  (git-lfs.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   git-lfs
   (wget.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (fenix.complete.withComponents [
-    "cargo"
-    "clippy"
-    "rust-src"
-    "rustc"
-    "rustfmt"
-  ])
+#  (fenix.complete.withComponents [
+#    "cargo"
+#    "clippy"
+#    "rust-src"
+#    "rustc"
+#    "rustfmt"
+#  ])
   rust-analyzer-nightly
 ];
   # Some programs need SUID wrappers, can be configured further or are
