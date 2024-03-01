@@ -37,6 +37,7 @@ let
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.allow-import-from-derivation = true;
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -94,7 +95,7 @@ let
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-
+  
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
@@ -114,7 +115,15 @@ let
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
-
+  services.postfix.enable = true;
+  services.smartd = {
+    enable = true;
+    notifications.mail = {
+      enable = true;
+      recipient = "wrath";
+      
+    };
+  };
   # Enable sound.
 #  sound.enable = true;
 #  hardware.pulseaudio.enable = true;
@@ -211,6 +220,8 @@ let
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     
     packages = with pkgs; [
+#      simplex-chat # not yet
+      bat
       supercollider
       w3m
       calibre
@@ -294,6 +305,9 @@ security.pam.loginLimits = [{
 #};
 
 environment.systemPackages = with pkgs; [
+  smartmontools
+  lm_sensors
+  neomutt
 #  cpupower
   nixd
   nil
