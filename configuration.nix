@@ -104,7 +104,7 @@ let
       fcitx5-table-other
       fcitx5-chinese-addons
       fcitx5-configtool
-      libsForQt5.fcitx5-qt
+      
       fcitx5-table-extra
     ];
   };  
@@ -177,11 +177,24 @@ let
 #                                             cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
 #                                             buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
 #                                           });
+                                           tzdata = prev.tzdata.overrideAttrs(attrs: {
+                                             doCheck = false;
+                                           });
                                            haskellPackages = prev.haskellPackages.override {
                                              overrides = haskellSelf: haskellSuper: {
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
+                                           libsForQt5 = prev.libsForQt5.overrideScope (qtfinal: qtprev: {
+                                             fcitx5-qt = qtprev.fcitx5-qt.overrideAttrs (attrs: {
+                                               src = prev.fetchFromGitHub {
+                                                 owner = "fcitx";
+                                                 repo = "fcitx5-qt";
+                                                 rev = attrs.version;
+                                                 sha256 = "sha256-bVH2US/uEZGERslnAh/fyUbzR9fK1UfG4J+mOmrIE8Y=";
+                                               };
+                                             });
+                                           });
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
