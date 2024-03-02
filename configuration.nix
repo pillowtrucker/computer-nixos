@@ -33,6 +33,9 @@ let
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/efi";
+  nix.settings.keep-derivations = true;
+  nix.settings.keep-outputs = true;
+#  nix.settings.auto-optimise-store = true;
   nix.settings.trusted-users = [ "root" "wrath" ];
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
@@ -59,6 +62,7 @@ let
    };
   fonts = {
     packages = with pkgs; [
+
       hachimarupop
       migmix
       ricty
@@ -147,7 +151,32 @@ let
                          ref = "master";
 #                         rev = "bfc8f6edcb7bcf3cf24e4a7199b3f6fed96aaecf"; # change the revision
                        }))
-#                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.impureUseNativeOptimizations pkgs'.clangStdenv;
+                       (self: super: {
+                         ccacheWrapper = super.ccacheWrapper.override {
+                           extraConfig = ''
+        export CCACHE_COMPRESS=1
+        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
+        export CCACHE_UMASK=007
+        if [ ! -d "$CCACHE_DIR" ];      then
+          echo "====="
+          echo "Directory '$CCAC  HE_DIR'   does not exist"
+          echo "Please create             it w        ith:"
+          echo "  sudo mkdir  -m0770 '$CCAC  HE_DIR'"
+          echo "  sudo c     hown root:nixbld '$C    CACHE_DIR'"
+          echo "=====" 
+          exit 1        
+        fi             
+        if [ !  -w "$CCACHE_DIR"  ]; then
+          echo "   ====="        
+          echo "Dir ectory '$CCACHE_DIR' is   not accessible for user $(whoami)"
+          echo "Plea       se               verify its access permissions"
+          echo "====="        
+          exit 1            
+        fi     
+      '';      
+                         };
+                       })
+                       #                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.impureUseNativeOptimizations pkgs'.clangStdenv;
 #                                     })
 #                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.clangStdenv;
 #                                     })
@@ -163,14 +192,14 @@ let
                                            blender = prev.blender.override {
                                              colladaSupport = true;
                                            };
-                                           vamp-plugin-sdk = prev.vamp-plugin-sdk.overrideAttrs (attrs: {
-                                             src = pkgs.fetchFromGitHub {
-                                               owner = "vamp-plugins";
-                                               repo = "vamp-plugin-sdk";
-                                               rev = "vamp-plugin-sdk-v${prev.vamp-plugin-sdk.version}";
-                                               sha256 = "1lhmskcyk7qqfikmasiw7wjry74gc8g5q6a3j1iya84yd7ll0cz6";
-                                             };
-                                           });
+#                                           vamp-plugin-sdk = prev.vamp-plugin-sdk.overrideAttrs (attrs: {
+#                                             src = pkgs.fetchFromGitHub {
+#                                               owner = "vamp-plugins";
+#                                               repo = "vamp-plugin-sdk";
+#                                               rev = "vamp-plugin-sdk-v${prev.vamp-plugin-sdk.version}";
+#                                               sha256 = "1lhmskcyk7qqfikmasiw7wjry74gc8g5q6a3j1iya84yd7ll0cz6";
+#                                             };
+#                                           });
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
 #                                           blender = blender_.overrideAttrs (attrs: {
 ##                                             colladaSupport = true;
@@ -185,16 +214,23 @@ let
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
-                                           libsForQt5 = prev.libsForQt5.overrideScope (qtfinal: qtprev: {
-                                             fcitx5-qt = qtprev.fcitx5-qt.overrideAttrs (attrs: {
-                                               src = prev.fetchFromGitHub {
-                                                 owner = "fcitx";
-                                                 repo = "fcitx5-qt";
-                                                 rev = attrs.version;
-                                                 sha256 = "sha256-bVH2US/uEZGERslnAh/fyUbzR9fK1UfG4J+mOmrIE8Y=";
-                                               };
-                                             });
-                                           });
+                                           live555 = prev.live555.overrideAttrs rec {
+                                             version = "2024.02.28";
+                                             src = prev.fetchurl {
+                                               url = "https://github.com/museoa/live555-backups/raw/tarballs/live.${version}.tar.gz";
+                                               sha256 ="sha256-5WjtkdqoofZIijunfomcEeWj6l4CUK9HRoYAle2jSx8=";
+                                             };
+                                           };
+#                                           libsForQt5 = prev.libsForQt5.overrideScope (qtfinal: qtprev: {
+#                                             fcitx5-qt = qtprev.fcitx5-qt.overrideAttrs (attrs: {
+#                                               src = prev.fetchFromGitHub {
+#                                                 owner = "fcitx";
+#                                                 repo = "fcitx5-qt";
+#                                                 rev = attrs.version;
+#                                                 sha256 = "sha256-bVH2US/uEZGERslnAh/fyUbzR9fK1UfG4J+mOmrIE8Y=";
+#                                               };
+#                                             });
+#                                           });
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
@@ -214,8 +250,10 @@ let
                                          })
                        
   ];
-
-
+  programs.ccache.packageNames = ["xgcc" "webkit" "webkitgtk" "qtwebsockets" "qtwebengine" "libsForQt5.qtwebsockets" "libsForQt5.qtwebengine" "chromium" "google-chrome" "llvmPackages_17.clang" "llvmPackages_17.llvm" "llvmPackages_17.compiler-rt" "llvmPackages_16.clang" "llvmPackages_16.llvm" "llvmPackages_16.compiler-rt"];
+  programs.ccache.enable = true;  
+  programs.ccache.cacheDir = "/ccache";
+  nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
   zramSwap.enable = true;
   zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
@@ -233,10 +271,17 @@ let
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     
     packages = with pkgs; [
+      yt-dlp
+      nethack
+#      adom
+      angband
+      frotz
+      netris
+      sfrotz
+      tintin
+      scummvm
 #      simplex-chat # not yet
-      bat
       supercollider
-      w3m
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
@@ -279,7 +324,8 @@ let
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   programs.firefox.enable = true;
-  programs.firefox.package = pkgs.firefox-devedition;
+  programs.firefox.package =(pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
+ 
   programs.direnv.enable = true;
 security.sudo = {
   enable = true;
@@ -318,6 +364,14 @@ security.pam.loginLimits = [{
 #};
 
 environment.systemPackages = with pkgs; [
+  wgetpaste
+  binwalk
+  w3m
+  clang-tools
+  bat
+  nix-tree
+  nix-du
+  nix-diff
   smartmontools
   lm_sensors
   neomutt
