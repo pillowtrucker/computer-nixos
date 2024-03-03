@@ -16,8 +16,8 @@ let
 #  nixpkgs.localSystem.platform = pkgs.lib.systems.platforms.pc64 // {
 #    gcc.arch = "zenv3";
 #    gcc.tune = "zenv3";
-# };
-#  nixpkgs.config.replaceStdenv = pkgs.clangStdenv;
+# }; # this is deprecated
+#  nixpkgs.config.replaceStdenv = pkgs.clangStdenv; # doesn't work
   nixpkgs.hostPlatform = {
     gcc.arch = "znver3";
     gcc.tune = "znver3";
@@ -46,7 +46,6 @@ let
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
 
-  # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
   # Configure network proxy if necessary
@@ -62,7 +61,6 @@ let
    };
   fonts = {
     packages = with pkgs; [
-
       hachimarupop
       migmix
       ricty
@@ -92,10 +90,8 @@ let
       };
     };
     fontDir.enable = true;
-#    enableFontDir = true;
   };
 
-  # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
@@ -104,20 +100,18 @@ let
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-skk
-#      fcitx5-mozc
+      libsForQt5.fcitx5-qt
+#      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
       fcitx5-chinese-addons
       fcitx5-configtool
-      
       fcitx5-table-extra
     ];
   };  
 
-  # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
   services.xserver.xkb.options = "compose:ralt";
 
-  # Enable CUPS to print documents.
   services.printing.enable = true;
   services.postfix.enable = true;
   services.smartd = {
@@ -128,22 +122,21 @@ let
       
     };
   };
-  # Enable sound.
-#  sound.enable = true;
-#  hardware.pulseaudio.enable = true;
+
+#  sound.enable = true; # this is alsa
+#  hardware.pulseaudio.enable = true; # this is actual pulseaudio
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
     #jack.enable = true;
   };
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
     
-  nixpkgs.overlays = [ #(import /etc/nixos/firefox-overlay.nix)
+  nixpkgs.overlays = [ 
                        (import "${fetchTarball "https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz"}/firefox-overlay.nix")
                        (import "${fetchTarball "https://github.com/nix-community/fenix/archive/main.tar.gz"}/overlay.nix")
                        (import (builtins.fetchGit {
@@ -154,83 +147,89 @@ let
                        (self: super: {
                          ccacheWrapper = super.ccacheWrapper.override {
                            extraConfig = ''
-        export CCACHE_COMPRESS=1
-        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-        export CCACHE_UMASK=007
-        if [ ! -d "$CCACHE_DIR" ];      then
-          echo "====="
-          echo "Directory '$CCAC  HE_DIR'   does not exist"
-          echo "Please create             it w        ith:"
-          echo "  sudo mkdir  -m0770 '$CCAC  HE_DIR'"
-          echo "  sudo c     hown root:nixbld '$C    CACHE_DIR'"
-          echo "=====" 
-          exit 1        
-        fi             
-        if [ !  -w "$CCACHE_DIR"  ]; then
-          echo "   ====="        
-          echo "Dir ectory '$CCACHE_DIR' is   not accessible for user $(whoami)"
-          echo "Plea       se               verify its access permissions"
-          echo "====="        
-          exit 1            
-        fi     
-      '';      
+                             export CCACHE_COMPRESS=1
+                             export CCACHE_DIR="${config.programs.ccache.cacheDir}"
+                             export CCACHE_UMASK=007
+                             if [ ! -d "$CCACHE_DIR" ];      then
+                               echo "====="
+                               echo "Directory '$CCACHE_DIR' does not exist"
+                               echo "Please create it with:"
+                               echo "sudo mkdir -m0770 '$CCACHE_DIR'"
+                               echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+                               echo "=====" 
+                               exit 1        
+                             fi             
+                             if [ ! -w "$CCACHE_DIR" ]; then
+                               echo "====="        
+                               echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+                               echo "Please verify its access permissions"
+                               echo "====="       
+                               exit 1            
+                             fi     
+                           '';      
                          };
                        })
-                       #                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.impureUseNativeOptimizations pkgs'.clangStdenv;
-#                                     })
-#                       (final: prev: let pkgs' = import <nixpkgs> {}; in { stdenv = pkgs'.clangStdenv;
-#                                     })
-#                       (final: prev: {
-#                         config = prev.config.override (attrs: { replaceStdenv = ({ pkgs }: pkgs.impureUseNativeOptimizations pkgs.Clangstdenv);});
-#                                     })
-#                     (_: super: let fenix = import (fetchTarball "https://github.com/nix-community/fenix/archive/main.tar.gz") { };
-#                                    pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system}; in fenix.overlays.default pkgs pkgs)
                        (final: prev: let pkgs = import <nixpkgs> {}; in {
                                            opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                            });
                                            blender = prev.blender.override {
+                                             stdenv = final.ccacheStdenv;
                                              colladaSupport = true;
                                            };
-#                                           vamp-plugin-sdk = prev.vamp-plugin-sdk.overrideAttrs (attrs: {
-#                                             src = pkgs.fetchFromGitHub {
-#                                               owner = "vamp-plugins";
-#                                               repo = "vamp-plugin-sdk";
-#                                               rev = "vamp-plugin-sdk-v${prev.vamp-plugin-sdk.version}";
-#                                               sha256 = "1lhmskcyk7qqfikmasiw7wjry74gc8g5q6a3j1iya84yd7ll0cz6";
-#                                             };
-#                                           });
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
-#                                           blender = blender_.overrideAttrs (attrs: {
-##                                             colladaSupport = true;
-#                                             cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
-#                                             buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
-#                                           });
-                                           tzdata = prev.tzdata.overrideAttrs(attrs: {
+                                           
+                                           tzdata = prev.tzdata.overrideAttrs (attrs: {
                                              doCheck = false;
+                                             checkTarget = "";
                                            });
                                            haskellPackages = prev.haskellPackages.override {
                                              overrides = haskellSelf: haskellSuper: {
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
-                                           live555 = prev.live555.overrideAttrs rec {
+                                           live555 = prev.live555.overrideAttrs (attrs: rec {
                                              version = "2024.02.28";
                                              src = prev.fetchurl {
                                                url = "https://github.com/museoa/live555-backups/raw/tarballs/live.${version}.tar.gz";
                                                sha256 ="sha256-5WjtkdqoofZIijunfomcEeWj6l4CUK9HRoYAle2jSx8=";
                                              };
-                                           };
-#                                           libsForQt5 = prev.libsForQt5.overrideScope (qtfinal: qtprev: {
-#                                             fcitx5-qt = qtprev.fcitx5-qt.overrideAttrs (attrs: {
-#                                               src = prev.fetchFromGitHub {
-#                                                 owner = "fcitx";
-#                                                 repo = "fcitx5-qt";
-#                                                 rev = attrs.version;
-#                                                 sha256 = "sha256-bVH2US/uEZGERslnAh/fyUbzR9fK1UfG4J+mOmrIE8Y=";
-#                                               };
-#                                             });
+                                           });
+                                           ccache = prev.ccache.overrideAttrs (attrs: rec {
+                                             version = prev.ccache.version;
+                                             src = prev.fetchFromGitHub {
+                                               owner = "ccache";
+                                               repo = "ccache";
+                                               rev = "refs/tags/v${version}";
+                                               sha256 = "sha256-Rhd2cEAEhBYIl5Ej/A5LXRb7aBMLgcwW6zxk4wYCPVM=";
+                                             };});
+                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
+                                             version = "0.7.4";
+                                             src = prev.fetchurl {
+                                               url = "https://ftp2.osuosl.org/pub/blfs/conglomeration/a52dec/a52dec-${version}.tar.gz";
+                                               sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
+                                             };
+                                           });
+#                                           llvmPackages_17 = prev.llvmPackages_17.overrideAttrs (llvm17-final: llvm17-prev: {
+#                                             llvm = llvm17-prev.llvm.override {stdenv = final.ccacheStdenv;};
+#                                             clang = llvm17-prev.clang.override {stdenv = final.ccacheStdenv;};
+#                                             compiler-rt = llvm17-prev.compiler-rt.override {stdenv = final.ccacheStdenv;};
 #                                           });
+#                                           llvmPackages_16 = prev.llvmPackages_16.overrideAttrs (llvm16-final: llvm16-prev: {
+#                                             llvm = llvm16-prev.llvm.override {stdenv = final.ccacheStdenv;};
+#                                             clang = llvm16-prev.clang.override {stdenv = final.ccacheStdenv;};
+#                                             compiler-rt = llvm16-prev.compiler-rt.override {stdenv = final.ccacheStdenv;};
+#                                           });
+                                           libsForQt5 = prev.libsForQt5.overrideScope (qt5-final: qt5-prev: {
+                                             qtwebkit = qt5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebengine = qt5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebsockets = qt5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                           });
+                                           plasma5Packages = prev.plasma5Packages.overrideScope (plasma5-final: plasma5-prev: {
+                                             qtwebkit = plasma5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebengine = plasma5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebsockets = plasma5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                           });
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
@@ -250,30 +249,27 @@ let
                                          })
                        
   ];
-  programs.ccache.packageNames = ["xgcc" "webkit" "webkitgtk" "qtwebsockets" "qtwebengine" "libsForQt5.qtwebsockets" "libsForQt5.qtwebengine" "chromium" "google-chrome" "llvmPackages_17.clang" "llvmPackages_17.llvm" "llvmPackages_17.compiler-rt" "llvmPackages_16.clang" "llvmPackages_16.llvm" "llvmPackages_16.compiler-rt"];
-  programs.ccache.enable = true;  
-  programs.ccache.cacheDir = "/ccache";
-  nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
+#  programs.ccache.packageNames = ["xgcc" "webkit" "webkitgtk" "qtwebsockets" "qtwebengine" "qtwebkit" "libsForQt5.qtwebkit" "qt6Packages.qtwebkit" "libsForQt5.qtwebsockets" "qt6Packages.qtwebengine" "qt6Packages.qtwebsockets" "libsForQt6.qtwebengine" "chromium" "google-chrome" "llvmPackages_17.clang" "llvmPackages_17.llvm" "llvmPackages_17.compiler-rt" "llvmPackages_16.clang" "llvmPackages_16.llvm" "llvmPackages_16.compiler-rt"]; # TODO: figure out which of those even make sense and/or actually work
+  programs.ccache.packageNames = ["chromium" "webkitgtk"];
+#  programs.ccache.enable = true;  
+#  programs.ccache.cacheDir = "/ccache";
+#  nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
   zramSwap.enable = true;
   zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
-#  nixpkgs.config.replaceStdenv = pkgs.impureUseNativeOptimizations pkgs.Clangstdenv;
-#  nixpkgs.config.replaceStdenv = llvmPackages_17.stdenv;
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   users.users.root.initialHashedPassword = "";
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.wrath = {
     uid = 1000;
     initialHashedPassword = "";
     isNormalUser = true;
     home = "/home/wrath";
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-    
+    extraGroups = [ "wheel" ];
     packages = with pkgs; [
       yt-dlp
       nethack
-#      adom
+#      adom # broken
       angband
       frotz
       netris
@@ -285,23 +281,23 @@ let
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
-      telegram-desktop
+      #      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
+      (telegram-desktop.override {stdenv = ccacheStdenv;})
       (blender.overrideAttrs (attrs: {colladaSupport = true;
                                       cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
                                       buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
                                      }))
       ldtk
       (strawberry.override {stdenv = llvmPackages_17.stdenv;})
-#      rustup
-#      (yakuake.override {stdenv = llvmPackages_17.stdenv;})
       yakuake
       (tree.override {stdenv = llvmPackages_17.stdenv;})
       (qbittorrent.override {stdenv = llvmPackages_17.stdenv;})
       (furnace.override {stdenv = llvmPackages_17.stdenv;})
       (nmap.override {stdenv = llvmPackages_17.stdenv;})
-#      chromium
+#      chromium # nah
       (cmake.override {stdenv = llvmPackages_17.stdenv;})
-      (element-desktop.override {stdenv = llvmPackages_17.stdenv;})
+      (element-desktop.override {stdenv = ccacheStdenv;})
+#      (element-desktop.override {stdenv = llvmPackages_17.stdenv;})
       fontforge
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
@@ -309,25 +305,17 @@ let
 #      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
       nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
       mpv
-      #libreoffice-qt
-#      (lutris.override {stdenv = llvmPackages_17.stdenv;})
       lutris
-#      (lyx.override {stdenv = llvmPackages_17.stdenv;})
       lyx
-#      (mpv.override {stdenv = llvmPackages_17.stdenv;})
-      
 #      vscode # I probably don't need this since I got gluon lsp working with emacs
     ];
   };
   services.emacs.enable = true;
-#  services.emacs.package = import /home/wrath/.emacs.d { pkgs = pkgs; };
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   programs.firefox.enable = true;
-  programs.firefox.package =(pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
- 
+  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
+#  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
   programs.direnv.enable = true;
-security.sudo = {
+  security.sudo = {
   enable = true;
   wheelNeedsPassword = false;
 };
@@ -383,10 +371,10 @@ environment.systemPackages = with pkgs; [
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-    (pkgs.emacsWithPackagesFromUsePackage {
-      package = pkgs.emacs;  # replace with pkgs.emacsPgtk, or another version if desired.
-      config = /home/wrath/.emacs.d/init.el;})
-    (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
+  (pkgs.emacsWithPackagesFromUsePackage {
+    package = pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
+    config = /home/wrath/.emacs.d/init.el;})
+  (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
 #  (fd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                  # faster projectile indexing
   fd
@@ -433,8 +421,6 @@ environment.systemPackages = with pkgs; [
   services.supergfxd.enable = true;
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
 
-  
-  # Enable OpenGL
   hardware.opengl = {
     enable = true;
     driSupport = true;
@@ -515,4 +501,3 @@ environment.systemPackages = with pkgs; [
   system.stateVersion = "24.05"; # Did you read the comment?
 
 }
-
