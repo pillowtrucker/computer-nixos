@@ -147,26 +147,26 @@ let
                        (self: super: {
                          ccacheWrapper = super.ccacheWrapper.override {
                            extraConfig = ''
-                             export CCACHE_COMPRESS=1
-                             export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-                             export CCACHE_UMASK=007
-                             if [ ! -d "$CCACHE_DIR" ];      then
-                               echo "====="
-                               echo "Directory '$CCACHE_DIR' does not exist"
-                               echo "Please create it with:"
-                               echo "sudo mkdir -m0770 '$CCACHE_DIR'"
-                               echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-                               echo "=====" 
-                               exit 1        
-                             fi             
-                             if [ ! -w "$CCACHE_DIR" ]; then
-                               echo "====="        
-                               echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-                               echo "Please verify its access permissions"
-                               echo "====="       
-                               exit 1            
-                             fi     
-                           '';      
+        export CCACHE_COMPRESS=1
+        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
+        export CCACHE_UMASK=007
+        if [ ! -d "$CCACHE_DIR" ]; then
+          echo "====="
+          echo "Directory '$CCACHE_DIR' does not exist"
+          echo "Please create it with:"
+          echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
+          echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+          echo "====="
+          exit 1
+        fi
+        if [ ! -w "$CCACHE_DIR" ]; then
+          echo "====="
+          echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+          echo "Please verify its access permissions"
+          echo "====="
+          exit 1
+        fi
+      '';
                          };
                        })
                        (final: prev: let pkgs = import <nixpkgs> {}; in {
@@ -174,7 +174,7 @@ let
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                            });
                                            blender = prev.blender.override {
-                                             stdenv = final.ccacheStdenv;
+#                                             stdenv = final.ccacheStdenv;
                                              colladaSupport = true;
                                            };
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
@@ -203,6 +203,7 @@ let
                                                rev = "refs/tags/v${version}";
                                                sha256 = "sha256-Rhd2cEAEhBYIl5Ej/A5LXRb7aBMLgcwW6zxk4wYCPVM=";
                                              };});
+                                           nodejs = prev.nodejs.overrideAttrs {stdenv = final.ccacheStdenv;};
                                            a52dec = prev.a52dec.overrideAttrs (attrs: rec {
                                              version = "0.7.4";
                                              src = prev.fetchurl {
@@ -220,12 +221,36 @@ let
 #                                             clang = llvm16-prev.clang.override {stdenv = final.ccacheStdenv;};
 #                                             compiler-rt = llvm16-prev.compiler-rt.override {stdenv = final.ccacheStdenv;};
 #                                           });
+#                                           llvmPackages_17 = prev.llvmPackages_17 // {
+#                                             llvm = prev.llvmPackages_17.llvm.override {stdenv = final.ccacheStdenv;};
+#                                             clang = prev.llvmPackages_17.clang.override {stdenv = final.ccacheStdenv;};
+#                                             compiler-rt = prev.llvmPackages_17.compiler-rt.override {stdenv = final.ccacheStdenv;};
+#                                           };
+#                                           llvmPackages_16 = prev.llvmPackages_16 // {
+#                                             llvm = prev.llvmPackages_16.llvm.override {stdenv = final.ccacheStdenv;};
+#                                             clang = prev.llvmPackages_16.clang.override {stdenv = final.ccacheStdenv;};
+#                                             compiler-rt = prev.llvmPackages_16.compiler-rt.override {stdenv = final.ccacheStdenv;};
+#                                           };
                                            libsForQt5 = prev.libsForQt5.overrideScope (qt5-final: qt5-prev: {
+                                             qtwebview = qt5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
                                              qtwebkit = qt5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
                                              qtwebengine = qt5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
                                              qtwebsockets = qt5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
                                            });
+                                           libsForQt515 = prev.libsForQt5.overrideScope (qt515-final: qt515-prev: {
+                                             qtwebview = qt515-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
+                                             qtwebkit = qt515-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebengine = qt515-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebsockets = qt515-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                           });
+                                           qt6Packages = prev.qt6Packages.overrideScope (qt6-final: qt6-prev: {
+                                             qtwebview = qt6-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
+                                             qtwebkit = qt6-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebengine = qt6-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                             qtwebsockets = qt6-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+                                           });
                                            plasma5Packages = prev.plasma5Packages.overrideScope (plasma5-final: plasma5-prev: {
+                                             qtwebview = plasma5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
                                              qtwebkit = plasma5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
                                              qtwebengine = plasma5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
                                              qtwebsockets = plasma5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
@@ -250,10 +275,10 @@ let
                        
   ];
 #  programs.ccache.packageNames = ["xgcc" "webkit" "webkitgtk" "qtwebsockets" "qtwebengine" "qtwebkit" "libsForQt5.qtwebkit" "qt6Packages.qtwebkit" "libsForQt5.qtwebsockets" "qt6Packages.qtwebengine" "qt6Packages.qtwebsockets" "libsForQt6.qtwebengine" "chromium" "google-chrome" "llvmPackages_17.clang" "llvmPackages_17.llvm" "llvmPackages_17.compiler-rt" "llvmPackages_16.clang" "llvmPackages_16.llvm" "llvmPackages_16.compiler-rt"]; # TODO: figure out which of those even make sense and/or actually work
-  programs.ccache.packageNames = ["chromium" "webkitgtk"];
-#  programs.ccache.enable = true;  
-#  programs.ccache.cacheDir = "/ccache";
-#  nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
+  programs.ccache.packageNames = ["chromium" "webkitgtk" "xgcc"];
+  programs.ccache.enable = true;  
+  programs.ccache.cacheDir = "/ccache";
+  nix.settings.extra-sandbox-paths = [ (toString config.programs.ccache.cacheDir) ];
   zramSwap.enable = true;
   zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
@@ -267,6 +292,8 @@ let
     home = "/home/wrath";
     extraGroups = [ "wheel" ];
     packages = with pkgs; [
+      gargoyle
+      ffmpeg
       yt-dlp
       nethack
 #      adom # broken
