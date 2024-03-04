@@ -144,31 +144,31 @@ let
                          ref = "master";
 #                         rev = "bfc8f6edcb7bcf3cf24e4a7199b3f6fed96aaecf"; # change the revision
                        }))
-                       (self: super: {
-                         ccacheWrapper = super.ccacheWrapper.override {
-                           extraConfig = ''
-        export CCACHE_COMPRESS=1
-        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-        export CCACHE_UMASK=007
-        if [ ! -d "$CCACHE_DIR" ]; then
-          echo "====="
-          echo "Directory '$CCACHE_DIR' does not exist"
-          echo "Please create it with:"
-          echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
-          echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-          echo "====="
-          exit 1
-        fi
-        if [ ! -w "$CCACHE_DIR" ]; then
-          echo "====="
-          echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-          echo "Please verify its access permissions"
-          echo "====="
-          exit 1
-        fi
-      '';
-                         };
-                       })
+#                       (self: super: {
+#                         ccacheWrapper = super.ccacheWrapper.override {
+#                           extraConfig = ''
+#        export CCACHE_COMPRESS=1
+#        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
+#        export CCACHE_UMASK=007
+#        if [ ! -d "$CCACHE_DIR" ]; then
+#          echo "====="
+#          echo "Directory '$CCACHE_DIR' does not exist"
+#          echo "Please create it with:"
+#          echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
+#          echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+#          echo "====="
+#          exit 1
+#        fi
+#        if [ ! -w "$CCACHE_DIR" ]; then
+#          echo "====="
+#          echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+#          echo "Please verify its access permissions"
+#          echo "====="
+#          exit 1
+#        fi
+#      '';
+#                         };
+#                       })
                        (final: prev: let pkgs = import <nixpkgs> {}; in {
                                            opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
@@ -195,15 +195,15 @@ let
                                                sha256 ="sha256-5WjtkdqoofZIijunfomcEeWj6l4CUK9HRoYAle2jSx8=";
                                              };
                                            });
-                                           ccache = prev.ccache.overrideAttrs (attrs: rec {
-                                             version = prev.ccache.version;
-                                             src = prev.fetchFromGitHub {
-                                               owner = "ccache";
-                                               repo = "ccache";
-                                               rev = "refs/tags/v${version}";
-                                               sha256 = "sha256-Rhd2cEAEhBYIl5Ej/A5LXRb7aBMLgcwW6zxk4wYCPVM=";
-                                             };});
-                                           nodejs = prev.nodejs.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                           ccache = prev.ccache.overrideAttrs (attrs: rec {
+#                                             version = prev.ccache.version;
+#                                             src = prev.fetchFromGitHub {
+#                                               owner = "ccache";
+#                                               repo = "ccache";
+#                                               rev = "refs/tags/v${version}";
+#                                               sha256 = "sha256-Rhd2cEAEhBYIl5Ej/A5LXRb7aBMLgcwW6zxk4wYCPVM=";
+#                                             };});
+#                                           nodejs = prev.nodejs.overrideAttrs {stdenv = final.ccacheStdenv;};
                                            a52dec = prev.a52dec.overrideAttrs (attrs: rec {
                                              version = "0.7.4";
                                              src = prev.fetchurl {
@@ -211,6 +211,9 @@ let
                                                sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
                                              };
                                            });
+ #                                          element-desktop = prev.element-desktop.override {stdenv = final.ccacheStdenv;};
+ #                                          electron = prev.electron.override {stdenv = final.ccacheStdenv;};
+ #                                          electron-unwrapped = prev.electron-unwrapped.override {stdenv = final.ccacheStdenv;};
 #                                           llvmPackages_17 = prev.llvmPackages_17.overrideAttrs (llvm17-final: llvm17-prev: {
 #                                             llvm = llvm17-prev.llvm.override {stdenv = final.ccacheStdenv;};
 #                                             clang = llvm17-prev.clang.override {stdenv = final.ccacheStdenv;};
@@ -231,30 +234,31 @@ let
 #                                             clang = prev.llvmPackages_16.clang.override {stdenv = final.ccacheStdenv;};
 #                                             compiler-rt = prev.llvmPackages_16.compiler-rt.override {stdenv = final.ccacheStdenv;};
 #                                           };
-                                           libsForQt5 = prev.libsForQt5.overrideScope (qt5-final: qt5-prev: {
-                                             qtwebview = qt5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-                                             qtwebkit = qt5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebengine = qt5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebsockets = qt5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                           });
-                                           libsForQt515 = prev.libsForQt5.overrideScope (qt515-final: qt515-prev: {
-                                             qtwebview = qt515-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-                                             qtwebkit = qt515-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebengine = qt515-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebsockets = qt515-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                           });
-                                           qt6Packages = prev.qt6Packages.overrideScope (qt6-final: qt6-prev: {
-                                             qtwebview = qt6-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-                                             qtwebkit = qt6-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebengine = qt6-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebsockets = qt6-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                           });
-                                           plasma5Packages = prev.plasma5Packages.overrideScope (plasma5-final: plasma5-prev: {
-                                             qtwebview = plasma5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-                                             qtwebkit = plasma5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebengine = plasma5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                             qtwebsockets = plasma5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-                                           });
+                                           
+#                                           libsForQt5 = prev.libsForQt5.overrideScope (qt5-final: qt5-prev: {
+#                                             qtwebview = qt5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
+#                                             qtwebkit = qt5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebengine = qt5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebsockets = qt5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                           });
+#                                           libsForQt515 = prev.libsForQt5.overrideScope (qt515-final: qt515-prev: {
+#                                             qtwebview = qt515-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
+#                                             qtwebkit = qt515-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebengine = qt515-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebsockets = qt515-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                           });
+#                                           qt6Packages = prev.qt6Packages.overrideScope (qt6-final: qt6-prev: {
+#                                             qtwebview = qt6-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
+#                                             qtwebkit = qt6-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebengine = qt6-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebsockets = qt6-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                           });
+#                                           plasma5Packages = prev.plasma5Packages.overrideScope (plasma5-final: plasma5-prev: {
+#                                             qtwebview = plasma5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
+#                                             qtwebkit = plasma5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebengine = plasma5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                             qtwebsockets = plasma5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
+#                                           });
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
@@ -275,10 +279,10 @@ let
                        
   ];
 #  programs.ccache.packageNames = ["xgcc" "webkit" "webkitgtk" "qtwebsockets" "qtwebengine" "qtwebkit" "libsForQt5.qtwebkit" "qt6Packages.qtwebkit" "libsForQt5.qtwebsockets" "qt6Packages.qtwebengine" "qt6Packages.qtwebsockets" "libsForQt6.qtwebengine" "chromium" "google-chrome" "llvmPackages_17.clang" "llvmPackages_17.llvm" "llvmPackages_17.compiler-rt" "llvmPackages_16.clang" "llvmPackages_16.llvm" "llvmPackages_16.compiler-rt"]; # TODO: figure out which of those even make sense and/or actually work
-  programs.ccache.packageNames = ["chromium" "webkitgtk" "xgcc"];
-  programs.ccache.enable = true;  
-  programs.ccache.cacheDir = "/ccache";
-  nix.settings.extra-sandbox-paths = [ (toString config.programs.ccache.cacheDir) ];
+#  programs.ccache.packageNames = ["chromium" "webkitgtk" "xgcc"];
+#  programs.ccache.enable = true;  
+#  programs.ccache.cacheDir = "/ccache";
+#  nix.settings.extra-sandbox-paths = [ (toString config.programs.ccache.cacheDir) ];
   zramSwap.enable = true;
   zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
@@ -308,8 +312,8 @@ let
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
-      #      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
-      (telegram-desktop.override {stdenv = ccacheStdenv;})
+      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
+#      (telegram-desktop.override {stdenv = ccacheStdenv;})
       (blender.overrideAttrs (attrs: {colladaSupport = true;
                                       cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
                                       buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
@@ -323,7 +327,8 @@ let
       (nmap.override {stdenv = llvmPackages_17.stdenv;})
 #      chromium # nah
       (cmake.override {stdenv = llvmPackages_17.stdenv;})
-      (element-desktop.override {stdenv = ccacheStdenv;})
+      element-desktop
+      #(element-desktop.overrideAttrs {stdenv = ccacheStdenv;})
 #      (element-desktop.override {stdenv = llvmPackages_17.stdenv;})
       fontforge
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
@@ -339,8 +344,8 @@ let
   };
   services.emacs.enable = true;
   programs.firefox.enable = true;
-  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
-#  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
+#  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
+  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
   programs.direnv.enable = true;
   security.sudo = {
   enable = true;
@@ -399,7 +404,7 @@ environment.systemPackages = with pkgs; [
   nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (pkgs.emacsWithPackagesFromUsePackage {
-    package = pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
+    package = pkgs.emacs; #pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
     config = /home/wrath/.emacs.d/init.el;})
   (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
