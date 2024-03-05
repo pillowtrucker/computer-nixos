@@ -312,7 +312,8 @@ let
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
-      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;})
+      telegram-desktop
+#      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;}) # llvm build fails
 #      (telegram-desktop.override {stdenv = ccacheStdenv;})
       (blender.overrideAttrs (attrs: {colladaSupport = true;
                                       cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
@@ -384,6 +385,10 @@ security.pam.loginLimits = [{
 #};
 
 environment.systemPackages = with pkgs; [
+#  hnix
+#  qemu
+  niv
+  nixfmt
   wgetpaste
   binwalk
   w3m
