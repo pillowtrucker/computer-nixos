@@ -61,6 +61,13 @@ let
    };
   fonts = {
     packages = with pkgs; [
+      noto-fonts-emoji
+      liberation_ttf
+  #  fira-code
+      fira-code-symbols
+      mplus-outline-fonts.githubRelease
+      dina-font
+      proggyfonts
       hachimarupop
       migmix
       ricty
@@ -387,6 +394,8 @@ security.pam.loginLimits = [{
 environment.systemPackages = with pkgs; [
 #  hnix
 #  qemu
+  (builtins.getFlake "path:/home/wrath/simplex-chat").packages.x86_64-linux
+  (builtins.getFlake "path:/home/wrath/hnix").defaultPackage
   niv
   nixfmt
   wgetpaste
