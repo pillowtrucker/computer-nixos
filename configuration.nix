@@ -63,6 +63,9 @@ let
    };
   fonts = {
     packages = with pkgs; [
+      source-han-mono
+      source-han-sans
+      source-han-serif
       corefonts
       dejavu_fonts
       freefont_ttf
@@ -94,15 +97,17 @@ let
       doulos-sil
       source-sans-pro
       source-serif-pro
-      (nerdfonts.override { fonts = [ "Iosevka" "FiraCode" "Inconsolata" "JetBrainsMono" "Hasklig" "Meslo" ]; })
+      nerdfonts # just use all of them..
+#      (nerdfonts.override { fonts = [ "Iosevka" "FiraCode" "Inconsolata" "JetBrainsMono" "Hasklig" "Meslo" ]; })
     ];
-    fontconfig = {
-      defaultFonts = {
-        monospace = [ "Hasklig" ];
-        sansSerif = [ "FiraGO" "Source Sans Pro" ];
-        serif = [ "ETBembo" "Source Serif Pro" ];
-      };
-    };
+#    fontconfig = {
+#      defaultFonts = {
+#        monospace = [ "Hasklig" ];
+#        sansSerif = [ "FiraGO" "Source Sans Pro" ];
+#        serif = [ "ETBembo" "Source Serif Pro" ];
+#      };
+#    };
+    fontconfig.enable = true;
     fontDir.enable = true;
   };
 
@@ -451,6 +456,8 @@ environment.systemPackages = with pkgs; [
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
 #  (fd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                  # faster projectile indexing
   fd
+  imagemagick
+  sysstat
 #  (imagemagick.override {stdenv = pkgs.llvmPackages_17.stdenv;})         # for image-dired
   (zstd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
