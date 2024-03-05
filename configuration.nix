@@ -301,8 +301,10 @@ let
     initialHashedPassword = "";
     isNormalUser = true;
     home = "/home/wrath";
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "libvirtd" "adbusers"];
     packages = with pkgs; [
+      (builtins.getFlake "path:/home/wrath/simplex-chat").packages.x86_64-linux."exe:simplex-chat"
+      android-studio
       gargoyle
       ffmpeg
       yt-dlp
@@ -390,12 +392,27 @@ security.pam.loginLimits = [{
     
 #  };
 #};
+programs.adb.enable = true;
+virtualisation.libvirtd  = {
+  enable = true;
+  qemu = {
+    package = pkgs.qemu_kvm;
+    runAsRoot = true;
+    swtpm.enable = true;
+    ovmf = {
+      enable = true;
+      packages = [(pkgs.OVMF.override {
+        secureBoot = true;
+        tpmSupport = true;
+      }).fd];
+    };
+  };
+};
+programs.virt-manager.enable = true;
 
 environment.systemPackages = with pkgs; [
-#  hnix
-#  qemu
-  (builtins.getFlake "path:/home/wrath/simplex-chat").packages.x86_64-linux
-  (builtins.getFlake "path:/home/wrath/hnix").defaultPackage
+
+  (builtins.getFlake "path:/etc/nixos/hnix").defaultPackage.x86_64-linux
   niv
   nixfmt
   wgetpaste
