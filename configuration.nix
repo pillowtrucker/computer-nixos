@@ -5,6 +5,8 @@
 { config, lib, pkgs, programs, ... }:
 let
   nix-gaming = import (builtins.fetchTarball "https://github.com/fufexan/nix-gaming/archive/master.tar.gz");
+  inochi-nixpkgs = import "/etc/nixos/inochi-nixpkgs" { };
+#  nixpkgs-inochi = import (builtins.fetchTarball "https://github.com/TomaSajt/nixpkgs/archive/refs/heads/inochi-session.tar.gz")
   in
 {
   imports =
@@ -61,6 +63,11 @@ let
    };
   fonts = {
     packages = with pkgs; [
+      corefonts
+      dejavu_fonts
+      freefont_ttf
+      gyre-fonts # TrueType substitutes for standard PostScript fonts
+      unifont
       noto-fonts-emoji
       liberation_ttf
   #  fira-code
@@ -303,6 +310,9 @@ let
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
     packages = with pkgs; [
+      inochi-nixpkgs.inochi-session
+      inochi-nixpkgs.inochi-creator
+      gitAndTools.gh
       (builtins.getFlake "path:/home/wrath/simplex-chat").packages.x86_64-linux."exe:simplex-chat"
       android-studio
       gargoyle

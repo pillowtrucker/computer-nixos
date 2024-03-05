@@ -4,3 +4,6 @@
 [submodule "hnix"]
 	path = hnix
 	url = https://github.com/haskell-nix/hnix
+[submodule "inochi-nixpkgs"]
+	path = inochi-nixpkgs
+	url = https://github.com/TomaSajt/nixpkgs
