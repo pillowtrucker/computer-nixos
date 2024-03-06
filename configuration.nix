@@ -341,7 +341,7 @@ let
       sfrotz
       tintin
       scummvm
-      supercollider
+#      supercollider
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
@@ -435,7 +435,9 @@ virtualisation.libvirtd  = {
 programs.virt-manager.enable = true;
 
 environment.systemPackages = with pkgs; [
-
+  clasp
+  angle-grinder
+  xclip
   (builtins.getFlake "path:/etc/nixos/hnix").defaultPackage.x86_64-linux
   niv
   nixfmt
