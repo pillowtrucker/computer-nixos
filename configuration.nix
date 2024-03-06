@@ -63,6 +63,8 @@ let
    };
   fonts = {
     packages = with pkgs; [
+      material-icons
+      material-design-icons
       powerline-fonts
       terminus_font
       kawkab-mono-font
