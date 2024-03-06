@@ -281,12 +281,12 @@ let
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
-                                                 constantly = python-prev.constantly.overridePythonAttrs (oldAttrs: {src = pkgs.fetchFromGitHub {
-                                                   owner = "twisted";
-                                                   repo = "constantly";
-                                                   rev = "refs/tags/${python-prev.constantly.version}";
-                                                   hash = "sha256-yXPHQP4B83PuRNvDBnRTx/MaPaQxCl1g5Xrle+N/d7I=";
-                                                 };});
+#                                                 constantly = python-prev.constantly.overridePythonAttrs (oldAttrs: {src = pkgs.fetchFromGitHub {
+#                                                   owner = "twisted";
+#                                                   repo = "constantly";
+#                                                   rev = "refs/tags/${python-prev.constantly.version}";
+#                                                   hash = "sha256-yXPHQP4B83PuRNvDBnRTx/MaPaQxCl1g5Xrle+N/d7I=";
+#                                                 };});
                                                  numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
                                                    disabledTests = oldAttrs.disabledTests ++ ["test_umath_accuracy" "TestAccuracy::test_validate_transcendentals" "test_validate_transcendentals"];
                                                  });
