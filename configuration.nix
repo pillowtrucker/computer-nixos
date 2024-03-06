@@ -63,6 +63,19 @@ let
    };
   fonts = {
     packages = with pkgs; [
+      powerline-fonts
+      terminus_font
+      kawkab-mono-font
+      roboto
+      roboto-serif
+      nika-fonts
+      roboto-mono
+      last-resort
+      inconsolata
+      lxgw-wenkai
+      hack-font
+      cantarell-fonts
+      redhat-official-fonts
       source-han-mono
       source-han-sans
       source-han-serif
