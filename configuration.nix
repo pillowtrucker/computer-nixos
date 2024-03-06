@@ -435,6 +435,7 @@ virtualisation.libvirtd  = {
 programs.virt-manager.enable = true;
 
 environment.systemPackages = with pkgs; [
+  filelight
   clasp
   angle-grinder
   xclip
