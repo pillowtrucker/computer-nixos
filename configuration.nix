@@ -2,12 +2,12 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, programs, ... }:
-let
-  nix-gaming = import (builtins.fetchTarball "https://github.com/fufexan/nix-gaming/archive/master.tar.gz");
-  inochi-nixpkgs = import "/etc/nixos/inochi-nixpkgs" { };
-#  nixpkgs-inochi = import (builtins.fetchTarball "https://github.com/TomaSajt/nixpkgs/archive/refs/heads/inochi-session.tar.gz")
-  in
+{ config, lib, pkgs, programs, inputs, ... }:
+#let
+#  inochi-nixpkgs = import "/etc/nixos/inochi-nixpkgs" { };
+  
+#  inochi-nixpkgs = import inputs.nixpkgs-inochi {};
+#in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -30,7 +30,10 @@ let
 #    gcc.tune = "znver3";
 #    system = "x86_64-linux";
 #  }; # this might be needed to unjank some builds # or it actually makes a different package fail..
-  
+  nixpkgs.config.permittedInsecurePackages = [
+    "nix-2.16.2"
+  ];
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -171,13 +174,9 @@ let
   services.xserver.libinput.enable = true;
     
   nixpkgs.overlays = [ 
-                       (import "${fetchTarball "https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz"}/firefox-overlay.nix")
-                       (import "${fetchTarball "https://github.com/nix-community/fenix/archive/main.tar.gz"}/overlay.nix")
-                       (import (builtins.fetchGit {
-                         url = "https://github.com/nix-community/emacs-overlay.git";
-                         ref = "master";
-#                         rev = "bfc8f6edcb7bcf3cf24e4a7199b3f6fed96aaecf"; # change the revision
-                       }))
+                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
+                       (import "${inputs.fenix}/overlay.nix")
+                       (import inputs.emacs-overlay)
 #                       (self: super: {
 #                         ccacheWrapper = super.ccacheWrapper.override {
 #                           extraConfig = ''
@@ -203,7 +202,7 @@ let
 #      '';
 #                         };
 #                       })
-                       (final: prev: let pkgs = import <nixpkgs> {}; in {
+                       (final: prev: let pkgs = import inputs.nixpkgs {system = config.system;}; in {
                                            opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                            });
@@ -323,12 +322,14 @@ let
     isNormalUser = true;
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
-    packages = with pkgs; [
+    packages = with pkgs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
       inochi-nixpkgs.inochi-session
       inochi-nixpkgs.inochi-creator
+#      inputs.nixpkgs-inochi.legacyPackages.${system}.inochi-session
+#      inputs.nixpkgs-inochi.legacyPackages.${system}.inochi-creator
       gitAndTools.gh
-      (builtins.getFlake "path:/home/wrath/simplex-chat").packages.x86_64-linux."exe:simplex-chat"
-      (builtins.getFlake "path:/home/wrath/gluon_language-server").packages.x86_64-linux.onCrane
+      inputs.simplex-chat.packages.${system}."exe:simplex-chat"
+      inputs.gluon_language-server.packages.${system}.onCrane
       android-studio
       gargoyle
       ffmpeg
@@ -369,7 +370,7 @@ let
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
 #      libreoffice-bin # fuck this, I barely even use this thing
 #      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
-      nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
+      inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
       mpv
       lutris
       lyx
@@ -385,6 +386,7 @@ let
   enable = true;
   wheelNeedsPassword = false;
 };
+
 security.pam.loginLimits = [{
     domain = "*";
     type = "soft";
@@ -439,7 +441,7 @@ environment.systemPackages = with pkgs; [
   clasp
   angle-grinder
   xclip
-  (builtins.getFlake "path:/etc/nixos/hnix").defaultPackage.x86_64-linux
+  inputs.hnix.defaultPackage.x86_64-linux
   niv
   nixfmt
   wgetpaste
@@ -461,9 +463,10 @@ environment.systemPackages = with pkgs; [
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (pkgs.emacsWithPackagesFromUsePackage {
-    package = pkgs.emacs; #pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
-    config = /home/wrath/.emacs.d/init.el;})
+#  (pkgs.emacsWithPackagesFromUsePackage {
+#    package = pkgs.emacs; #pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
+#    config = /home/wrath/.emacs.d/init.el;})
+#  emacs
   (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
 #  (fd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                  # faster projectile indexing
