@@ -20,6 +20,7 @@
 #    gcc.tune = "zenv3";
 # }; # this is deprecated
 #  nixpkgs.config.replaceStdenv = pkgs.clangStdenv; # doesn't work
+  
   nixpkgs.hostPlatform = {
     gcc.arch = "znver3";
     gcc.tune = "znver3";

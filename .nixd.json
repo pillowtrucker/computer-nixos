@@ -1,10 +1,11 @@
 {
   "eval": {
     "target": {
-      "args": [],
-      "installable": "path:.#nixosConfigurations"
+      "args": ["-f",
+                "default.nix"],
+      "installable": "nixosConfigurations.JustinMohnsIPod.config"
     },
-    "depth": 2,
+    "depth": 20,
     "workers": 8
   },
   "formatting": {

@@ -12,6 +12,10 @@
     simplex-chat.url = "github:simplex-chat/simplex-chat/stable/??";
     gluon_language-server.url = "github:pillowtrucker/gluon_language-server/nix/??";
     hnix.url = "github:haskell-nix/hnix/master/??";
+    flake-compat = {
+      url = "github:inclyc/flake-compat";
+      flake = false;
+    };
   };
 
   # The `self` parameter is special, it refers to
@@ -21,6 +25,7 @@
     nixosConfigurations.JustinMohnsIPod = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs;};
+      
       modules = [
         ./configuration.nix
       ];
