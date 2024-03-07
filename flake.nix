@@ -9,13 +9,13 @@
     nixpkgs-mozilla.url = "github:mozilla/nixpkgs-mozilla/master";
     fenix.url = "github:nix-community/fenix/main";
     emacs-overlay.url = "github:nix-community/emacs-overlay/master";
-    simplex-chat.url = "github:simplex-chat/simplex-chat/stable/??";
-    gluon_language-server.url = "github:pillowtrucker/gluon_language-server/nix/??";
-    hnix.url = "github:haskell-nix/hnix/master/??";
-    flake-compat = {
-      url = "github:inclyc/flake-compat";
-      flake = false;
-    };
+    simplex-chat.url = "github:simplex-chat/simplex-chat/stable";
+    gluon_language-server.url = "github:pillowtrucker/gluon_language-server/nix";
+    hnix.url = "github:haskell-nix/hnix/master";
+#    flake-compat = {
+#      url = "github:inclyc/flake-compat";
+#      flake = false;
+#    };
   };
 
   # The `self` parameter is special, it refers to

@@ -145,7 +145,7 @@
       fcitx5-configtool
       fcitx5-table-extra
     ];
-  };  
+  }; 
 
   services.xserver.xkb.layout = "gb";
   services.xserver.xkb.options = "compose:ralt";
@@ -209,6 +209,7 @@
                                            });
                                            blender = prev.blender.override {
 #                                             stdenv = final.ccacheStdenv;
+                                             
                                              colladaSupport = true;
                                            };
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
