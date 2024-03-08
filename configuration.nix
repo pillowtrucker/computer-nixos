@@ -324,14 +324,17 @@
     isNormalUser = true;
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
-    packages = with pkgs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
+    packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
+      chigyutendiescum.legacyPackages.${system}.suyuPackages.mainline
+      chigyutendiescum.legacyPackages.${system}.yuzuPackages.mainline
+      chigyutendiescum.packages.${system}.citra-nightly
       inochi-nixpkgs.inochi-session
       inochi-nixpkgs.inochi-creator
 #      inputs.nixpkgs-inochi.legacyPackages.${system}.inochi-session
 #      inputs.nixpkgs-inochi.legacyPackages.${system}.inochi-creator
       gitAndTools.gh
-      inputs.simplex-chat.packages.${system}."exe:simplex-chat"
-      inputs.gluon_language-server.packages.${system}.onCrane
+      simplex-chat.packages.${system}."exe:simplex-chat"
+      gluon_language-server.packages.${system}.onCrane
       android-studio
       gargoyle
       ffmpeg

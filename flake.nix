@@ -12,6 +12,7 @@
     simplex-chat.url = "github:simplex-chat/simplex-chat/stable";
     gluon_language-server.url = "github:pillowtrucker/gluon_language-server/nix";
     hnix.url = "github:haskell-nix/hnix/master";
+    chigyutendiescum.url = "github:pillowtrucker/tooo000oooot";
 #    flake-compat = {
 #      url = "github:inclyc/flake-compat";
 #      flake = false;
