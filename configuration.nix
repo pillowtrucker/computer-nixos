@@ -325,8 +325,8 @@
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
     packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
-      chigyutendiescum.legacyPackages.${system}.suyuPackages.mainline
-      chigyutendiescum.legacyPackages.${system}.yuzuPackages.mainline
+      chigyutendiescum.packages.${system}.suyu-dev
+      chigyutendiescum.packages.${system}.yuzu-early-access
       chigyutendiescum.packages.${system}.citra-nightly
       inochi-nixpkgs.inochi-session
       inochi-nixpkgs.inochi-creator

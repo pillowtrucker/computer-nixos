@@ -25,8 +25,7 @@
     # The host with the hostname `my-nixos` will use this configuration
     nixosConfigurations.JustinMohnsIPod = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = { inherit inputs;};
-      
+      specialArgs = { inherit inputs;};      
       modules = [
         ./configuration.nix
       ];
