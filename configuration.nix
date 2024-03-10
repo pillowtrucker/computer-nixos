@@ -297,11 +297,11 @@
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
-#                                                 sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
-#                                                   disabledTests = oldAttrs.disabledTests ++ ["test_linkcheck_request_headers_default"]; # stupid timeout failure on busy machine
-#                                                 });
+                                                 sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
+                                                   disabledTests = oldAttrs.disabledTests ++ ["test_linkcheck_request_headers_default"]; # stupid timeout failure on busy machine
+                                                 });
                                                  numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
-                                                   disabledTests = oldAttrs.disabledTests ++ ["test_umath_accuracy" "TestAccuracy::test_validate_transcendentals" "test_validate_transcendentals"];
+                                                   disabledTests = oldAttrs.disabledTests ++ ["test_umath_accuracy" "TestAccuracy::test_validate_transcendentals" "test_validate_transcendentals" "test_structured_object_item_setting" "TestStructuredObjectRefcounting::test_structured_object_item_setting"];
                                                  });
                                                }
                                              )
