@@ -294,6 +294,7 @@
 #                                             qtwebengine = plasma5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
 #                                             qtwebsockets = plasma5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
 #                                           });
+                                           nethack = prev.nethack.overrideAttrs (oldattrs: {enableParallelBuilding = false;}); # it's a concurrent build bug actually
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
                                                python-final: python-prev: {
@@ -342,7 +343,7 @@
       gargoyle
       ffmpeg
       yt-dlp
-      (nethack.override {enableParallelBuilding = false;}) # it's a concurrent build bug actually
+      nethack 
 #      adom # broken
       angband
       frotz
