@@ -342,7 +342,7 @@
       gargoyle
       ffmpeg
       yt-dlp
-      (nethack.override {stdenv = llvmPackages_17.stdenv;})
+      (nethack.override {enableParallelBuilding = false;}) # it's a concurrent build bug actually
 #      adom # broken
       angband
       frotz
