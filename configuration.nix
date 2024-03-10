@@ -342,7 +342,7 @@
       gargoyle
       ffmpeg
       yt-dlp
-      nethack
+      (nethack.override {stdenv = llvmPackages_17.stdenv;})
 #      adom # broken
       angband
       frotz
