@@ -566,15 +566,20 @@ environment.systemPackages = with pkgs; [
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 		
-    hardware.nvidia.prime = {
-      offload = {
-			  enable = true;
-			  enableOffloadCmd = true;
-		  };
+  hardware.nvidia.prime = {
+    offload = {
+			enable = true;
+			enableOffloadCmd = true;
+		};
     # Make sure to use the correct Bus ID values for your system!
     nvidiaBusId = "PCI:1:0:0";
     amdgpuBusId = "PCI:5:0:0";
   };
+  networking.extraHosts =
+    ''
+      192.168.122.173 ghc-plus-linux                    
+    ''
+    ;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
