@@ -12,7 +12,8 @@
     simplex-chat.url = "github:simplex-chat/simplex-chat/stable";
     gluon_language-server.url = "github:pillowtrucker/gluon_language-server/nix";
     hnix.url = "github:haskell-nix/hnix/master";
-    chigyutendiescum.url = "github:pillowtrucker/tooo000oooot";
+#    chigyutendiescum.url = "github:pillowtrucker/tooo000oooot";
+    nur.url = "github:nix-community/NUR";
 #    flake-compat = {
 #      url = "github:inclyc/flake-compat";
 #      flake = false;
@@ -21,12 +22,13 @@
 
   # The `self` parameter is special, it refers to
   # the attribute set returned by the `outputs` function itself.
-  outputs = { self, nixpkgs, ... }@inputs: {
+  outputs = { self, nixpkgs, nur, ... }@inputs: {
     # The host with the hostname `my-nixos` will use this configuration
     nixosConfigurations.JustinMohnsIPod = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs;};      
       modules = [
+        nur.nixosModules.nur
         ./configuration.nix
       ];
     };
