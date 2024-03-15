@@ -449,6 +449,7 @@ virtualisation.libvirtd  = {
 programs.virt-manager.enable = true;
 
 environment.systemPackages = with pkgs; [
+  gist
   jq
   filelight
   clasp
