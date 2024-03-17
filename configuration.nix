@@ -31,6 +31,7 @@
 #    gcc.tune = "znver3";
 #    system = "x86_64-linux";
 #  }; # this might be needed to unjank some builds # or it actually makes a different package fail..
+
   nixpkgs.config.permittedInsecurePackages = [
     "nix-2.16.2"
   ];
@@ -45,7 +46,8 @@
   nix.settings.trusted-users = [ "root" "wrath" ];
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [ "nix-command" "flakes" "ca-derivations"];
+#  nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -133,7 +135,7 @@
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  
+#  services.desktopManager.plasma6.enable = true; # later
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
@@ -149,7 +151,7 @@
 
   services.xserver.xkb.layout = "gb";
   services.xserver.xkb.options = "compose:ralt";
-
+  programs.gnupg.agent.pinentryPackage = pkgs.pinentry-qt;
   services.printing.enable = true;
   services.postfix.enable = true;
   services.smartd = {
@@ -173,7 +175,7 @@
   };
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
-    
+  
   nixpkgs.overlays = [ 
                        (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
                        (import "${inputs.fenix}/overlay.nix")
@@ -207,11 +209,19 @@
                                            opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                              cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                            });
-                                           blender = prev.blender.override {
-#                                             stdenv = final.ccacheStdenv;
-                                             
-                                             colladaSupport = true;
-                                           };
+                                           
+                                           blender = prev.blender.overrideAttrs (attrs: { #colladaSupport = true; # default..
+                                                                                       cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
+                                                                                       
+                                                                                       buildInputs = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) (lib.remove final.embree attrs.buildInputs));
+                                                                                       pythonPath = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) attrs.pythonPath);
+                                                                                     });
+                                           #blender = prev.blender.override rec {
+                                           #  cmakeFlags = cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
+#                                          #   buildInputs = pkgs.lib.remove pkgs.embree buildInputs;
+#                                          #   stdenv = final.ccacheStdenv;
+                                           #  colladaSupport = true;
+                                           #};
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
                                            
                                            tzdata = prev.tzdata.overrideAttrs (attrs: {
@@ -329,6 +339,7 @@
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
     packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
+      blender
       config.nur.repos.chigyutendies.suyu-dev
       config.nur.repos.chigyutendies.yuzu-early-access
       config.nur.repos.chigyutendies.citra-nightly
@@ -361,10 +372,7 @@
       telegram-desktop
 #      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;}) # llvm build fails
 #      (telegram-desktop.override {stdenv = ccacheStdenv;})
-      (blender.overrideAttrs (attrs: {colladaSupport = true;
-                                      cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
-                                      buildInputs = pkgs.lib.remove pkgs.embree attrs.buildInputs;
-                                     }))
+      
       ldtk
       (strawberry.override {stdenv = llvmPackages_17.stdenv;})
       yakuake
@@ -447,8 +455,10 @@ virtualisation.libvirtd  = {
   };
 };
 programs.virt-manager.enable = true;
-
+services.nixseparatedebuginfod.enable = true;
 environment.systemPackages = with pkgs; [
+  valgrind
+  elfutils
   gist
   jq
   filelight

@@ -18,6 +18,7 @@
 #      url = "github:inclyc/flake-compat";
 #      flake = false;
 #    };
+#    nixseparatedebuginfod.url = "github:symphorien/nixseparatedebuginfod"; # already in nixpkgs
   };
 
   # The `self` parameter is special, it refers to
@@ -28,6 +29,7 @@
       system = "x86_64-linux";
       specialArgs = { inherit inputs;};      
       modules = [
+#        nixseparatedebuginfod.nixosModules.default # already in nixpkgs
         nur.nixosModules.nur
         ./configuration.nix
       ];
