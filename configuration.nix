@@ -47,7 +47,7 @@
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
   nix.settings.experimental-features = [ "nix-command" "flakes" "ca-derivations"];
-#  nixpkgs.config.contentAddressedByDefault = true;
+  nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -134,13 +134,14 @@
 
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-#  services.desktopManager.plasma6.enable = true; # later
+#  services.xserver.desktopManager.plasma5.enable = true;
+  services.desktopManager.plasma6.enable = true;
+  services.xserver.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-skk
-      libsForQt5.fcitx5-qt
+      qt6Packages.fcitx5-qt
 #      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
       fcitx5-chinese-addons
@@ -233,13 +234,13 @@
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
-                                           live555 = prev.live555.overrideAttrs (attrs: rec {
-                                             version = "2024.02.28";
-                                             src = prev.fetchurl {
-                                               url = "https://github.com/museoa/live555-backups/raw/tarballs/live.${version}.tar.gz";
-                                               sha256 ="sha256-5WjtkdqoofZIijunfomcEeWj6l4CUK9HRoYAle2jSx8=";
-                                             };
-                                           });
+#                                           live555 = prev.live555.overrideAttrs (attrs: rec {
+#                                             version = "2024.02.28";
+#                                             src = prev.fetchurl {
+#                                               url = "https://github.com/museoa/live555-backups/raw/tarballs/live.${version}.tar.gz";
+#                                               sha256 ="sha256-5WjtkdqoofZIijunfomcEeWj6l4CUK9HRoYAle2jSx8=";
+#                                             };
+#                                           });
 #                                           ccache = prev.ccache.overrideAttrs (attrs: rec {
 #                                             version = prev.ccache.version;
 #                                             src = prev.fetchFromGitHub {
@@ -457,6 +458,7 @@ virtualisation.libvirtd  = {
 programs.virt-manager.enable = true;
 services.nixseparatedebuginfod.enable = true;
 environment.systemPackages = with pkgs; [
+  gdb
   valgrind
   elfutils
   gist
