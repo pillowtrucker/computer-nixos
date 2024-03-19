@@ -224,7 +224,9 @@
                                            #  colladaSupport = true;
                                            #};
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
-                                           
+                                           umockdev = prev.umockdev.overrideAttrs (attrs: {
+                                             doCheck = false;
+                                           });
                                            tzdata = prev.tzdata.overrideAttrs (attrs: {
                                              doCheck = false;
                                              checkTarget = "";
