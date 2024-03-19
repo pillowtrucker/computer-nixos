@@ -177,7 +177,7 @@
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
   
-  nixpkgs.overlays = [ 
+  nixpkgs.overlays =  [ 
                        (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
                        (import "${inputs.fenix}/overlay.nix")
                        (import inputs.emacs-overlay)
@@ -206,12 +206,26 @@
 #      '';
 #                         };
 #                       })
-                       (final: prev: let pkgs = import inputs.nixpkgs {system = config.system;}; in {
-                                           opencolorio = prev.opencolorio.overrideAttrs (attrs: {
-                                             cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
-                                           });
-                                           
-                                           blender = prev.blender.overrideAttrs (attrs: { #colladaSupport = true; # default..
+                       (final: prev:
+#                         let ruby-overlay = (final: prev: {inherit (inputs.nixpkgs-ruby-ca.legacyPackages.${config.system}) ruby ruby_3_1 ruby_3_2 ruby_3_3;});
+                         let pkgs = import inputs.nixpkgs {system = config.system;};
+#                             ruby-pkgs = import inputs.nixpkgs-ruby-ca {}; in {
+                         in {
+                               opencolorio = prev.opencolorio.overrideAttrs (attrs: {
+                                 cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
+                               });
+#                               ruby = lib.recurseIntoAttrs inputs.nixpkgs-ruby-ca.legacyPackages.${config.system}.ruby;
+                               inherit (prev.callPackage "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
+                                 inherit (pkgs.darwin) libobjc libunwind;
+                                 inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
+  })
+    mkRubyVersion
+    mkRuby
+    ruby_3_1
+    ruby_3_2
+    ruby_3_3;
+
+                               blender = prev.blender.overrideAttrs (attrs: { #colladaSupport = true; # default..
                                                                                        cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
                                                                                        
                                                                                        buildInputs = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) (lib.remove final.embree attrs.buildInputs));

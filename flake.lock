@@ -869,6 +869,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-ruby-ca": {
+      "locked": {
+        "lastModified": 1696293013,
+        "narHash": "sha256-odn1CnZP0rVHHnLv7Decy4szqz0DIbxlEGKZ3qa3c+o=",
+        "owner": "tie",
+        "repo": "nixpkgs",
+        "rev": "f391429b917a2f9ffb4136808c73fe3e11e46acd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tie",
+        "repo": "nixpkgs",
+        "rev": "f391429b917a2f9ffb4136808c73fe3e11e46acd",
+        "type": "github"
+      }
+    },
     "nixpkgs-stable": {
       "locked": {
         "lastModified": 1710695816,
@@ -1053,6 +1069,7 @@
         "nixpkgs": "nixpkgs_6",
         "nixpkgs-inochi": "nixpkgs-inochi",
         "nixpkgs-mozilla": "nixpkgs-mozilla",
+        "nixpkgs-ruby-ca": "nixpkgs-ruby-ca",
         "nur": "nur",
         "simplex-chat": "simplex-chat"
       }
