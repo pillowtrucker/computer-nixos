@@ -16,6 +16,7 @@
       ./cachix.nix
     ];
   boot.tmp.useTmpfs = false; # webkit explodes this, firefox nearly does
+  boot.tmp.cleanOnBoot = true; #old gcroots trash
 #  nixpkgs.localSystem.platform = pkgs.lib.systems.platforms.pc64 // {
 #    gcc.arch = "zenv3";
 #    gcc.tune = "zenv3";
@@ -517,7 +518,7 @@ environment.systemPackages = with pkgs; [
   (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  nvtop # reenable maybe if the stupid ssl test stops failing # first trying with channel update, maybe they unjanked it
+  nvtopPackages.full
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
 #  (pkgs.emacsWithPackagesFromUsePackage {
 #    package = pkgs.emacs; #pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
