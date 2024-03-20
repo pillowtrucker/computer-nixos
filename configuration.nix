@@ -17,10 +17,7 @@
     ];
   boot.tmp.useTmpfs = false; # webkit explodes this, firefox nearly does
   boot.tmp.cleanOnBoot = true; #old gcroots trash
-#  nixpkgs.localSystem.platform = pkgs.lib.systems.platforms.pc64 // {
-#    gcc.arch = "zenv3";
-#    gcc.tune = "zenv3";
-# }; # this is deprecated
+
 #  nixpkgs.config.replaceStdenv = pkgs.clangStdenv; # doesn't work
   
   nixpkgs.hostPlatform = {
@@ -121,21 +118,15 @@
       source-sans-pro
       source-serif-pro
       nerdfonts # just use all of them..
-#      (nerdfonts.override { fonts = [ "Iosevka" "FiraCode" "Inconsolata" "JetBrainsMono" "Hasklig" "Meslo" ]; })
+
     ];
-#    fontconfig = {
-#      defaultFonts = {
-#        monospace = [ "Hasklig" ];
-#        sansSerif = [ "FiraGO" "Source Sans Pro" ];
-#        serif = [ "ETBembo" "Source Serif Pro" ];
-#      };
-#    };
+
     fontconfig.enable = true;
     fontDir.enable = true;
   };
 
   services.xserver.enable = true;
-#  services.xserver.displayManager.sddm.enable = true;
+  services.xserver.displayManager.sddm.enable = true;
 #  services.xserver.desktopManager.plasma5.enable = true;
 #  services.xserver.desktopManager.plasma6.enable = true;
   services.desktopManager.plasma6.enable = true;
@@ -145,7 +136,6 @@
     fcitx5.addons = with pkgs; [
       fcitx5-skk
       qt6Packages.fcitx5-qt
-#      libsForQt5.fcitx5-qt
 #      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
       fcitx5-chinese-addons
@@ -185,45 +175,13 @@
 #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
                        (import "${inputs.fenix}/overlay.nix")
                        (import inputs.emacs-overlay)
-#                       (self: super: {
-#                         ccacheWrapper = super.ccacheWrapper.override {
-#                           extraConfig = ''
-#        export CCACHE_COMPRESS=1
-#        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-#        export CCACHE_UMASK=007
-#        if [ ! -d "$CCACHE_DIR" ]; then
-#          echo "====="
-#          echo "Directory '$CCACHE_DIR' does not exist"
-#          echo "Please create it with:"
-#          echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
-#          echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-#          echo "====="
-#          exit 1
-#        fi
-#        if [ ! -w "$CCACHE_DIR" ]; then
-#          echo "====="
-#          echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-#          echo "Please verify its access permissions"
-#          echo "====="
-#          exit 1
-#        fi
-#      '';
-#                         };
-#                       })
+
                        (final: prev:
-#                         let ruby-overlay = (final: prev: {inherit (inputs.nixpkgs-ruby-ca.legacyPackages.${config.system}) ruby ruby_3_1 ruby_3_2 ruby_3_3;});
                          let pkgs = import inputs.nixpkgs {system = config.system;};
-#                             ruby-pkgs = import inputs.nixpkgs-ruby-ca {}; in {
                          in {
                                opencolorio = prev.opencolorio.overrideAttrs (attrs: {
                                  cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                });
-#                               ruby = lib.recurseIntoAttrs inputs.nixpkgs-ruby-ca.legacyPackages.${config.system}.ruby;
-                               buildMozillaMach = opts: prev.callPackage (import "${inputs.nixpkgs-my-firefox-patch}/pkgs/applications/networking/browsers/firefox/common.nix" opts) { };
-                               wrapFirefox = prev.callPackage "${inputs.nixpkgs-my-firefox-patch}/pkgs/applications/networking/browsers/firefox/wrapper.nix" { };
-                               firefoxPackages = lib.recurseIntoAttrs (prev.callPackage "${inputs.nixpkgs-my-firefox-patch}/pkgs/applications/networking/browsers/firefox/packages.nix" {});
-
-                               firefox-devedition-unwrapped = final.firefoxPackages.firefox-devedition;
                                inherit (prev.callPackage "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
                                  inherit (pkgs.darwin) libobjc libunwind;
                                  inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
@@ -240,12 +198,7 @@
                                                                                        buildInputs = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) (lib.remove final.embree attrs.buildInputs));
                                                                                        pythonPath = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) attrs.pythonPath);
                                                                                      });
-                                           #blender = prev.blender.override rec {
-                                           #  cmakeFlags = cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
-#                                          #   buildInputs = pkgs.lib.remove pkgs.embree buildInputs;
-#                                          #   stdenv = final.ccacheStdenv;
-                                           #  colladaSupport = true;
-                                           #};
+
                                            mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
                                            umockdev = prev.umockdev.overrideAttrs (attrs: {
                                              doCheck = false;
@@ -259,23 +212,7 @@
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
-#                                           firefox = lib.debug.traceVal (prev.wrapFirefox prev.firefox-devedition-unwrapped {});
-#                                           live555 = prev.live555.overrideAttrs (attrs: rec {
-#                                             version = "2024.02.28";
-#                                             src = prev.fetchurl {
-#                                               url = "https://github.com/museoa/live555-backups/raw/tarballs/live.${version}.tar.gz";
-#                                               sha256 ="sha256-5WjtkdqoofZIijunfomcEeWj6l4CUK9HRoYAle2jSx8=";
-#                                             };
-#                                           });
-#                                           ccache = prev.ccache.overrideAttrs (attrs: rec {
-#                                             version = prev.ccache.version;
-#                                             src = prev.fetchFromGitHub {4
-#                                               owner = "ccache";
-#                                               repo = "ccache";
-#                                               rev = "refs/tags/v${version}";
-#                                               sha256 = "sha256-Rhd2cEAEhBYIl5Ej/A5LXRb7aBMLgcwW6zxk4wYCPVM=";
-#                                             };});
-#                                           nodejs = prev.nodejs.overrideAttrs {stdenv = final.ccacheStdenv;};
+
                                            a52dec = prev.a52dec.overrideAttrs (attrs: rec {
                                              version = "0.7.4";
                                              src = prev.fetchurl {
@@ -283,54 +220,7 @@
                                                sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
                                              };
                                            });
- #                                          element-desktop = prev.element-desktop.override {stdenv = final.ccacheStdenv;};
- #                                          electron = prev.electron.override {stdenv = final.ccacheStdenv;};
- #                                          electron-unwrapped = prev.electron-unwrapped.override {stdenv = final.ccacheStdenv;};
-#                                           llvmPackages_17 = prev.llvmPackages_17.overrideAttrs (llvm17-final: llvm17-prev: {
-#                                             llvm = llvm17-prev.llvm.override {stdenv = final.ccacheStdenv;};
-#                                             clang = llvm17-prev.clang.override {stdenv = final.ccacheStdenv;};
-#                                             compiler-rt = llvm17-prev.compiler-rt.override {stdenv = final.ccacheStdenv;};
-#                                           });
-#                                           llvmPackages_16 = prev.llvmPackages_16.overrideAttrs (llvm16-final: llvm16-prev: {
-#                                             llvm = llvm16-prev.llvm.override {stdenv = final.ccacheStdenv;};
-#                                             clang = llvm16-prev.clang.override {stdenv = final.ccacheStdenv;};
-#                                             compiler-rt = llvm16-prev.compiler-rt.override {stdenv = final.ccacheStdenv;};
-#                                           });
-#                                           llvmPackages_17 = prev.llvmPackages_17 // {
-#                                             llvm = prev.llvmPackages_17.llvm.override {stdenv = final.ccacheStdenv;};
-#                                             clang = prev.llvmPackages_17.clang.override {stdenv = final.ccacheStdenv;};
-#                                             compiler-rt = prev.llvmPackages_17.compiler-rt.override {stdenv = final.ccacheStdenv;};
-#                                           };
-#                                           llvmPackages_16 = prev.llvmPackages_16 // {
-#                                             llvm = prev.llvmPackages_16.llvm.override {stdenv = final.ccacheStdenv;};
-#                                             clang = prev.llvmPackages_16.clang.override {stdenv = final.ccacheStdenv;};
-#                                             compiler-rt = prev.llvmPackages_16.compiler-rt.override {stdenv = final.ccacheStdenv;};
-#                                           };
-                                           
-#                                           libsForQt5 = prev.libsForQt5.overrideScope (qt5-final: qt5-prev: {
-#                                             qtwebview = qt5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-#                                             qtwebkit = qt5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebengine = qt5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebsockets = qt5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                           });
-#                                           libsForQt515 = prev.libsForQt5.overrideScope (qt515-final: qt515-prev: {
-#                                             qtwebview = qt515-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-#                                             qtwebkit = qt515-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebengine = qt515-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebsockets = qt515-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                           });
-#                                           qt6Packages = prev.qt6Packages.overrideScope (qt6-final: qt6-prev: {
-#                                             qtwebview = qt6-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-#                                             qtwebkit = qt6-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebengine = qt6-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebsockets = qt6-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                           });
-#                                           plasma5Packages = prev.plasma5Packages.overrideScope (plasma5-final: plasma5-prev: {
-#                                             qtwebview = plasma5-prev.qtwebview.overrideAttrs {stdenv = final.ccacheStdenv;}; 
-#                                             qtwebkit = plasma5-prev.qtwebkit.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebengine = plasma5-prev.qtwebengine.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                             qtwebsockets = plasma5-prev.qtwebsockets.overrideAttrs {stdenv = final.ccacheStdenv;};
-#                                           });
+
                                            nethack = prev.nethack.overrideAttrs (oldattrs: {enableParallelBuilding = false;}); # it's a concurrent build bug actually
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                                              (
@@ -348,11 +238,7 @@
                                          })
                        
   ];
-#  programs.ccache.packageNames = ["xgcc" "webkit" "webkitgtk" "qtwebsockets" "qtwebengine" "qtwebkit" "libsForQt5.qtwebkit" "qt6Packages.qtwebkit" "libsForQt5.qtwebsockets" "qt6Packages.qtwebengine" "qt6Packages.qtwebsockets" "libsForQt6.qtwebengine" "chromium" "google-chrome" "llvmPackages_17.clang" "llvmPackages_17.llvm" "llvmPackages_17.compiler-rt" "llvmPackages_16.clang" "llvmPackages_16.llvm" "llvmPackages_16.compiler-rt"]; # TODO: figure out which of those even make sense and/or actually work
-#  programs.ccache.packageNames = ["chromium" "webkitgtk" "xgcc"];
-#  programs.ccache.enable = true;  
-#  programs.ccache.cacheDir = "/ccache";
-#  nix.settings.extra-sandbox-paths = [ (toString config.programs.ccache.cacheDir) ];
+
   zramSwap.enable = true;
   zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
@@ -366,19 +252,13 @@
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
     packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
-#      startx
       sx
       blender
       config.nur.repos.chigyutendies.suyu-dev
       config.nur.repos.chigyutendies.yuzu-early-access
       config.nur.repos.chigyutendies.citra-nightly
-#      chigyutendiescum.packages.${system}.suyu-dev
-#      chigyutendiescum.packages.${system}.yuzu-early-access
-#      chigyutendiescum.packages.${system}.citra-nightly
       inochi-nixpkgs.inochi-session
       inochi-nixpkgs.inochi-creator
-#      inputs.nixpkgs-inochi.legacyPackages.${system}.inochi-session
-#      inputs.nixpkgs-inochi.legacyPackages.${system}.inochi-creator
       gitAndTools.gh
       simplex-chat.packages.${system}."exe:simplex-chat"
       gluon_language-server.packages.${system}.onCrane
@@ -394,14 +274,10 @@
       sfrotz
       tintin
       scummvm
-#      supercollider
       calibre
       (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
       obs-studio
       telegram-desktop
-#      (telegram-desktop.override {stdenv = llvmPackages_17.stdenv;}) # llvm build fails
-#      (telegram-desktop.override {stdenv = ccacheStdenv;})
-      
       ldtk
       (strawberry.override {stdenv = llvmPackages_17.stdenv;})
       yakuake
@@ -412,13 +288,10 @@
 #      chromium # nah
       (cmake.override {stdenv = llvmPackages_17.stdenv;})
       element-desktop
-      #(element-desktop.overrideAttrs {stdenv = ccacheStdenv;})
-#      (element-desktop.override {stdenv = llvmPackages_17.stdenv;})
       fontforge
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
-#      libreoffice-bin # fuck this, I barely even use this thing
-#      (libreoffice-qt.override {stdenv = llvmPackages_17.stdenv;}) # probably need to disable llvm
+      (libreoffice-qt.overrideAttrs {doCheck = false;})
       inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
       mpv
       lutris
@@ -428,11 +301,9 @@
   };
   services.emacs.enable = true;
   programs.firefox.enable = true;
-#  programs.firefox.package = lib.debug.traceVal (pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped {});
-#  programs.firefox.package = my-firefox-fix.wrapFirefox my-firefox-fix.firefox-devedition-unwrapped {};
+
   programs.firefox.package = pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped {};
-#  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
-#  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
+
   programs.direnv.enable = true;
   security.sudo = {
   enable = true;
@@ -489,6 +360,7 @@ virtualisation.libvirtd  = {
 programs.virt-manager.enable = true;
 services.nixseparatedebuginfod.enable = true;
 environment.systemPackages = with pkgs; [
+  unzip
   gdb
   valgrind
   elfutils
@@ -512,7 +384,6 @@ environment.systemPackages = with pkgs; [
   smartmontools
   lm_sensors
   neomutt
-#  cpupower
   nixd
   nil
   (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
@@ -520,36 +391,22 @@ environment.systemPackages = with pkgs; [
   (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   nvtopPackages.full
   (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-#  (pkgs.emacsWithPackagesFromUsePackage {
-#    package = pkgs.emacs; #pkgs.emacs.override {stdenv = pkgs.llvmPackages_17.stdenv;};  # replace with pkgs.emacsPgtk, or another version if desired.
-#    config = /home/wrath/.emacs.d/init.el;})
-#  emacs
   (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
   (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
-#  (fd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                  # faster projectile indexing
   fd
   imagemagick
   sysstat
-#  (imagemagick.override {stdenv = pkgs.llvmPackages_17.stdenv;})         # for image-dired
   (zstd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
   (sqlite.override {stdenv = pkgs.llvmPackages_17.stdenv;})
     # :lang latex & :lang org (latex previews)
     texlive.combined.scheme-medium
   (openssh.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-#    latest.firefox-nightly-bin
   (mosh.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   (git.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-#  (git-lfs.override {stdenv = pkgs.llvmPackages_17.stdenv;})
   git-lfs
   (wget.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-#  (fenix.complete.withComponents [
-#    "cargo"
-#    "clippy"
-#    "rust-src"
-#    "rustc"
-#    "rustfmt"
-#  ])
+
   rust-analyzer-nightly
 ];
   # Some programs need SUID wrappers, can be configured further or are
@@ -629,9 +486,7 @@ environment.systemPackages = with pkgs; [
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
-#    boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_lqx.override {
-#          ignoreConfigErrors = true;
-#    });
+
   boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.kernelParams = [
     "mitigations=off"

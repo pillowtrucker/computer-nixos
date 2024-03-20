@@ -111,11 +111,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1710925487,
-        "narHash": "sha256-CblgCrRQ2NeBPd2mouvAlTNLw4A1lPnJEeD1fs0JlMY=",
+        "lastModified": 1710954378,
+        "narHash": "sha256-IbidJZykfjyGZ9totyhUIPHcDSqW1B3Pepgo3c9tDHI=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "76b6a3e62b790f56cb0707ce91bbe111c56cbcb7",
+        "rev": "a9216f7a1ec216e36e31c7d2ed42de4df89d918a",
         "type": "github"
       },
       "original": {
@@ -837,38 +837,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-mozilla": {
-      "locked": {
-        "lastModified": 1704373101,
-        "narHash": "sha256-+gi59LRWRQmwROrmE1E2b3mtocwueCQqZ60CwLG+gbg=",
-        "owner": "mozilla",
-        "repo": "nixpkgs-mozilla",
-        "rev": "9b11a87c0cc54e308fa83aac5b4ee1816d5418a2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mozilla",
-        "ref": "master",
-        "repo": "nixpkgs-mozilla",
-        "type": "github"
-      }
-    },
-    "nixpkgs-my-firefox-patch": {
-      "locked": {
-        "lastModified": 1710934310,
-        "narHash": "sha256-AE+UM7vhkETtUVlHcw+3i+lYX9ST+HBA7g/0By5UGkI=",
-        "owner": "pillowtrucker",
-        "repo": "nixpkgs",
-        "rev": "f3d1410e08859e31bc91463e08666b9642bc9fa4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pillowtrucker",
-        "ref": "unjank-firefox-contentAddressed",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs-regression": {
       "locked": {
         "lastModified": 1643052045,
@@ -997,11 +965,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1710938121,
-        "narHash": "sha256-AJBv/MEktbJ+sHf1G6rdPmde3IapsG/2/5TLsk6KfZk=",
+        "lastModified": 1710960368,
+        "narHash": "sha256-CHnNU2yzeOY2tyOWtLVLerdNCrCgwqgZsGjpHKKWGWc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "66e2e75c671f9a674a28d340e59a0157efb6f905",
+        "rev": "2fe0900189c7e9561b9fffac0ad8b007244c13bc",
         "type": "github"
       },
       "original": {
@@ -1045,11 +1013,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1710938324,
-        "narHash": "sha256-EcTbILvmmqrQ31PeTKtUQMhrZ7Wn9z/ldI22ZZmMAyI=",
+        "lastModified": 1710966303,
+        "narHash": "sha256-Ls6wpAH/AVcxmrSm9wAsFABi2IzB2cCEFLFKop5nd8Q=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "c6ebb89c8d8cfc4fb994347c3fb5dd7719f4e2e9",
+        "rev": "cf4c8b49ff7227ab8ebdab294e5a97682e5d09e3",
         "type": "github"
       },
       "original": {
@@ -1084,8 +1052,6 @@
         "nix-gaming": "nix-gaming",
         "nixpkgs": "nixpkgs_6",
         "nixpkgs-inochi": "nixpkgs-inochi",
-        "nixpkgs-mozilla": "nixpkgs-mozilla",
-        "nixpkgs-my-firefox-patch": "nixpkgs-my-firefox-patch",
         "nixpkgs-ruby-ca": "nixpkgs-ruby-ca",
         "nur": "nur",
         "simplex-chat": "simplex-chat"
