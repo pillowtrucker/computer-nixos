@@ -416,8 +416,9 @@
   };
   services.emacs.enable = true;
   programs.firefox.enable = true;
+  programs.firefox.package = pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped {};
 #  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
-  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
+#  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
   programs.direnv.enable = true;
   security.sudo = {
   enable = true;
