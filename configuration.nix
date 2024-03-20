@@ -135,10 +135,10 @@
 
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-#  services.xserver.desktopManager.plasma6.enable = true;
+#  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.desktopManager.plasma6.enable = true;
 #  services.desktopManager.plasma6.enable = true;
-#  services.xserver.displayManager.defaultSession = "plasmax11";
+  services.xserver.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
@@ -626,10 +626,10 @@ environment.systemPackages = with pkgs; [
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
-    boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_lqx.override {
-          ignoreConfigErrors = true;
-    });
-#  boot.kernelPackages = pkgs.linuxPackages_lqx;
+#    boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_lqx.override {
+#          ignoreConfigErrors = true;
+#    });
+  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.kernelParams = [
     "mitigations=off"
   ];
