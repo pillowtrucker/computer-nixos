@@ -134,17 +134,17 @@
   };
 
   services.xserver.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
+#  services.xserver.displayManager.sddm.enable = true;
 #  services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.desktopManager.plasma6.enable = true;
-#  services.desktopManager.plasma6.enable = true;
+#  services.xserver.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = true;
   services.xserver.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-skk
-#      qt6Packages.fcitx5-qt
-      libsForQt5.fcitx5-qt
+      qt6Packages.fcitx5-qt
+#      libsForQt5.fcitx5-qt
 #      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
       fcitx5-chinese-addons
@@ -365,6 +365,8 @@
     home = "/home/wrath";
     extraGroups = [ "wheel" "libvirtd" "adbusers"];
     packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
+#      startx
+      sx
       blender
       config.nur.repos.chigyutendies.suyu-dev
       config.nur.repos.chigyutendies.yuzu-early-access
@@ -577,7 +579,7 @@ environment.systemPackages = with pkgs; [
   };
 
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = ["nvidia" "amdgpu" "radeonsi"];
 
   hardware.nvidia = {
 
@@ -607,15 +609,15 @@ environment.systemPackages = with pkgs; [
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 		
-  hardware.nvidia.prime = {
-    offload = {
-			enable = true;
-			enableOffloadCmd = true;
-		};
-    # Make sure to use the correct Bus ID values for your system!
-    nvidiaBusId = "PCI:1:0:0";
-    amdgpuBusId = "PCI:5:0:0";
-  };
+#  hardware.nvidia.prime = {
+#    offload = {
+#			enable = true;
+#			enableOffloadCmd = true;
+#		};
+#    # Make sure to use the correct Bus ID values for your system!
+#    nvidiaBusId = "PCI:1:0:0";
+#    amdgpuBusId = "PCI:5:0:0";
+#  };
   networking.extraHosts =
     ''
       192.168.122.173 ghc-plus-linux                    
