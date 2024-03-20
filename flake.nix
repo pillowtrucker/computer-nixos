@@ -8,6 +8,7 @@
     nixpkgs-inochi.url = "github:TomaSajt/nixpkgs/inochi-session";
     nixpkgs-mozilla.url = "github:mozilla/nixpkgs-mozilla/master";
     nixpkgs-ruby-ca.url = "github:tie/nixpkgs/f391429b917a2f9ffb4136808c73fe3e11e46acd";
+    nixpkgs-my-firefox-patch.url = "github:pillowtrucker/nixpkgs/unjank-firefox-contentAddressed";
     fenix.url = "github:nix-community/fenix/main";
     emacs-overlay.url = "github:nix-community/emacs-overlay/master";
     simplex-chat.url = "github:simplex-chat/simplex-chat/stable";

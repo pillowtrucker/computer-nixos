@@ -7,6 +7,7 @@
 #  inochi-nixpkgs = import "/etc/nixos/inochi-nixpkgs" { };
   
 #  inochi-nixpkgs = import inputs.nixpkgs-inochi {};
+#let my-firefox-fix = import inputs.nixpkgs-my-firefox-patch {system = config.system;};
 #in
 {
   imports =
@@ -134,14 +135,16 @@
 
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
-#  services.xserver.desktopManager.plasma5.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  services.xserver.displayManager.defaultSession = "plasmax11";
+  services.xserver.desktopManager.plasma5.enable = true;
+#  services.xserver.desktopManager.plasma6.enable = true;
+#  services.desktopManager.plasma6.enable = true;
+#  services.xserver.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-skk
-      qt6Packages.fcitx5-qt
+#      qt6Packages.fcitx5-qt
+      libsForQt5.fcitx5-qt
 #      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
       fcitx5-chinese-addons
@@ -178,7 +181,7 @@
   services.xserver.libinput.enable = true;
   
   nixpkgs.overlays =  [ 
-                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
+#                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
                        (import "${inputs.fenix}/overlay.nix")
                        (import inputs.emacs-overlay)
 #                       (self: super: {
@@ -215,6 +218,11 @@
                                  cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
                                });
 #                               ruby = lib.recurseIntoAttrs inputs.nixpkgs-ruby-ca.legacyPackages.${config.system}.ruby;
+                               buildMozillaMach = opts: prev.callPackage (import "${inputs.nixpkgs-my-firefox-patch}/pkgs/applications/networking/browsers/firefox/common.nix" opts) { };
+                               wrapFirefox = prev.callPackage "${inputs.nixpkgs-my-firefox-patch}/pkgs/applications/networking/browsers/firefox/wrapper.nix" { };
+                               firefoxPackages = lib.recurseIntoAttrs (prev.callPackage "${inputs.nixpkgs-my-firefox-patch}/pkgs/applications/networking/browsers/firefox/packages.nix" {});
+
+                               firefox-devedition-unwrapped = final.firefoxPackages.firefox-devedition;
                                inherit (prev.callPackage "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
                                  inherit (pkgs.darwin) libobjc libunwind;
                                  inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
@@ -250,6 +258,7 @@
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
+#                                           firefox = lib.debug.traceVal (prev.wrapFirefox prev.firefox-devedition-unwrapped {});
 #                                           live555 = prev.live555.overrideAttrs (attrs: rec {
 #                                             version = "2024.02.28";
 #                                             src = prev.fetchurl {
@@ -259,7 +268,7 @@
 #                                           });
 #                                           ccache = prev.ccache.overrideAttrs (attrs: rec {
 #                                             version = prev.ccache.version;
-#                                             src = prev.fetchFromGitHub {
+#                                             src = prev.fetchFromGitHub {4
 #                                               owner = "ccache";
 #                                               repo = "ccache";
 #                                               rev = "refs/tags/v${version}";
@@ -416,6 +425,8 @@
   };
   services.emacs.enable = true;
   programs.firefox.enable = true;
+#  programs.firefox.package = lib.debug.traceVal (pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped {});
+#  programs.firefox.package = my-firefox-fix.wrapFirefox my-firefox-fix.firefox-devedition-unwrapped {};
   programs.firefox.package = pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped {};
 #  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.ccacheStdenv; }) pkgs.firefox-devedition-unwrapped { };
 #  programs.firefox.package = (pkgs.wrapFirefox.override { stdenv = pkgs.llvmPackages_17.stdenv; }) pkgs.firefox-devedition-unwrapped { };
