@@ -615,7 +615,10 @@ environment.systemPackages = with pkgs; [
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
-  boot.kernelPackages = pkgs.linuxPackages_lqx;
+    boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_lqx.override {
+          ignoreConfigErrors = true;
+    });
+#  boot.kernelPackages = pkgs.linuxPackages_lqx;
   boot.kernelParams = [
     "mitigations=off"
   ];
