@@ -291,7 +291,7 @@
       fontforge
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
-      (libreoffice-qt.overrideAttrs {doCheck = false;})
+#      libreoffice-qt # nope
       inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
       mpv
       lutris
