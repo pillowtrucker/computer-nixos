@@ -212,14 +212,18 @@
                                                x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
                                              };
                                            };
-
-                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
-                                             version = "0.7.4";
-                                             src = prev.fetchurl {
-                                               url = "https://ftp2.osuosl.org/pub/blfs/conglomeration/a52dec/a52dec-${version}.tar.gz";
-                                               sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
-                                             };
+                                           libreoffice-qt = prev.libreoffice-qt.overrideAttrs (attrs: {
+                                             stdenv = prev.llvmPackages_17.stdenv;
+                                             unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs rec {doCheck = false; stdenv = stdenv;};
                                            });
+#                                           libreoffice-qt.unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs {doCheck = false;};
+#                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
+#                                             version = "0.7.4";
+#                                             src = prev.fetchurl {
+#                                               url = "https://ftp2.osuosl.org/pub/blfs/conglomeration/a52dec/a52dec-${version}.tar.gz";
+#                                               sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
+#                                             };
+#                                           });
 
                                            nethack = prev.nethack.overrideAttrs (oldattrs: {enableParallelBuilding = false;}); # it's a concurrent build bug actually
                                            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
@@ -250,7 +254,7 @@
     initialHashedPassword = "";
     isNormalUser = true;
     home = "/home/wrath";
-    extraGroups = [ "wheel" "libvirtd" "adbusers"];
+    extraGroups = [ "wheel" "libvirtd" "adbusers" "nixseparatedebuginfod"];
     packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
       sx
       blender
@@ -291,7 +295,7 @@
       fontforge
       (gimp.override {stdenv = llvmPackages_17.stdenv;})
       (lshw.override {stdenv = llvmPackages_17.stdenv;})
-#      libreoffice-qt # nope
+      libreoffice-qt # nope
       inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
       mpv
       lutris
@@ -359,6 +363,7 @@ virtualisation.libvirtd  = {
 };
 programs.virt-manager.enable = true;
 services.nixseparatedebuginfod.enable = true;
+#services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
 environment.systemPackages = with pkgs; [
   unzip
   gdb
