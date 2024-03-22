@@ -5,35 +5,32 @@
 { config, lib, pkgs, programs, inputs, ... }:
 #let
 #  inochi-nixpkgs = import "/etc/nixos/inochi-nixpkgs" { };
-  
+
 #  inochi-nixpkgs = import inputs.nixpkgs-inochi {};
 #let my-firefox-fix = import inputs.nixpkgs-my-firefox-patch {system = config.system;};
 #in
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./cachix.nix
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./cachix.nix
+  ];
   boot.tmp.useTmpfs = false; # webkit explodes this, firefox nearly does
-  boot.tmp.cleanOnBoot = true; #old gcroots trash
+  boot.tmp.cleanOnBoot = true; # old gcroots trash
 
-#  nixpkgs.config.replaceStdenv = pkgs.clangStdenv; # doesn't work
-  
+  #  nixpkgs.config.replaceStdenv = pkgs.clangStdenv; # doesn't work
+
   nixpkgs.hostPlatform = {
     gcc.arch = "znver3";
     gcc.tune = "znver3";
     system = "x86_64-linux";
   };
-#  nixpkgs.buildPlatform = {
-#    gcc.arch = "znver3";
-#    gcc.tune = "znver3";
-#    system = "x86_64-linux";
-#  }; # this might be needed to unjank some builds # or it actually makes a different package fail..
+  #  nixpkgs.buildPlatform = {
+  #    gcc.arch = "znver3";
+  #    gcc.tune = "znver3";
+  #    system = "x86_64-linux";
+  #  }; # this might be needed to unjank some builds # or it actually makes a different package fail..
 
-  nixpkgs.config.permittedInsecurePackages = [
-    "nix-2.16.2"
-  ];
+  nixpkgs.config.permittedInsecurePackages = [ "nix-2.16.2" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -41,17 +38,19 @@
   boot.loader.efi.efiSysMountPoint = "/efi";
   nix.settings.keep-derivations = true;
   nix.settings.keep-outputs = true;
-#  nix.settings.auto-optimise-store = true;
+  #  nix.settings.auto-optimise-store = true;
   nix.settings.trusted-users = [ "root" "wrath" ];
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
-  nix.settings.experimental-features = [ "nix-command" "flakes" "ca-derivations"];
+  nix.settings.experimental-features =
+    [ "nix-command" "flakes" "ca-derivations" ];
   nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
   networking.hostName = "JustinMohnsIPod"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable =
+    true; # Easiest to use and most distros use this by default.
 
   time.timeZone = "Europe/Amsterdam";
 
@@ -61,11 +60,11 @@
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
-   console = {
-  #   font = "Lat2-Terminus16";
-#     keyMap = "uk";
-     useXkbConfig = true; # use xkb.options in tty.
-   };
+  console = {
+    #   font = "Lat2-Terminus16";
+    #     keyMap = "uk";
+    useXkbConfig = true; # use xkb.options in tty.
+  };
   fonts = {
     packages = with pkgs; [
       material-icons
@@ -93,7 +92,7 @@
       unifont
       noto-fonts-emoji
       liberation_ttf
-  #  fira-code
+      #  fira-code
       fira-code-symbols
       mplus-outline-fonts.githubRelease
       dina-font
@@ -127,8 +126,8 @@
 
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
-#  services.xserver.desktopManager.plasma5.enable = true;
-#  services.xserver.desktopManager.plasma6.enable = true;
+  #  services.xserver.desktopManager.plasma5.enable = true;
+  #  services.xserver.desktopManager.plasma6.enable = true;
   services.desktopManager.plasma6.enable = true;
   services.xserver.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
@@ -136,13 +135,13 @@
     fcitx5.addons = with pkgs; [
       fcitx5-skk
       qt6Packages.fcitx5-qt
-#      fcitx5-mozc # broken download link, don't care enough to fix
+      #      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
       fcitx5-chinese-addons
       fcitx5-configtool
       fcitx5-table-extra
     ];
-  }; 
+  };
 
   services.xserver.xkb.layout = "gb";
   services.xserver.xkb.options = "compose:ralt";
@@ -154,12 +153,12 @@
     notifications.mail = {
       enable = true;
       recipient = "wrath";
-      
+
     };
   };
 
-#  sound.enable = true; # this is alsa
-#  hardware.pulseaudio.enable = true; # this is actual pulseaudio
+  #  sound.enable = true; # this is alsa
+  #  hardware.pulseaudio.enable = true; # this is actual pulseaudio
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -170,77 +169,92 @@
   };
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
-  
-  nixpkgs.overlays =  [ 
-#                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
-                       (import "${inputs.fenix}/overlay.nix")
-                       (import inputs.emacs-overlay)
 
-                       (final: prev:
-                         let pkgs = import inputs.nixpkgs {system = config.system;};
-                         in {
-                               opencolorio = prev.opencolorio.overrideAttrs (attrs: {
-                                 cmakeFlags = attrs.cmakeFlags ++ ["-DOCIO_BUILD_TESTS=OFF"];
-                               });
-                               inherit (prev.callPackage "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
-                                 inherit (pkgs.darwin) libobjc libunwind;
-                                 inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
-  })
-    mkRubyVersion
-    mkRuby
-    ruby_3_1
-    ruby_3_2
-    ruby_3_3;
+  nixpkgs.overlays = [
+    #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
+    (import "${inputs.fenix}/overlay.nix")
+    (import inputs.emacs-overlay)
 
-                               blender = prev.blender.overrideAttrs (attrs: { #colladaSupport = true; # default..
-                                                                                       cmakeFlags = attrs.cmakeFlags ++ ["-DWITH_CYCLES_EMBREE=OFF"];
-                                                                                       
-                                                                                       buildInputs = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) (lib.remove final.embree attrs.buildInputs));
-                                                                                       pythonPath = lib.debug.traceValSeqN 2 (lib.remove (final.python310Packages.openusd.override { withOsl = false; }) attrs.pythonPath);
-                                                                                     });
+    (final: prev:
+      let pkgs = import inputs.nixpkgs { system = config.system; };
+      in {
+        opencolorio = prev.opencolorio.overrideAttrs (attrs: {
+          cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
+        });
+        inherit (prev.callPackage
+          "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
+            inherit (pkgs.darwin) libobjc libunwind;
+            inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
+          })
+          mkRubyVersion mkRuby ruby_3_1 ruby_3_2 ruby_3_3;
 
-                                           mpv = prev.wrapMpv (prev.mpv.unwrapped.override {stdenv = final.llvmPackages_17.stdenv; rubberbandSupport = false;}) {};
-                                           umockdev = prev.umockdev.overrideAttrs (attrs: {
-                                             doCheck = false;
-                                           });
-                                           tzdata = prev.tzdata.overrideAttrs (attrs: {
-                                             doCheck = false;
-                                             checkTarget = "";
-                                           });
-                                           haskellPackages = prev.haskellPackages.override {
-                                             overrides = haskellSelf: haskellSuper: {
-                                               x509-validation = final.haskell.lib.dontCheck haskellSuper.x509-validation;
-                                             };
-                                           };
-                                           libreoffice-qt = prev.libreoffice-qt.overrideAttrs (attrs: {
-                                             stdenv = prev.llvmPackages_17.stdenv;
-                                             unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs rec {doCheck = false; stdenv = stdenv;};
-                                           });
-#                                           libreoffice-qt.unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs {doCheck = false;};
-#                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
-#                                             version = "0.7.4";
-#                                             src = prev.fetchurl {
-#                                               url = "https://ftp2.osuosl.org/pub/blfs/conglomeration/a52dec/a52dec-${version}.tar.gz";
-#                                               sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
-#                                             };
-#                                           });
+        blender = prev.blender.overrideAttrs
+          (attrs: { # colladaSupport = true; # default..
+            cmakeFlags = attrs.cmakeFlags ++ [ "-DWITH_CYCLES_EMBREE=OFF" ];
 
-                                           nethack = prev.nethack.overrideAttrs (oldattrs: {enableParallelBuilding = false;}); # it's a concurrent build bug actually
-                                           pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-                                             (
-                                               python-final: python-prev: {
-                                                 sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
-                                                   disabledTests = oldAttrs.disabledTests ++ ["test_linkcheck_request_headers_default"]; # stupid timeout failure on busy machine
-                                                 });
-                                                 numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
-                                                   disabledTests = oldAttrs.disabledTests ++ ["test_umath_accuracy" "TestAccuracy::test_validate_transcendentals" "test_validate_transcendentals" "test_structured_object_item_setting" "TestStructuredObjectRefcounting::test_structured_object_item_setting"];
-                                                 });
-                                               }
-                                             )
-                                           ];
-                                           
-                                         })
-                       
+            buildInputs = lib.debug.traceValSeqN 2 (lib.remove
+              (final.python310Packages.openusd.override { withOsl = false; })
+              (lib.remove final.embree attrs.buildInputs));
+            pythonPath = lib.debug.traceValSeqN 2 (lib.remove
+              (final.python310Packages.openusd.override { withOsl = false; })
+              attrs.pythonPath);
+          });
+
+        mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
+          stdenv = final.llvmPackages_17.stdenv;
+          rubberbandSupport = false;
+        }) { };
+        umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
+        tzdata = prev.tzdata.overrideAttrs (attrs: {
+          doCheck = false;
+          checkTarget = "";
+        });
+        haskellPackages = prev.haskellPackages.override {
+          overrides = haskellSelf: haskellSuper: {
+            x509-validation =
+              final.haskell.lib.dontCheck haskellSuper.x509-validation;
+          };
+        };
+        libreoffice-qt = prev.libreoffice-qt.overrideAttrs (attrs: {
+          stdenv = prev.llvmPackages_17.stdenv;
+          unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs rec {
+            doCheck = false;
+            stdenv = stdenv;
+          };
+        });
+        #                                           libreoffice-qt.unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs {doCheck = false;};
+        #                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
+        #                                             version = "0.7.4";
+        #                                             src = prev.fetchurl {
+        #                                               url = "https://ftp2.osuosl.org/pub/blfs/conglomeration/a52dec/a52dec-${version}.tar.gz";
+        #                                               sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
+        #                                             };
+        #                                           });
+
+        nethack = prev.nethack.overrideAttrs (oldattrs: {
+          enableParallelBuilding = false;
+        }); # it's a concurrent build bug actually
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (python-final: python-prev: {
+            sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
+              disabledTests = oldAttrs.disabledTests ++ [
+                "test_linkcheck_request_headers_default"
+              ]; # stupid timeout failure on busy machine
+            });
+            numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
+              disabledTests = oldAttrs.disabledTests ++ [
+                "test_umath_accuracy"
+                "TestAccuracy::test_validate_transcendentals"
+                "test_validate_transcendentals"
+                "test_structured_object_item_setting"
+                "TestStructuredObjectRefcounting::test_structured_object_item_setting"
+              ];
+            });
+          })
+        ];
+
+      })
+
   ];
 
   zramSwap.enable = true;
@@ -254,166 +268,191 @@
     initialHashedPassword = "";
     isNormalUser = true;
     home = "/home/wrath";
-    extraGroups = [ "wheel" "libvirtd" "adbusers" "nixseparatedebuginfod"];
-    packages = with pkgs; with inputs; let inochi-nixpkgs = import inputs.nixpkgs-inochi {inherit system;}; in [
-      sx
-      blender
-      config.nur.repos.chigyutendies.suyu-dev
-      config.nur.repos.chigyutendies.yuzu-early-access
-      config.nur.repos.chigyutendies.citra-nightly
-      inochi-nixpkgs.inochi-session
-      inochi-nixpkgs.inochi-creator
-      gitAndTools.gh
-      simplex-chat.packages.${system}."exe:simplex-chat"
-      gluon_language-server.packages.${system}.onCrane
-      android-studio
-      gargoyle
-      ffmpeg
-      yt-dlp
-      nethack 
-#      adom # broken
-      angband
-      frotz
-      netris
-      sfrotz
-      tintin
-      scummvm
-      calibre
-      (pavucontrol.override {stdenv = llvmPackages_17.stdenv;})
-      obs-studio
-      telegram-desktop
-      ldtk
-      (strawberry.override {stdenv = llvmPackages_17.stdenv;})
-      yakuake
-      (tree.override {stdenv = llvmPackages_17.stdenv;})
-      (qbittorrent.override {stdenv = llvmPackages_17.stdenv;})
-      (furnace.override {stdenv = llvmPackages_17.stdenv;})
-      (nmap.override {stdenv = llvmPackages_17.stdenv;})
-#      chromium # nah
-      (cmake.override {stdenv = llvmPackages_17.stdenv;})
-      element-desktop
-      fontforge
-      (gimp.override {stdenv = llvmPackages_17.stdenv;})
-      (lshw.override {stdenv = llvmPackages_17.stdenv;})
-      libreoffice-qt # nope
-      inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
-      mpv
-      lutris
-      lyx
-#      vscode # I probably don't need this since I got gluon lsp working with emacs
-    ];
+    extraGroups = [ "wheel" "libvirtd" "adbusers" "nixseparatedebuginfod" ];
+    packages = with pkgs;
+      with inputs;
+      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
+      in [
+        sx
+        blender
+        config.nur.repos.chigyutendies.suyu-dev
+        config.nur.repos.chigyutendies.yuzu-early-access
+        config.nur.repos.chigyutendies.citra-nightly
+        inochi-nixpkgs.inochi-session
+        inochi-nixpkgs.inochi-creator
+        gitAndTools.gh
+        simplex-chat.packages.${system}."exe:simplex-chat"
+        gluon_language-server.packages.${system}.onCrane
+        android-studio
+        gargoyle
+        ffmpeg
+        yt-dlp
+        nethack
+        #      adom # broken
+        angband
+        frotz
+        netris
+        sfrotz
+        tintin
+        scummvm
+        calibre
+        (pavucontrol.override { stdenv = llvmPackages_17.stdenv; })
+        obs-studio
+        telegram-desktop
+        ldtk
+        (strawberry.override { stdenv = llvmPackages_17.stdenv; })
+        yakuake
+        (tree.override { stdenv = llvmPackages_17.stdenv; })
+        (qbittorrent.override { stdenv = llvmPackages_17.stdenv; })
+        (furnace.override { stdenv = llvmPackages_17.stdenv; })
+        (nmap.override { stdenv = llvmPackages_17.stdenv; })
+        #      chromium # nah
+        (cmake.override { stdenv = llvmPackages_17.stdenv; })
+        element-desktop
+        fontforge
+        (gimp.override { stdenv = llvmPackages_17.stdenv; })
+        (lshw.override { stdenv = llvmPackages_17.stdenv; })
+        libreoffice-qt
+        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
+        mpv
+        lutris
+        lyx
+        #      vscode # I probably don't need this since I got gluon lsp working with emacs
+      ];
   };
   services.emacs.enable = true;
   programs.firefox.enable = true;
 
-  programs.firefox.package = pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped {};
+  programs.firefox.package =
+    pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped { };
 
   programs.direnv.enable = true;
   security.sudo = {
-  enable = true;
-  wheelNeedsPassword = false;
-};
+    enable = true;
+    wheelNeedsPassword = false;
+  };
 
-security.pam.loginLimits = [{
+  security.pam.loginLimits = [{
     domain = "*";
     type = "soft";
     item = "nofile";
     value = "65536";
-}];
-#services.tlp = {
-#  enable = true;
-#  settings = {
-#    CPU_DRIVER_OPMODE_ON_AC="active";
-#    CPU_DRIVER_OPMODE_ON_BAT="active";
-#    CPU_SCALING_GOVERNOR_ON_AC = "performance";
-#    CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-#    
-#    CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-#    CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-#    CPU_HWP_DYN_BOOST_ON_AC=1;
-#    CPU_HWP_DYN_BOOST_ON_BAT=0;
-#    CPU_BOOST_ON_AC=1;
-#    CPU_BOOST_ON_BAT=0;
-#    CPU_MIN_PERF_ON_AC = 0;
-#    CPU_MAX_PERF_ON_AC = 100;
-#    CPU_MIN_PERF_ON_BAT = 0;
-#    CPU_MAX_PERF_ON_BAT = 20;
-    
-       #Optional helps save long term battery health
-#    START_CHARGE_THRESH_BAT0 = 40; # 40 and bellow it starts to charge
-#    STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
-    
-#  };
-#};
-programs.adb.enable = true;
-virtualisation.libvirtd  = {
-  enable = true;
-  qemu = {
-    package = pkgs.qemu_kvm;
-    runAsRoot = true;
-    swtpm.enable = true;
-    ovmf = {
-      enable = true;
-      packages = [(pkgs.OVMF.override {
-        secureBoot = true;
-        tpmSupport = true;
-      }).fd];
+  }];
+  #services.tlp = {
+  #  enable = true;
+  #  settings = {
+  #    CPU_DRIVER_OPMODE_ON_AC="active";
+  #    CPU_DRIVER_OPMODE_ON_BAT="active";
+  #    CPU_SCALING_GOVERNOR_ON_AC = "performance";
+  #    CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+  #    
+  #    CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+  #    CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+  #    CPU_HWP_DYN_BOOST_ON_AC=1;
+  #    CPU_HWP_DYN_BOOST_ON_BAT=0;
+  #    CPU_BOOST_ON_AC=1;
+  #    CPU_BOOST_ON_BAT=0;
+  #    CPU_MIN_PERF_ON_AC = 0;
+  #    CPU_MAX_PERF_ON_AC = 100;
+  #    CPU_MIN_PERF_ON_BAT = 0;
+  #    CPU_MAX_PERF_ON_BAT = 20;
+
+  #Optional helps save long term battery health
+  #    START_CHARGE_THRESH_BAT0 = 40; # 40 and bellow it starts to charge
+  #    STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
+
+  #  };
+  #};
+  programs.adb.enable = true;
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = true;
+      swtpm.enable = true;
+      ovmf = {
+        enable = true;
+        packages = [
+          (pkgs.OVMF.override {
+            secureBoot = true;
+            tpmSupport = true;
+          }).fd
+        ];
+      };
     };
   };
-};
-programs.virt-manager.enable = true;
-services.nixseparatedebuginfod.enable = true;
-#services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
-environment.systemPackages = with pkgs; [
-  unzip
-  gdb
-  valgrind
-  elfutils
-  gist
-  jq
-  filelight
-  clasp
-  angle-grinder
-  xclip
-  inputs.hnix.defaultPackage.x86_64-linux
-  niv
-  nixfmt
-  wgetpaste
-  binwalk
-  w3m
-  clang-tools
-  bat
-  nix-tree
-  nix-du
-  nix-diff
-  smartmontools
-  lm_sensors
-  neomutt
-  nixd
-  nil
-  (lynx.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (tmux.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (htop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  nvtopPackages.full
-  (iftop.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (ripgrep.override {withPCRE2 = true; stdenv = pkgs.llvmPackages_17.stdenv;})
-  (gnutls.override {stdenv = pkgs.llvmPackages_17.stdenv;})              # for TLS connectivity
-  fd
-  imagemagick
-  sysstat
-  (zstd.override {stdenv = pkgs.llvmPackages_17.stdenv;})                # for undo-fu-session/undo-tree compression
+  programs.wireshark = {
+    enable = true;
+    package = pkgs.wireshark-qt;
+  };
+  programs.virt-manager.enable = true;
+  services.nixseparatedebuginfod.enable = true;
+  #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
+  environment.systemPackages = with pkgs; [
+    llvmPackages_17.bintools
+    radare2
+    retdec
+    ctypes_sh
+    tcpdump
+    ghidra
+    socat
+    iaito
+    unzip
+    gdb
+    valgrind
+    elfutils
+    gist
+    jq
+    filelight
+    clasp
+    angle-grinder
+    xclip
+    inputs.hnix.defaultPackage.x86_64-linux
+    niv
+    nixfmt
+    wgetpaste
+    binwalk
+    w3m
+    clang-tools
+    bat
+    nix-tree
+    nix-du
+    nix-diff
+    smartmontools
+    lm_sensors
+    neomutt
+    nixd
+    nil
+    (lynx.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (tmux.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (htop.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    nvtopPackages.full
+    (iftop.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (ripgrep.override {
+      withPCRE2 = true;
+      stdenv = pkgs.llvmPackages_17.stdenv;
+    })
+    (gnutls.override {
+      stdenv = pkgs.llvmPackages_17.stdenv;
+    }) # for TLS connectivity
+    fd
+    imagemagick
+    sysstat
+    (zstd.override {
+      stdenv = pkgs.llvmPackages_17.stdenv;
+    }) # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
-  (sqlite.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+    (sqlite.override { stdenv = pkgs.llvmPackages_17.stdenv; })
     # :lang latex & :lang org (latex previews)
     texlive.combined.scheme-medium
-  (openssh.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (mosh.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  (git.override {stdenv = pkgs.llvmPackages_17.stdenv;})
-  git-lfs
-  (wget.override {stdenv = pkgs.llvmPackages_17.stdenv;})
+    (openssh.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (mosh.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (git.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    git-lfs
+    (wget.override { stdenv = pkgs.llvmPackages_17.stdenv; })
 
-  rust-analyzer-nightly
-];
+    rust-analyzer-nightly
+  ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
@@ -423,8 +462,10 @@ environment.systemPackages = with pkgs; [
   };
   programs.steam = {
     enable = true;
-    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    remotePlay.openFirewall =
+      true; # Open ports in the firewall for Steam Remote Play
+    dedicatedServer.openFirewall =
+      true; # Open ports in the firewall for Source Dedicated Server
   };
   # List services that you want to enable:
 
@@ -442,7 +483,7 @@ environment.systemPackages = with pkgs; [
   };
 
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = ["nvidia" "amdgpu" "radeonsi"];
+  services.xserver.videoDrivers = [ "nvidia" "amdgpu" "radeonsi" ];
 
   hardware.nvidia = {
 
@@ -465,27 +506,25 @@ environment.systemPackages = with pkgs; [
     open = false;
 
     # Enable the Nvidia settings menu,
-	# accessible via `nvidia-settings`.
+    # accessible via `nvidia-settings`.
     nvidiaSettings = true;
     dynamicBoost.enable = true;
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-		
-#  hardware.nvidia.prime = {
-#    offload = {
-#			enable = true;
-#			enableOffloadCmd = true;
-#		};
-#    # Make sure to use the correct Bus ID values for your system!
-#    nvidiaBusId = "PCI:1:0:0";
-#    amdgpuBusId = "PCI:5:0:0";
-#  };
-  networking.extraHosts =
-    ''
-      192.168.122.173 ghc-plus-linux                    
-    ''
-    ;
+
+  #  hardware.nvidia.prime = {
+  #    offload = {
+  #			enable = true;
+  #			enableOffloadCmd = true;
+  #		};
+  #    # Make sure to use the correct Bus ID values for your system!
+  #    nvidiaBusId = "PCI:1:0:0";
+  #    amdgpuBusId = "PCI:5:0:0";
+  #  };
+  networking.extraHosts = ''
+    192.168.122.173 ghc-plus-linux                    
+  '';
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -493,9 +532,7 @@ environment.systemPackages = with pkgs; [
   networking.firewall.enable = false;
 
   boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
-  boot.kernelParams = [
-    "mitigations=off"
-  ];
+  boot.kernelParams = [ "mitigations=off" ];
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
