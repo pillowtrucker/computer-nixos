@@ -215,13 +215,13 @@
               final.haskell.lib.dontCheck haskellSuper.x509-validation;
           };
         };
-        libreoffice-qt = prev.libreoffice-qt.overrideAttrs (attrs: {
-          stdenv = prev.llvmPackages_17.stdenv;
-          unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs rec {
-            doCheck = false;
-            stdenv = stdenv;
-          };
-        });
+        #        libreoffice-qt = prev.libreoffice-qt.overrideAttrs (attrs: {
+        #          stdenv = prev.llvmPackages_17.stdenv;
+        #          unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs rec {
+        #            doCheck = false;
+        #            stdenv = stdenv;
+        #          };
+        #        });
         #                                           libreoffice-qt.unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs {doCheck = false;};
         #                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
         #                                             version = "0.7.4";
@@ -312,7 +312,7 @@
         fontforge
         (gimp.override { stdenv = llvmPackages_17.stdenv; })
         (lshw.override { stdenv = llvmPackages_17.stdenv; })
-        libreoffice-qt
+        #        libreoffice-qt
         inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
         mpv
         lutris
