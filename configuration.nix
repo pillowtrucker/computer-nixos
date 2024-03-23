@@ -129,7 +129,7 @@
   #  services.xserver.desktopManager.plasma5.enable = true;
   #  services.xserver.desktopManager.plasma6.enable = true;
   services.desktopManager.plasma6.enable = true;
-  services.xserver.displayManager.sx.enable = true;
+  #  services.xserver.displayManager.sx.enable = true;
   services.xserver.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
     enabled = "fcitx5";
@@ -216,21 +216,6 @@
               final.haskell.lib.dontCheck haskellSuper.x509-validation;
           };
         };
-        #        libreoffice-qt = prev.libreoffice-qt.overrideAttrs (attrs: {
-        #          stdenv = prev.llvmPackages_17.stdenv;
-        #          unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs rec {
-        #            doCheck = false;
-        #            stdenv = stdenv;
-        #          };
-        #        });
-        #                                           libreoffice-qt.unwrapped = prev.libreoffice-qt.unwrapped.overrideAttrs {doCheck = false;};
-        #                                           a52dec = prev.a52dec.overrideAttrs (attrs: rec {
-        #                                             version = "0.7.4";
-        #                                             src = prev.fetchurl {
-        #                                               url = "https://ftp2.osuosl.org/pub/blfs/conglomeration/a52dec/a52dec-${version}.tar.gz";
-        #                                               sha256 = "oh1ySrOzkzMwGUNTaH34LEdbXfuZdRPu9MJd5shl7DM=";
-        #                                             };
-        #                                           });
 
         nethack = prev.nethack.overrideAttrs (oldattrs: {
           enableParallelBuilding = false;
