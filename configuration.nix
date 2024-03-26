@@ -375,6 +375,8 @@
   services.nixseparatedebuginfod.enable = true;
   #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
   environment.systemPackages = with pkgs; [
+    appimage-run
+    file
     llvmPackages_17.bintools
     radare2
     retdec
