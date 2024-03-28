@@ -194,10 +194,10 @@
             cmakeFlags = attrs.cmakeFlags ++ [ "-DWITH_CYCLES_EMBREE=OFF" ];
 
             buildInputs = lib.debug.traceValSeqN 2 (lib.remove
-              (final.python310Packages.openusd.override { withOsl = false; })
+              (final.python311Packages.openusd.override { withOsl = false; })
               (lib.remove final.embree attrs.buildInputs));
             pythonPath = lib.debug.traceValSeqN 2 (lib.remove
-              (final.python310Packages.openusd.override { withOsl = false; })
+              (final.python311Packages.openusd.override { withOsl = false; })
               attrs.pythonPath);
           });
 
