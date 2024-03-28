@@ -425,21 +425,21 @@
     (gnutls.override {
       stdenv = llvmPackages_18.stdenv;
     }) # for TLS connectivity
-    (fd.override { stdenv = llvmPackages_18.stdenv; })
+    fd
     imagemagick
     sysstat
     (zstd.override {
-      stdenv = pkgs.llvmPackages_18.stdenv;
+      stdenv = llvmPackages_18.stdenv;
     }) # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
-    (sqlite.override { stdenv = pkgs.llvmPackages_18.stdenv; })
+    (sqlite.override { stdenv = llvmPackages_18.stdenv; })
     # :lang latex & :lang org (latex previews)
     texlive.combined.scheme-medium
-    (openssh.override { stdenv = pkgs.llvmPackages_18.stdenv; })
-    (mosh.override { stdenv = pkgs.llvmPackages_18.stdenv; })
-    (git.override { stdenv = pkgs.llvmPackages_18.stdenv; })
+    (openssh.override { stdenv = llvmPackages_18.stdenv; })
+    (mosh.override { stdenv = llvmPackages_18.stdenv; })
+    (git.override { stdenv = llvmPackages_18.stdenv; })
     git-lfs
-    (wget.override { stdenv = pkgs.llvmPackages_18.stdenv; })
+    (wget.override { stdenv = llvmPackages_18.stdenv; })
     rust-analyzer-nightly
   ];
   # Some programs need SUID wrappers, can be configured further or are
