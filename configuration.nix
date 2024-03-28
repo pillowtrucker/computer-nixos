@@ -202,7 +202,7 @@
           });
 
         mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
-          stdenv = final.llvmPackages_17.stdenv;
+          stdenv = final.llvmPackages_18.stdenv;
           rubberbandSupport = false;
         }) { };
         umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
@@ -282,22 +282,22 @@
         tintin
         scummvm
         calibre
-        (pavucontrol.override { stdenv = llvmPackages_17.stdenv; })
+        (pavucontrol.override { stdenv = llvmPackages_18.stdenv; })
         obs-studio
         telegram-desktop
         ldtk
-        (strawberry.override { stdenv = llvmPackages_17.stdenv; })
+        (strawberry.override { stdenv = llvmPackages_18.stdenv; })
         yakuake
-        (tree.override { stdenv = llvmPackages_17.stdenv; })
-        (qbittorrent.override { stdenv = llvmPackages_17.stdenv; })
-        (furnace.override { stdenv = llvmPackages_17.stdenv; })
-        (nmap.override { stdenv = llvmPackages_17.stdenv; })
+        (tree.override { stdenv = llvmPackages_18.stdenv; })
+        (qbittorrent.override { stdenv = llvmPackages_18.stdenv; })
+        (furnace.override { stdenv = llvmPackages_18.stdenv; })
+        (nmap.override { stdenv = llvmPackages_18.stdenv; })
         #      chromium # nah
-        (cmake.override { stdenv = llvmPackages_17.stdenv; })
-        element-desktop
+        (cmake.override { stdenv = llvmPackages_18.stdenv; })
+        (element-desktop.override { stdenv = llvmPackages_18.stdenv; })
         fontforge
-        (gimp.override { stdenv = llvmPackages_17.stdenv; })
-        (lshw.override { stdenv = llvmPackages_17.stdenv; })
+        (gimp.override { stdenv = llvmPackages_18.stdenv; })
+        (lshw.override { stdenv = llvmPackages_18.stdenv; })
         #        libreoffice-qt
         inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
         mpv
@@ -309,8 +309,10 @@
   services.emacs.enable = true;
   programs.firefox.enable = true;
 
-  programs.firefox.package =
-    pkgs.wrapFirefox pkgs.firefox-devedition-unwrapped { };
+  programs.firefox.package = pkgs.wrapFirefox
+    (pkgs.firefox-devedition-unwrapped.override {
+      stdenv = pkgs.llvmPackages_18.stdenv;
+    }) { };
 
   programs.direnv.enable = true;
   security.sudo = {
@@ -377,7 +379,7 @@
   environment.systemPackages = with pkgs; [
     appimage-run
     file
-    llvmPackages_17.bintools
+    llvmPackages_18.bintools
     radare2
     retdec
     ctypes_sh
@@ -401,8 +403,8 @@
     wgetpaste
     binwalk
     w3m
-    clang-tools
-    bat
+    (clang-tools.override { llvmPackages = llvmPackages_18; })
+    (bat.override { stdenv = llvmPackages_18.stdenv; })
     nix-tree
     nix-du
     nix-diff
@@ -411,34 +413,33 @@
     neomutt
     nixd
     nil
-    (lynx.override { stdenv = pkgs.llvmPackages_17.stdenv; })
-    (tmux.override { stdenv = pkgs.llvmPackages_17.stdenv; })
-    (htop.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (lynx.override { stdenv = llvmPackages_18.stdenv; })
+    (tmux.override { stdenv = llvmPackages_18.stdenv; })
+    (htop.override { stdenv = llvmPackages_18.stdenv; })
     nvtopPackages.full
-    (iftop.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (iftop.override { stdenv = llvmPackages_18.stdenv; })
     (ripgrep.override {
       withPCRE2 = true;
-      stdenv = pkgs.llvmPackages_17.stdenv;
+      stdenv = llvmPackages_18.stdenv;
     })
     (gnutls.override {
-      stdenv = pkgs.llvmPackages_17.stdenv;
+      stdenv = llvmPackages_18.stdenv;
     }) # for TLS connectivity
-    fd
+    (fd.override { stdenv = llvmPackages_18.stdenv; })
     imagemagick
     sysstat
     (zstd.override {
-      stdenv = pkgs.llvmPackages_17.stdenv;
+      stdenv = pkgs.llvmPackages_18.stdenv;
     }) # for undo-fu-session/undo-tree compression
     # :tools lookup & :lang org +roam
-    (sqlite.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (sqlite.override { stdenv = pkgs.llvmPackages_18.stdenv; })
     # :lang latex & :lang org (latex previews)
     texlive.combined.scheme-medium
-    (openssh.override { stdenv = pkgs.llvmPackages_17.stdenv; })
-    (mosh.override { stdenv = pkgs.llvmPackages_17.stdenv; })
-    (git.override { stdenv = pkgs.llvmPackages_17.stdenv; })
+    (openssh.override { stdenv = pkgs.llvmPackages_18.stdenv; })
+    (mosh.override { stdenv = pkgs.llvmPackages_18.stdenv; })
+    (git.override { stdenv = pkgs.llvmPackages_18.stdenv; })
     git-lfs
-    (wget.override { stdenv = pkgs.llvmPackages_17.stdenv; })
-
+    (wget.override { stdenv = pkgs.llvmPackages_18.stdenv; })
     rust-analyzer-nightly
   ];
   # Some programs need SUID wrappers, can be configured further or are
