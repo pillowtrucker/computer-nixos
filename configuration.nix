@@ -188,7 +188,7 @@
             inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
           })
           mkRubyVersion mkRuby ruby_3_1 ruby_3_2 ruby_3_3;
-
+        xz = prev.callPackage ./xz.nix { };
         blender = prev.blender.overrideAttrs
           (attrs: { # colladaSupport = true; # default..
             cmakeFlags = attrs.cmakeFlags ++ [ "-DWITH_CYCLES_EMBREE=OFF" ];
