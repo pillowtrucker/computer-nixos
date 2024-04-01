@@ -300,6 +300,8 @@
         (lshw.override { stdenv = llvmPackages_18.stdenv; })
         #        libreoffice-qt
         inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
+        dxvk
+        #        inputs.nix-gaming.packages.${system}.dxvk
         mpv
         lutris
         lyx
