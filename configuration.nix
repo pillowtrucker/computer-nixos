@@ -175,7 +175,22 @@
     #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
     (import "${inputs.fenix}/overlay.nix")
     (import inputs.emacs-overlay)
+    (final_solution: prev:
+      let
+        pkgs = import inputs.nixpkgs { system = config.system; };
+        noricingpkgs = import inputs.nixpkgs {
+          localSystem = {
+            system = "x86_64-linux";
+            gcc = { };
+          };
+        };
 
+      in {
+
+        embree = noricingpkgs.embree;
+        blender = noricingpkgs.blender;
+
+      })
     (final: prev:
       let pkgs = import inputs.nixpkgs { system = config.system; };
       in {
@@ -189,17 +204,6 @@
           })
           mkRubyVersion mkRuby ruby_3_1 ruby_3_2 ruby_3_3;
         xz = prev.callPackage ./xz.nix { };
-        blender = prev.blender.overrideAttrs
-          (attrs: { # colladaSupport = true; # default..
-            cmakeFlags = attrs.cmakeFlags ++ [ "-DWITH_CYCLES_EMBREE=OFF" ];
-
-            buildInputs = lib.debug.traceValSeqN 2 (lib.remove
-              (final.python311Packages.openusd.override { withOsl = false; })
-              (lib.remove final.embree attrs.buildInputs));
-            pythonPath = lib.debug.traceValSeqN 2 (lib.remove
-              (final.python311Packages.openusd.override { withOsl = false; })
-              attrs.pythonPath);
-          });
 
         mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
           stdenv = final.llvmPackages_18.stdenv;
@@ -227,6 +231,7 @@
                 "test_linkcheck_request_headers_default"
               ]; # stupid timeout failure on busy machine
             });
+
             numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
               disabledTests = oldAttrs.disabledTests ++ [
                 "test_umath_accuracy"
