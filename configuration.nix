@@ -125,12 +125,14 @@
   };
 
   services.xserver.enable = true;
-  #  services.xserver.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true;
+
   #  services.xserver.desktopManager.plasma5.enable = true;
   #  services.xserver.desktopManager.plasma6.enable = true;
   services.desktopManager.plasma6.enable = true;
   #  services.xserver.displayManager.sx.enable = true;
-  services.xserver.displayManager.defaultSession = "plasmax11";
+  #  services.xserver.displayManager.defaultSession = "plasmax11";
+  services.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = with pkgs; [
@@ -413,7 +415,7 @@
     xclip
     inputs.hnix.defaultPackage.x86_64-linux
     niv
-    nixfmt
+    nixfmt-classic
     wgetpaste
     binwalk
     w3m
