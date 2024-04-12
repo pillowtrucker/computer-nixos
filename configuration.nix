@@ -191,6 +191,7 @@
         blender = noricingpkgs.blender;
 
       })
+
     (final: prev:
       let pkgs = import inputs.nixpkgs { system = config.system; };
       in {
@@ -218,6 +219,7 @@
           overrides = haskellSelf: haskellSuper: {
             x509-validation =
               final.haskell.lib.dontCheck haskellSuper.x509-validation;
+            cryptonite = final.haskell.lib.dontCheck haskellSuper.cryptonite;
           };
         };
 
@@ -264,6 +266,10 @@
       with inputs;
       let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       in [
+        unrar
+        p7zip
+        np2kai
+        mednaffe
         sx
         blender
         config.nur.repos.chigyutendies.suyu-dev
