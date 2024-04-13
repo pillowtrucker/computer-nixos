@@ -125,7 +125,7 @@
   };
 
   services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
+#  services.displayManager.sddm.enable = true;
 
   #  services.xserver.desktopManager.plasma5.enable = true;
   #  services.xserver.desktopManager.plasma6.enable = true;
@@ -518,15 +518,15 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  #  hardware.nvidia.prime = {
-  #    offload = {
-  #			enable = true;
-  #			enableOffloadCmd = true;
-  #		};
-  #    # Make sure to use the correct Bus ID values for your system!
-  #    nvidiaBusId = "PCI:1:0:0";
-  #    amdgpuBusId = "PCI:5:0:0";
-  #  };
+#    hardware.nvidia.prime = {
+#      offload = {
+#  			enable = true;
+#  			enableOffloadCmd = true;
+#  		};
+#      # Make sure to use the correct Bus ID values for your system!
+#      nvidiaBusId = "PCI:1:0:0";
+#      amdgpuBusId = "PCI:5:0:0";
+#    };
   networking.extraHosts = ''
     192.168.122.173 ghc-plus-linux                    
   '';
