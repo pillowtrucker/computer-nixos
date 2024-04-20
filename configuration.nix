@@ -200,13 +200,15 @@
         opencolorio = prev.opencolorio.overrideAttrs (attrs: {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
-        inherit (prev.callPackage
-          "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
-            inherit (pkgs.darwin) libobjc libunwind;
-            inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
-          })
-          mkRubyVersion mkRuby ruby_3_1 ruby_3_2 ruby_3_3;
-        xz = prev.callPackage ./xz.nix { };
+        #        inherit (prev.callPackage
+        #          "${inputs.nixpkgs-ruby-ca}/pkgs/development/interpreters/ruby/default.nix" {
+        #            inherit (pkgs.darwin) libobjc libunwind;
+        #            inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
+        #          })
+        #          mkRubyVersion mkRuby ruby_3_1 ruby_3_2 ruby_3_3;
+        #        xz = prev.callPackage ./xz.nix { };
+        #        lzma = final.xz;
+        # ^ this is probably not worth it
 
         mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
           stdenv = final.llvmPackages_18.stdenv;
@@ -266,8 +268,9 @@
     extraGroups = [ "wheel" "libvirtd" "adbusers" "nixseparatedebuginfod" ];
     packages = with pkgs;
       with inputs;
-      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
-      in [
+      #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
+      #      in [
+      [
         pigz
         unrar
         p7zip
@@ -275,11 +278,13 @@
         mednaffe
         sx
         blender
-        config.nur.repos.chigyutendies.suyu-dev
+        #        config.nur.repos.chigyutendies.suyu-dev
         config.nur.repos.chigyutendies.yuzu-early-access
         config.nur.repos.chigyutendies.citra-nightly
-        inochi-nixpkgs.inochi-session
-        inochi-nixpkgs.inochi-creator
+        inochi-session
+        inochi-creator
+        #        inochi-nixpkgs.inochi-session
+        #        inochi-nixpkgs.inochi-creator
         gitAndTools.gh
         simplex-chat.packages.${system}."exe:simplex-chat"
         gluon_language-server.packages.${system}.onCrane
@@ -298,7 +303,7 @@
         calibre
         (pavucontrol.override { stdenv = llvmPackages_18.stdenv; })
         obs-studio
-        telegram-desktop
+        (telegram-desktop.override { stdenv = llvmPackages_18.stdenv; })
         ldtk
         (strawberry.override { stdenv = llvmPackages_18.stdenv; })
         yakuake
@@ -324,6 +329,8 @@
       ];
   };
   services.emacs.enable = true;
+  services.emacs.defaultEditor = true;
+  #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
 
   programs.firefox.package = pkgs.wrapFirefox
