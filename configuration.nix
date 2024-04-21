@@ -238,7 +238,7 @@
               ]; # stupid timeout failure on busy machine
             });
             mechanize = python-prev.mechanize.overridePythonAttrs (oldAttrs: {
-              disableTests = oldAttrs.disableTests ++ [
+              disabledTests = oldAttrs.disabledTests ++ [
                 "test/test_urllib2.py::HandlerTests::test_ftp"
                 "HandlerTests::test_ftp"
                 "test_ftp"
