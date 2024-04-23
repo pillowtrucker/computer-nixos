@@ -311,6 +311,7 @@
         obs-studio
         (telegram-desktop.override {
           stdenv = llvmPackages_18.libcxxStdenv;
+          fmt = fmt_10.override { inherit stdenv; };
         }) # doesnt work with llvm.stdenv
         ldtk
         (strawberry.override { stdenv = llvmPackages_18.stdenv; })
