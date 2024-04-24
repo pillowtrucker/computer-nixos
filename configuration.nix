@@ -309,10 +309,7 @@
         calibre
         (pavucontrol.override { stdenv = llvmPackages_18.stdenv; })
         obs-studio
-        (telegram-desktop.override {
-          stdenv = llvmPackages_18.libcxxStdenv;
-          fmt = fmt_10.override { inherit stdenv; };
-        }) # doesnt work with llvm.stdenv
+        telegram-desktop # too much of PITA to build with llvm
         ldtk
         (strawberry.override { stdenv = llvmPackages_18.stdenv; })
         yakuake
