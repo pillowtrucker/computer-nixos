@@ -210,6 +210,28 @@
         #        lzma = final.xz;
         # ^ this is probably not worth it
 
+        inherit (rec {
+          llvmPackages_18 = prev.recurseIntoAttrs (prev.callPackage
+            "${inputs.nixpkgs-llvm18-update}/pkgs/development/compilers/llvm/18" ({
+              inherit (prev.stdenvAdapters) overrideCC;
+              buildLlvmTools = prev.buildPackages.llvmPackages_18.tools;
+              targetLlvmLibraries =
+                prev.targetPackages.llvmPackages_18.libraries or llvmPackages_18.libraries;
+              targetLlvm =
+                prev.targetPackages.llvmPackages_18.llvm or llvmPackages_18.llvm;
+            }));
+
+          clang_18 = llvmPackages_18.clang;
+          lld_18 = llvmPackages_18.lld;
+          lldb_18 = llvmPackages_18.lldb;
+          llvm_18 = llvmPackages_18.llvm;
+
+          clang-tools_18 = prev.callPackage ../development/tools/clang-tools {
+            llvmPackages = llvmPackages_18;
+          };
+        })
+          llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
+
         mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
           stdenv = final.llvmPackages_18.stdenv;
           rubberbandSupport = false;

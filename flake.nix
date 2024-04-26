@@ -16,6 +16,8 @@
       "github:pillowtrucker/gluon_language-server/nix";
     hnix.url = "github:haskell-nix/hnix/master";
     nur.url = "github:nix-community/NUR";
+    nixpkgs-llvm18-update.url =
+      "github:ExpidusOS/nixpkgs/1c5df86c3d30e6a8d43113f1400641cdd7709da9";
 
   };
 
