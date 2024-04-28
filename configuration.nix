@@ -9,7 +9,13 @@
 #  inochi-nixpkgs = import inputs.nixpkgs-inochi {};
 #let my-firefox-fix = import inputs.nixpkgs-my-firefox-patch {system = config.system;};
 #in
-{
+let
+  myClangStdenv = pkgs.stdenvAdapters.useMoldLinker
+    (pkgs.stdenvAdapters.overrideCC pkgs.llvmPackages_18.stdenv
+      (pkgs.llvmPackages_18.clang.override {
+        bintools = pkgs.llvmPackages_18.bintools;
+      }));
+in {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./cachix.nix
@@ -196,6 +202,7 @@
 
     (final: prev:
       let pkgs = import inputs.nixpkgs { system = config.system; };
+
       in {
         opencolorio = prev.opencolorio.overrideAttrs (attrs: {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
@@ -210,30 +217,30 @@
         #        lzma = final.xz;
         # ^ this is probably not worth it
 
-        inherit (rec {
-          llvmPackages_18 = prev.recurseIntoAttrs (prev.callPackage
-            "${inputs.nixpkgs-llvm18-update}/pkgs/development/compilers/llvm/18" ({
-              inherit (prev.stdenvAdapters) overrideCC;
-              buildLlvmTools = prev.buildPackages.llvmPackages_18.tools;
-              targetLlvmLibraries =
-                prev.targetPackages.llvmPackages_18.libraries or llvmPackages_18.libraries;
-              targetLlvm =
-                prev.targetPackages.llvmPackages_18.llvm or llvmPackages_18.llvm;
-            }));
+        #        inherit (rec {
+        #          llvmPackages_18 = prev.recurseIntoAttrs (prev.callPackage
+        #            "${inputs.nixpkgs-llvm18-update}/pkgs/development/compilers/llvm/18" ({
+        #              inherit (prev.stdenvAdapters) overrideCC;
+        #              buildLlvmTools = prev.buildPackages.llvmPackages_18.tools;
+        #              targetLlvmLibraries =
+        #                prev.targetPackages.llvmPackages_18.libraries or llvmPackages_18.libraries;
+        #              targetLlvm =
+        #                prev.targetPackages.llvmPackages_18.llvm or llvmPackages_18.llvm;
+        #            }));
 
-          clang_18 = llvmPackages_18.clang;
-          lld_18 = llvmPackages_18.lld;
-          lldb_18 = llvmPackages_18.lldb;
-          llvm_18 = llvmPackages_18.llvm;
+        #          clang_18 = llvmPackages_18.clang;
+        #          lld_18 = llvmPackages_18.lld;
+        #          lldb_18 = llvmPackages_18.lldb;
+        #          llvm_18 = llvmPackages_18.llvm;
 
-          clang-tools_18 = prev.callPackage ../development/tools/clang-tools {
-            llvmPackages = llvmPackages_18;
-          };
-        })
-          llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
+        #          clang-tools_18 = prev.callPackage ../development/tools/clang-tools {
+        #            llvmPackages = llvmPackages_18;
+        #          };
+        #        })
+        #          llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
 
         mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
-          stdenv = final.llvmPackages_18.stdenv;
+          stdenv = myClangStdenv;
           rubberbandSupport = false;
         }) { };
         umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
@@ -329,22 +336,22 @@
         tintin
         scummvm
         calibre
-        (pavucontrol.override { stdenv = llvmPackages_18.stdenv; })
+        (pavucontrol.override { stdenv = myClangStdenv; })
         obs-studio
         telegram-desktop # too much of PITA to build with llvm
         ldtk
-        (strawberry.override { stdenv = llvmPackages_18.stdenv; })
+        (strawberry.override { stdenv = myClangStdenv; })
         yakuake
-        (tree.override { stdenv = llvmPackages_18.stdenv; })
-        (qbittorrent.override { stdenv = llvmPackages_18.stdenv; })
-        (furnace.override { stdenv = llvmPackages_18.stdenv; })
-        (nmap.override { stdenv = llvmPackages_18.stdenv; })
+        (tree.override { stdenv = myClangStdenv; })
+        (qbittorrent.override { stdenv = myClangStdenv; })
+        (furnace.override { stdenv = myClangStdenv; })
+        (nmap.override { stdenv = myClangStdenv; })
         #      chromium # nah
-        (cmake.override { stdenv = llvmPackages_18.stdenv; })
-        (element-desktop.override { stdenv = llvmPackages_18.stdenv; })
+        (cmake.override { stdenv = myClangStdenv; })
+        (element-desktop.override { stdenv = myClangStdenv; })
         fontforge
-        (gimp.override { stdenv = llvmPackages_18.stdenv; })
-        (lshw.override { stdenv = llvmPackages_18.stdenv; })
+        (gimp.override { stdenv = myClangStdenv; })
+        (lshw.override { stdenv = myClangStdenv; })
         #        libreoffice-qt
         inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
         winetricks
@@ -362,9 +369,8 @@
   programs.firefox.enable = true;
 
   programs.firefox.package = pkgs.wrapFirefox
-    (pkgs.firefox-devedition-unwrapped.override {
-      stdenv = pkgs.llvmPackages_18.stdenv;
-    }) { };
+    (pkgs.firefox-devedition-unwrapped.override { stdenv = myClangStdenv; })
+    { };
 
   programs.direnv.enable = true;
   security.sudo = {
@@ -428,72 +434,73 @@
   programs.virt-manager.enable = true;
   services.nixseparatedebuginfod.enable = true;
   #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
-  environment.systemPackages = with pkgs; [
-    appimage-run
-    file
-    llvmPackages_18.bintools
-    radare2
-    retdec
-    ctypes_sh
-    tcpdump
-    ghidra
-    socat
-    iaito
-    unzip
-    gdb
-    valgrind
-    elfutils
-    gist
-    jq
-    filelight
-    clasp
-    angle-grinder
-    xclip
-    inputs.hnix.defaultPackage.x86_64-linux
-    niv
-    nixfmt-classic
-    wgetpaste
-    binwalk
-    w3m
-    (clang-tools.override { llvmPackages = llvmPackages_18; })
-    (bat.override { stdenv = llvmPackages_18.stdenv; })
-    nix-tree
-    nix-du
-    nix-diff
-    smartmontools
-    lm_sensors
-    neomutt
-    nixd
-    nil
-    (lynx.override { stdenv = llvmPackages_18.stdenv; })
-    (tmux.override { stdenv = llvmPackages_18.stdenv; })
-    (htop.override { stdenv = llvmPackages_18.stdenv; })
-    nvtopPackages.full
-    (iftop.override { stdenv = llvmPackages_18.stdenv; })
-    (ripgrep.override {
-      withPCRE2 = true;
-      stdenv = llvmPackages_18.stdenv;
-    })
-    (gnutls.override {
-      stdenv = llvmPackages_18.stdenv;
-    }) # for TLS connectivity
-    fd
-    imagemagick
-    sysstat
-    (zstd.override {
-      stdenv = llvmPackages_18.stdenv;
-    }) # for undo-fu-session/undo-tree compression
-    # :tools lookup & :lang org +roam
-    (sqlite.override { stdenv = llvmPackages_18.stdenv; })
-    # :lang latex & :lang org (latex previews)
-    texlive.combined.scheme-medium
-    (openssh.override { stdenv = llvmPackages_18.stdenv; })
-    (mosh.override { stdenv = llvmPackages_18.stdenv; })
-    (git.override { stdenv = llvmPackages_18.stdenv; })
-    git-lfs
-    (wget.override { stdenv = llvmPackages_18.stdenv; })
-    rust-analyzer-nightly
-  ];
+  environment.systemPackages = with pkgs;
+    let pkgs = import inputs.nixpkgs { system = config.system; };
+
+    in [
+      appimage-run
+      file
+      llvmPackages_18.bintools
+      radare2
+      retdec
+      ctypes_sh
+      tcpdump
+      ghidra
+      socat
+      iaito
+      unzip
+      gdb
+      valgrind
+      elfutils
+      gist
+      jq
+      filelight
+      clasp
+      angle-grinder
+      xclip
+      inputs.hnix.defaultPackage.x86_64-linux
+      niv
+      nixfmt-classic
+      wgetpaste
+      binwalk
+      w3m
+      (clang-tools.override { llvmPackages = llvmPackages_18; })
+      (bat.override { stdenv = myClangStdenv; })
+      nix-tree
+      nix-du
+      nix-diff
+      smartmontools
+      lm_sensors
+      neomutt
+      nixd
+      nil
+      (lynx.override { stdenv = myClangStdenv; })
+      (tmux.override { stdenv = myClangStdenv; })
+      (htop.override { stdenv = myClangStdenv; })
+      nvtopPackages.full
+      (iftop.override { stdenv = myClangStdenv; })
+      (ripgrep.override {
+        withPCRE2 = true;
+        stdenv = myClangStdenv;
+      })
+      (gnutls.override { stdenv = myClangStdenv; }) # for TLS connectivity
+      fd
+      imagemagick
+      sysstat
+      (zstd.override {
+        stdenv = myClangStdenv;
+      }) # for undo-fu-session/undo-tree compression
+      # :tools lookup & :lang org +roam
+      (sqlite.override { stdenv = myClangStdenv; })
+      # :lang latex & :lang org (latex previews)
+      texlive.combined.scheme-medium
+      (openssh.override { stdenv = myClangStdenv; })
+      (mosh.override { stdenv = myClangStdenv; })
+      (git.override { stdenv = myClangStdenv; })
+      git-lfs
+      (wget.override { stdenv = myClangStdenv; })
+      rust-analyzer-nightly
+    ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
