@@ -439,6 +439,7 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+      remmina
       ntfs3g
       woeusb-ng
       appimage-run
