@@ -42,6 +42,7 @@ in {
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/efi";
+  boot.supportedFilesystems = [ "ntfs" ];
   nix.settings.keep-derivations = true;
   nix.settings.keep-outputs = true;
   #  nix.settings.auto-optimise-store = true;
@@ -438,6 +439,8 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+      ntfs3g
+      woeusb-ng
       appimage-run
       file
       llvmPackages_18.bintools
