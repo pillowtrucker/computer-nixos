@@ -178,7 +178,7 @@ in {
     #jack.enable = true;
   };
   # Enable touchpad support (enabled default in most desktopManager).
-  services.xserver.libinput.enable = true;
+  services.libinput.enable = true;
 
   nixpkgs.overlays = [
     #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
