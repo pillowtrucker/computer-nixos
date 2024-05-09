@@ -307,6 +307,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        ida-free
         pigz
         unrar
         p7zip
