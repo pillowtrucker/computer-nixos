@@ -440,6 +440,8 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+
+      mercurial
       remmina
       ntfs3g
       woeusb-ng
