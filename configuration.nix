@@ -244,10 +244,13 @@ in {
         #          stdenv = myClangStdenv;
         #          rubberbandSupport = false;
         #        }) { };
-        mpv = prev.mpv.override {
+
+        mpv-unwrapped = prev.mpv-unwrapped.override {
           stdenv = myClangStdenv;
           rubberbandSupport = false;
         };
+        mpv = final.mpv-unwrapped.wrapper { mpv = final.mpv-unwrapped; };
+
         umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
         tzdata = prev.tzdata.overrideAttrs (attrs: {
           doCheck = false;
