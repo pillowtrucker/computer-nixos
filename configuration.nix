@@ -240,10 +240,14 @@ in {
         #        })
         #          llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
 
-        mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
+        #        mpv = prev.wrapMpv (prev.mpv.unwrapped.override {
+        #          stdenv = myClangStdenv;
+        #          rubberbandSupport = false;
+        #        }) { };
+        mpv = prev.mpv.override {
           stdenv = myClangStdenv;
           rubberbandSupport = false;
-        }) { };
+        };
         umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
         tzdata = prev.tzdata.overrideAttrs (attrs: {
           doCheck = false;
