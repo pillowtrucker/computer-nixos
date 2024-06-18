@@ -489,6 +489,7 @@ in {
       (lynx.override { stdenv = myClangStdenv; })
       (tmux.override { stdenv = myClangStdenv; })
       (htop.override { stdenv = myClangStdenv; })
+      (btop.override { stdenv = myClangStdenv; })
       nvtopPackages.full
       (iftop.override { stdenv = myClangStdenv; })
       (ripgrep.override {
