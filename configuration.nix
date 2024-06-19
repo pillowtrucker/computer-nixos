@@ -260,6 +260,8 @@ in {
           overrides = haskellSelf: haskellSuper: {
             x509-validation =
               final.haskell.lib.dontCheck haskellSuper.x509-validation;
+            crypton-x509-validation =
+              final.haskell.lib.dontCheck haskellSuper.crypton-x509-validation;
             cryptonite = final.haskell.lib.dontCheck haskellSuper.cryptonite;
           };
         };
