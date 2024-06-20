@@ -542,12 +542,16 @@ in {
   services.supergfxd.enable = true;
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
 
-  hardware.opengl = {
-    enable = true;
-    #    driSupport = true;
-    driSupport32Bit = true;
-  };
+  #  hardware.opengl = {
+  #    enable = true;
+  #    driSupport = true;
+  #    driSupport32Bit = true;
+  #  };
 
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = [ "nvidia" "amdgpu" "radeonsi" ];
 
