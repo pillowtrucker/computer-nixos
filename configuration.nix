@@ -209,32 +209,32 @@ in {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
 
-        inherit (rec {
-          llvmPackages_18 = prev.recurseIntoAttrs (prev.callPackage
-            "${inputs.nixpkgs}/pkgs/development/compilers/llvm/18" ({
-              inherit (prev.stdenvAdapters) overrideCC;
-              officialRelease = {
-                version = "18.1.8";
-                sha256 = "sha256-iiZKMRo/WxJaBXct9GdAcAT3cz9d9pnAcO1mmR6oPNE=";
-              };
-              buildLlvmTools = prev.buildPackages.llvmPackages_18.tools;
-              targetLlvmLibraries =
-                prev.targetPackages.llvmPackages_18.libraries or llvmPackages_18.libraries;
-              targetLlvm =
-                prev.targetPackages.llvmPackages_18.llvm or llvmPackages_18.llvm;
-            }));
+        #        inherit (rec {
+        #   llvmPackages_18 = prev.recurseIntoAttrs (prev.callPackage
+        #     "${inputs.nixpkgs}/pkgs/development/compilers/llvm/18" ({
+        #       inherit (prev.stdenvAdapters) overrideCC;
+        #       officialRelease = {
+        #         version = "18.1.8";
+        #         sha256 = "sha256-iiZKMRo/WxJaBXct9GdAcAT3cz9d9pnAcO1mmR6oPNE=";
+        #       };
+        #       buildLlvmTools = prev.buildPackages.llvmPackages_18.tools;
+        #       targetLlvmLibraries =
+        #         prev.targetPackages.llvmPackages_18.libraries or llvmPackages_18.libraries;
+        #       targetLlvm =
+        #         prev.targetPackages.llvmPackages_18.llvm or llvmPackages_18.llvm;
+        #     }));
 
-          clang_18 = llvmPackages_18.clang;
-          lld_18 = llvmPackages_18.lld;
-          lldb_18 = llvmPackages_18.lldb;
-          llvm_18 = llvmPackages_18.llvm;
+        #   clang_18 = llvmPackages_18.clang;
+        #   lld_18 = llvmPackages_18.lld;
+        #   lldb_18 = llvmPackages_18.lldb;
+        #   llvm_18 = llvmPackages_18.llvm;
 
-          clang-tools_18 = prev.callPackage
-            "${inputs.nixpkgs}/pkgs/development/tools/clang-tools" {
-              llvmPackages = llvmPackages_18;
-            };
-        })
-          llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
+        #   clang-tools_18 = prev.callPackage
+        #     "${inputs.nixpkgs}/pkgs/development/tools/clang-tools" {
+        #       llvmPackages = llvmPackages_18;
+        #     };
+        # })
+        #   llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
 
         mpv-unwrapped = prev.mpv-unwrapped.override {
           stdenv = myClangStdenv;
@@ -294,6 +294,9 @@ in {
   zramSwap.memoryPercent = 80;
   nixpkgs.config.allowUnfree = true;
   programs.zsh.enable = true;
+
+  services.ergochat = { enable = true; };
+
   users.defaultUserShell = pkgs.zsh;
   users.users.root.initialHashedPassword = "";
   users.users.wrath = {
@@ -307,6 +310,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        weechat
         qt6ct
         ida-free
         pigz
