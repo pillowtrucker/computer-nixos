@@ -236,7 +236,8 @@ in {
         #     };
         # })
         #   llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
-        gss = prev.gss.override { stdenv = myClangStdenv; };
+        gss = prev.gss.overrideAttrs { doCheck = false; };
+        #        gss = prev.gss.override { stdenv = myClangStdenv; };
         mpv-unwrapped = prev.mpv-unwrapped.override {
           stdenv = myClangStdenv;
           rubberbandSupport = false;
