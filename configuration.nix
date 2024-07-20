@@ -141,7 +141,8 @@ in {
   #  services.xserver.displayManager.defaultSession = "plasmax11";
   services.displayManager.defaultSession = "plasmax11";
   i18n.inputMethod = {
-    enabled = "fcitx5";
+    enable = true;
+    type = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-skk
       qt6Packages.fcitx5-qt
@@ -235,7 +236,7 @@ in {
         #     };
         # })
         #   llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
-
+        gss = prev.gss.override { stdenv = myClangStdenv; };
         mpv-unwrapped = prev.mpv-unwrapped.override {
           stdenv = myClangStdenv;
           rubberbandSupport = false;
@@ -449,7 +450,7 @@ in {
       mercurial
       remmina
       ntfs3g
-      woeusb-ng
+      #      woeusb-ng
       appimage-run
       file
       llvmPackages_18.bintools
@@ -476,7 +477,8 @@ in {
       wgetpaste
       binwalk
       w3m
-      (clang-tools.override { llvmPackages = llvmPackages_18; })
+      llvmPackages_18.clang-tools
+      #      (clang-tools.override { llvmPackages = llvmPackages_18; })
       (bat.override { stdenv = myClangStdenv; })
       nix-tree
       nix-du
