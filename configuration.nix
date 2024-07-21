@@ -251,6 +251,8 @@ in {
         });
         haskellPackages = prev.haskellPackages.override {
           overrides = haskellSelf: haskellSuper: {
+            tls = final.haskell.lib.dontCheck haskellSuper.tls;
+            crypton = final.haskell.lib.dontCheck haskellSuper.crypton;
             x509-validation =
               final.haskell.lib.dontCheck haskellSuper.x509-validation;
             crypton-x509-validation =
