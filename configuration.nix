@@ -132,7 +132,7 @@ in {
   };
 
   services.xserver.enable = true;
-  #  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true;
 
   #  services.xserver.desktopManager.plasma5.enable = true;
   #  services.xserver.desktopManager.plasma6.enable = true;
@@ -299,8 +299,8 @@ in {
         sx
         blender
         #        config.nur.repos.chigyutendies.suyu-dev
-        config.nur.repos.chigyutendies.yuzu-early-access
-        config.nur.repos.chigyutendies.citra-nightly
+        #        config.nur.repos.chigyutendies.yuzu-early-access
+        #        config.nur.repos.chigyutendies.citra-nightly
         inochi-session
         inochi-creator
 
@@ -519,6 +519,7 @@ in {
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    package = config.hardware.nvidia.package;
   };
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = [ "nvidia" "amdgpu" "radeonsi" ];
