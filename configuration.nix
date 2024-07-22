@@ -519,7 +519,7 @@ in {
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
-    package = config.hardware.nvidia.package;
+    #    package = config.hardware.nvidia.package;
   };
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = [ "nvidia" "amdgpu" "radeonsi" ];
