@@ -210,34 +210,8 @@ in {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
 
-        #        inherit (rec {
-        #   llvmPackages_18 = prev.recurseIntoAttrs (prev.callPackage
-        #     "${inputs.nixpkgs}/pkgs/development/compilers/llvm/18" ({
-        #       inherit (prev.stdenvAdapters) overrideCC;
-        #       officialRelease = {
-        #         version = "18.1.8";
-        #         sha256 = "sha256-iiZKMRo/WxJaBXct9GdAcAT3cz9d9pnAcO1mmR6oPNE=";
-        #       };
-        #       buildLlvmTools = prev.buildPackages.llvmPackages_18.tools;
-        #       targetLlvmLibraries =
-        #         prev.targetPackages.llvmPackages_18.libraries or llvmPackages_18.libraries;
-        #       targetLlvm =
-        #         prev.targetPackages.llvmPackages_18.llvm or llvmPackages_18.llvm;
-        #     }));
-
-        #   clang_18 = llvmPackages_18.clang;
-        #   lld_18 = llvmPackages_18.lld;
-        #   lldb_18 = llvmPackages_18.lldb;
-        #   llvm_18 = llvmPackages_18.llvm;
-
-        #   clang-tools_18 = prev.callPackage
-        #     "${inputs.nixpkgs}/pkgs/development/tools/clang-tools" {
-        #       llvmPackages = llvmPackages_18;
-        #     };
-        # })
-        #   llvmPackages_18 clang_18 lld_18 lldb_18 llvm_18 clang-tools_18;
         gss = prev.gss.overrideAttrs { doCheck = false; };
-        #        gss = prev.gss.override { stdenv = myClangStdenv; };
+
         mpv-unwrapped = prev.mpv-unwrapped.override {
           stdenv = myClangStdenv;
           rubberbandSupport = false;
@@ -329,8 +303,7 @@ in {
         config.nur.repos.chigyutendies.citra-nightly
         inochi-session
         inochi-creator
-        #        inochi-nixpkgs.inochi-session
-        #        inochi-nixpkgs.inochi-creator
+
         gitAndTools.gh
         simplex-chat.packages.${system}."exe:simplex-chat"
         gluon_language-server.packages.${system}.onCrane
@@ -481,7 +454,7 @@ in {
       binwalk
       w3m
       llvmPackages_18.clang-tools
-      #      (clang-tools.override { llvmPackages = llvmPackages_18; })
+
       (bat.override { stdenv = myClangStdenv; })
       nix-tree
       nix-du
@@ -542,12 +515,6 @@ in {
   services.asusd.enableUserService = true;
   services.supergfxd.enable = true;
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
-
-  #  hardware.opengl = {
-  #    enable = true;
-  #    driSupport = true;
-  #    driSupport32Bit = true;
-  #  };
 
   hardware.graphics = {
     enable = true;
