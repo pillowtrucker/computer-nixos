@@ -288,6 +288,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        google-chrome
         weechat
         qt6ct
         ida-free
