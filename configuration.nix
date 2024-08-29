@@ -53,11 +53,59 @@ in {
     [ "nix-command" "flakes" "ca-derivations" ];
   nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
-  networking.hostName = "JustinMohnsIPod"; # Define your hostname.
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable =
-    true; # Easiest to use and most distros use this by default.
+  networking = {
+    hostName = "JustinMohnsIPod"; # Define your hostname.
+    # Pick only one of the below networking options.
+    # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+    networkmanager.enable = true;
+
+    #    hardware.nvidia.prime = {
+    #      offload = {
+    #  			enable = true;
+    #  			enableOffloadCmd = true;
+    #  		};
+    #      # Make sure to use the correct Bus ID values for your system!
+    #      nvidiaBusId = "PCI:1:0:0";
+    #      amdgpuBusId = "PCI:5:0:0";
+    #    };
+    extraHosts = ''
+      192.168.122.173 ghc-plus-linux                    
+    '';
+    # Open ports in the firewall.
+    # networking.firewall.allowedTCPPorts = [ ... ];
+    # networking.firewall.allowedUDPPorts = [ ... ];
+    # Or disable the firewall altogether.
+    #    firewall.enable = false;
+    useNetworkd = true;
+    bridges."tornet".interfaces = [ ];
+    nftables = {
+      enable = true;
+      ruleset = ''
+        table ip nat {
+          chain PREROUTING {
+            type nat hook prerouting priority dstnat; policy accept;
+            iifname "tornet" meta l4proto tcp dnat to 127.0.0.1:9040
+            iifname "tornet" udp dport 53 dnat to 127.0.0.1:5353
+          }
+        }
+      '';
+    };
+    nat = {
+      internalInterfaces = [ "tornet " ];
+      forwardPorts = [{
+        destination = "127.0.0.1:5353";
+        proto = "udp";
+        sourcePort = 53;
+      }];
+    };
+    firewall = {
+      enable = true;
+      interfaces.tornet = {
+        allowedTCPPorts = [ 9040 ];
+        allowedUDPPorts = [ 5353 ];
+      };
+    };
+  }; # Easiest to use and most distros use this by default.
 
   time.timeZone = "Europe/Amsterdam";
 
@@ -423,6 +471,8 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+      dig
+      whois
 
       mercurial
       remmina
@@ -509,6 +559,16 @@ in {
       true; # Open ports in the firewall for Source Dedicated Server
   };
   # List services that you want to enable:
+  programs.firejail = { enable = true; };
+  services.tor = {
+    enable = true;
+    openFirewall = true;
+    settings = {
+      TransPort = [ 9040 ];
+      DNSPort = 5353;
+      VirtualAddrNetworkIPv4 = "172.30.0.0/16";
+    };
+  };
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
@@ -516,7 +576,18 @@ in {
   services.asusd.enableUserService = true;
   services.supergfxd.enable = true;
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
-
+  systemd.network = {
+    enable = true;
+    networks.tornet = {
+      matchConfig.Name = "tornet";
+      DHCP = "no";
+      networkConfig = {
+        ConfigureWithoutCarrier = true;
+        Address = "10.100.100.1/24";
+      };
+      linkConfig.ActivationPolicy = "always-up";
+    };
+  };
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -553,26 +624,9 @@ in {
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  #    hardware.nvidia.prime = {
-  #      offload = {
-  #  			enable = true;
-  #  			enableOffloadCmd = true;
-  #  		};
-  #      # Make sure to use the correct Bus ID values for your system!
-  #      nvidiaBusId = "PCI:1:0:0";
-  #      amdgpuBusId = "PCI:5:0:0";
-  #    };
-  networking.extraHosts = ''
-    192.168.122.173 ghc-plus-linux                    
-  '';
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  networking.firewall.enable = false;
-
   boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.kernelParams = [ "mitigations=off" ];
+  boot.kernel.sysctl = { "net.ipv4.conf.tornet.route_localnet" = 1; };
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
