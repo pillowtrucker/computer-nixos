@@ -624,7 +624,11 @@ in {
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+  boot.kernelPackages = # with pkgs; [
+    #    linuxPackages_xanmod_latest
+    pkgs.linuxPackages_xanmod;
+  #  ];
+
   boot.kernelParams = [ "mitigations=off" ];
   boot.kernel.sysctl = { "net.ipv4.conf.tornet.route_localnet" = 1; };
   # Copy the NixOS configuration file and link it from the resulting system
