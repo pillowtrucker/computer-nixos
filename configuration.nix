@@ -621,12 +621,13 @@ in {
     nvidiaSettings = true;
     dynamicBoost.enable = true;
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.production;
+    #    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
   boot.kernelPackages = # with pkgs; [
-    #    linuxPackages_xanmod_latest
-    pkgs.linuxPackages_xanmod;
+    pkgs.linuxPackages_xanmod_latest;
+  #    pkgs.linuxPackages_xanmod;
   #  ];
 
   boot.kernelParams = [ "mitigations=off" ];
