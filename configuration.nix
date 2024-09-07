@@ -336,6 +336,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        crow-translate
         google-chrome
         weechat
         qt6ct
