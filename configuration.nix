@@ -576,6 +576,16 @@ in {
   services.asusd.enable = true;
   services.asusd.enableUserService = true;
   services.supergfxd.enable = true;
+  #  systemd.services.NetworkManager-wait-online = {
+  #    serviceConfig = {
+  #      ExecStart = [ "" "${pkgs.networkmanager}/bin/nm-online -q" ];
+  #    };
+  #  };
+  systemd.services.systemd-networkd-wait-online = {
+    serviceConfig = {
+      ExecStart = [ "" "${pkgs.networkmanager}/bin/nm-online -q" ];
+    };
+  };
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
   systemd.network = {
     enable = true;
