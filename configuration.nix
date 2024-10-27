@@ -231,7 +231,8 @@ in {
 
   nixpkgs.overlays = [
     #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
-    (import "${inputs.fenix}/overlay.nix")
+    (import
+      "${inputs.fenix}/overlay.nix") # remember to re-enable when they fix https://github.com/NixOS/nixpkgs/issues/348832
     (import inputs.emacs-overlay)
     (final_solution: prev:
       let
@@ -336,6 +337,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        tor-browser
         crow-translate
         google-chrome
         weechat
@@ -542,7 +544,7 @@ in {
       (git.override { stdenv = myClangStdenv; })
       git-lfs
       (wget.override { stdenv = myClangStdenv; })
-      rust-analyzer-nightly
+      rust-analyzer-nightly # https://github.com/NixOS/nixpkgs/issues/348832
     ];
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
