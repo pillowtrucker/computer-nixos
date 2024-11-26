@@ -337,6 +337,10 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        qtcreator
+        stress-ng
+        #        sbagen # 32-bit only??
+        gnaural
         tor-browser
         crow-translate
         google-chrome
