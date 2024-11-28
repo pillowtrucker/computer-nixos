@@ -342,7 +342,8 @@ in {
         #        sbagen # 32-bit only??
         gnaural
         tor-browser
-        crow-translate
+        inputs.crow-translate.packages.${system}.crow-translate
+        #        crow-translate
         google-chrome
         weechat
         qt6ct
