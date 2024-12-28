@@ -338,6 +338,8 @@ in {
       #      in [
       [
         kitty
+        wezterm
+        alacritty
         qtcreator
         stress-ng
         #        sbagen # 32-bit only??
