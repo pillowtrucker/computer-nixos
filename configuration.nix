@@ -340,6 +340,7 @@ in {
         kitty
         wezterm
         alacritty
+        lua-language-server
         qtcreator
         stress-ng
         #        sbagen # 32-bit only??
