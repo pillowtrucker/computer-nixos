@@ -338,9 +338,9 @@ in {
       #      in [
       [
         tdrop
-        kitty
+        #        kitty
         wezterm
-        alacritty
+        #        alacritty
         lua-language-server
         qtcreator
         stress-ng
