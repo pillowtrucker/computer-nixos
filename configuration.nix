@@ -502,7 +502,7 @@ in {
       llvmPackages_18.bintools
       radare2
       retdec
-      ctypes_sh
+      #      ctypes_sh
       tcpdump
       ghidra
       socat
