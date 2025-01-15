@@ -121,59 +121,61 @@ in {
     useXkbConfig = true; # use xkb.options in tty.
   };
   fonts = {
-    packages = with pkgs; [
-      material-icons
-      material-design-icons
-      powerline-fonts
-      terminus_font
-      kawkab-mono-font
-      roboto
-      roboto-serif
-      nika-fonts
-      roboto-mono
-      last-resort
-      inconsolata
-      lxgw-wenkai
-      hack-font
-      cantarell-fonts
-      redhat-official-fonts
-      source-han-mono
-      source-han-sans
-      source-han-serif
-      corefonts
-      dejavu_fonts
-      freefont_ttf
-      gyre-fonts # TrueType substitutes for standard PostScript fonts
-      unifont
-      noto-fonts-emoji
-      liberation_ttf
-      #  fira-code
-      fira-code-symbols
-      mplus-outline-fonts.githubRelease
-      dina-font
-      proggyfonts
-      hachimarupop
-      migmix
-      ricty
-      noto-fonts-extra
-      noto-fonts
-      samim-fonts
-      sahel-fonts
-      noto-fonts-monochrome-emoji
-      noto-fonts-color-emoji
-      twitter-color-emoji
-      wqy_zenhei
-      noto-fonts-cjk-serif
-      noto-fonts-cjk-sans
-      scheherazade-new
-      noto-fonts-lgc-plus
-      inconsolata-lgc
-      doulos-sil
-      source-sans-pro
-      source-serif-pro
-      nerdfonts # just use all of them..
+    packages = with pkgs;
+      [
+        material-icons
+        material-design-icons
+        powerline-fonts
+        terminus_font
+        kawkab-mono-font
+        roboto
+        roboto-serif
+        nika-fonts
+        roboto-mono
+        last-resort
+        inconsolata
+        lxgw-wenkai
+        hack-font
+        cantarell-fonts
+        redhat-official-fonts
+        source-han-mono
+        source-han-sans
+        source-han-serif
+        corefonts
+        dejavu_fonts
+        freefont_ttf
+        gyre-fonts # TrueType substitutes for standard PostScript fonts
+        unifont
+        noto-fonts-emoji
+        liberation_ttf
+        #  fira-code
+        fira-code-symbols
+        mplus-outline-fonts.githubRelease
+        dina-font
+        proggyfonts
+        hachimarupop
+        migmix
+        ricty
+        noto-fonts-extra
+        noto-fonts
+        samim-fonts
+        sahel-fonts
+        noto-fonts-monochrome-emoji
+        noto-fonts-color-emoji
+        twitter-color-emoji
+        wqy_zenhei
+        noto-fonts-cjk-serif
+        noto-fonts-cjk-sans
+        scheherazade-new
+        noto-fonts-lgc-plus
+        inconsolata-lgc
+        doulos-sil
+        source-sans-pro
+        source-serif-pro
+        #      nerdfonts # just use all of them..
 
-    ];
+      ] ++ builtins.filter lib.attrsets.isDerivation
+      (builtins.attrValues pkgs.nerd-fonts);
 
     fontconfig.enable = true;
     fontDir.enable = true;
@@ -477,6 +479,10 @@ in {
     enable = true;
     package = pkgs.wireshark-qt;
   };
+  programs.bat = {
+    enable = true;
+    extraPackages = with pkgs.bat-extras; [ batdiff batman prettybat ];
+  };
   programs.virt-manager.enable = true;
   services.nixseparatedebuginfod.enable = true;
   #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
@@ -518,8 +524,7 @@ in {
       binwalk
       w3m
       llvmPackages_18.clang-tools
-
-      (bat.override { stdenv = myClangStdenv; })
+      #      (bat.override { stdenv = myClangStdenv; })
       nix-tree
       nix-du
       nix-diff
