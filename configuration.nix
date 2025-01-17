@@ -389,7 +389,7 @@ in {
         telegram-desktop # too much of PITA to build with llvm
         ldtk
         (strawberry.override { stdenv = myClangStdenv; })
-        yakuake
+        #        yakuake
         (tree.override { stdenv = myClangStdenv; })
         (qbittorrent.override { stdenv = myClangStdenv; })
         (furnace.override { stdenv = myClangStdenv; })
@@ -416,10 +416,10 @@ in {
   #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
 
-  programs.firefox.package = pkgs.wrapFirefox
-    (pkgs.firefox-devedition-unwrapped.override { stdenv = myClangStdenv; })
-    { };
-
+  #  programs.firefox.package = pkgs.wrapFirefox
+  #    (pkgs.firefox-devedition-unwrapped.override { stdenv = myClangStdenv; })
+  #    { };
+  programs.firefox.package = pkgs.firefox-devedition-bin;
   programs.direnv.enable = true;
   security.sudo = {
     enable = true;
