@@ -504,7 +504,7 @@ in {
       retdec
       #      ctypes_sh
       tcpdump
-      ghidra
+      #      ghidra
       socat
       iaito
       unzip
