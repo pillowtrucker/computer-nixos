@@ -358,7 +358,7 @@ in {
         pigz
         unrar
         p7zip
-        (np2kai.override { stdenv = myClangStdenv; })
+        #        (np2kai.override { stdenv = myClangStdenv; })
         mednaffe
         sx
         blender
@@ -415,10 +415,12 @@ in {
   services.emacs.defaultEditor = true;
   #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
-
+  #  programs.firefox.package = pkgs.firefox-devedition;
   programs.firefox.package = pkgs.wrapFirefox
-    (pkgs.firefox-devedition-unwrapped.override { stdenv = myClangStdenv; })
-    { };
+    (pkgs.firefox-devedition-unwrapped.override {
+      stdenv = myClangStdenv;
+      enableDebugSymbols = false;
+    }) { };
   #  programs.firefox.package = pkgs.firefox-devedition-bin;
   programs.direnv.enable = true;
   security.sudo = {
