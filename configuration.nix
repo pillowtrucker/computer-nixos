@@ -339,6 +339,8 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        pandoc
+        nb
         tdrop
         #        kitty
         wezterm
