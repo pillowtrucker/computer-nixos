@@ -339,6 +339,12 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+
+        hugo
+        graphviz
+        nodejs
+        yarn
+        proton-pass
         pandoc
         nb
         tdrop
