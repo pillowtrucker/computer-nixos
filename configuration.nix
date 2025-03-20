@@ -257,6 +257,10 @@ in {
       let pkgs = import inputs.nixpkgs { system = config.system; };
 
       in {
+        #        racket = prev.racket.overrideAttrs (oldAttrs: {
+        #          configureFlags =
+        #            prev.lib.lists.remove "--disable-libs" oldAttrs.configureFlags;
+        #        });
         opencolorio = prev.opencolorio.overrideAttrs (attrs: {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
@@ -339,7 +343,10 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
-
+        #        racket # for emacs # actually no, this should be in flakes
+        inform7
+        inform6
+        gnome-inform7
         hugo
         graphviz
         nodejs
