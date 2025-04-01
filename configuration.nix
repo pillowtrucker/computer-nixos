@@ -264,7 +264,17 @@ in {
         opencolorio = prev.opencolorio.overrideAttrs (attrs: {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
-
+        #        webkitgtk = prev.webkitgtk.override {
+        #          clangStdenv = myClangStdenv;
+        #          enableDebugSymbols = false;
+        #        };
+        webkitgtk_4_0 = (prev.webkitgtk_4_0.override {
+          clangStdenv = myClangStdenv;
+          #          enableDebugInfo = false;
+        }).overrideAttrs {
+          separateDebugInfo = false;
+          enableDebugInfo = false;
+        };
         gss = prev.gss.overrideAttrs { doCheck = false; };
 
         mpv-unwrapped = prev.mpv-unwrapped.override {
@@ -415,6 +425,7 @@ in {
         fontforge
         (gimp.override { stdenv = myClangStdenv; })
         (lshw.override { stdenv = myClangStdenv; })
+
         #        libreoffice-qt
         inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
         winetricks
@@ -530,7 +541,7 @@ in {
       elfutils
       gist
       jq
-      filelight
+      kdePackages.filelight
       clasp
       angle-grinder
       xclip
