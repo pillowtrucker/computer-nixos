@@ -605,6 +605,7 @@ in {
       true; # Open ports in the firewall for Steam Remote Play
     dedicatedServer.openFirewall =
       true; # Open ports in the firewall for Source Dedicated Server
+    extraPackages = with pkgs; [ mangohud gamescope ];
   };
   # List services that you want to enable:
   programs.firejail = { enable = true; };
