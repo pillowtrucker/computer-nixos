@@ -11,9 +11,9 @@
 #in
 let
   myClangStdenv = pkgs.stdenvAdapters.useMoldLinker
-    (pkgs.stdenvAdapters.overrideCC pkgs.llvmPackages_18.stdenv
-      (pkgs.llvmPackages_18.clang.override {
-        bintools = pkgs.llvmPackages_18.bintools;
+    (pkgs.stdenvAdapters.overrideCC pkgs.llvmPackages_19.stdenv
+      (pkgs.llvmPackages_19.clang.override {
+        bintools = pkgs.llvmPackages_19.bintools;
       }));
 in {
   imports = [ # Include the results of the hardware scan.
@@ -527,7 +527,7 @@ in {
       #      woeusb-ng
       appimage-run
       file
-      llvmPackages_18.bintools
+      llvmPackages_19.bintools
       radare2
       retdec
       #      ctypes_sh
@@ -551,7 +551,7 @@ in {
       wgetpaste
       binwalk
       w3m
-      llvmPackages_18.clang-tools
+      llvmPackages_19.clang-tools
       #      (bat.override { stdenv = myClangStdenv; })
       nix-tree
       nix-du
@@ -583,7 +583,9 @@ in {
       # :lang latex & :lang org (latex previews)
       texlive.combined.scheme-medium
       (openssh.override { stdenv = myClangStdenv; })
-      (mosh.override { stdenv = myClangStdenv; })
+      (mosh.override {
+        stdenv = llvmPackages_18.stdenv;
+      }) # segfault with clang19..
       (git.override { stdenv = myClangStdenv; })
       git-lfs
       (wget.override { stdenv = myClangStdenv; })
