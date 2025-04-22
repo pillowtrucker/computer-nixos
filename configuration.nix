@@ -353,6 +353,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        uqm
         #        racket # for emacs # actually no, this should be in flakes
         inform7
         inform6
@@ -518,6 +519,8 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+      fish
+
       dig
       whois
 
@@ -680,7 +683,8 @@ in {
     nvidiaSettings = true;
     dynamicBoost.enable = true;
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.production;
+    #    package = config.boot.kernelPackages.nvidiaPackages.production;
+    package = config.boot.kernelPackages.nvidiaPackages.beta;
     #    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 

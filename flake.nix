@@ -3,8 +3,8 @@
 
   inputs = {
     # NixOS official package source, here using the nixos-23.11 branch
-    nixpkgs.url = "github:pillowtrucker/nixpkgs/fix-ca-dervs-rez";
-    #    nixpkgs.url = "github:nixos/nixpkgs/master";
+    #  nixpkgs.url = "github:pillowtrucker/nixpkgs/fix-ca-dervs-rez";
+    nixpkgs.url = "github:nixos/nixpkgs/master";
     nix-gaming.url = "github:fufexan/nix-gaming/master";
     #    nixpkgs-inochi.url = "github:TomaSajt/nixpkgs/inochi-session"; # merged
     #    nixpkgs-mozilla.url = "github:mozilla/nixpkgs-mozilla/master";
