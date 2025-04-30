@@ -114,7 +114,35 @@ in {
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_GB.UTF-8";
+  i18n = {
+    defaultLocale = "en_GB.UTF-8";
+    supportedLocales = [
+      "pl_PL.UTF-8/UTF-8"
+      "en_GB.UTF-8/UTF-8"
+      "C.UTF-8/UTF-8"
+      "en_US.UTF-8/UTF-8"
+      "de_DE.UTF-8/UTF-8"
+    ];
+    extraLocaleSettings = {
+      LANGUAGE = "en_US.UTF-8";
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+      LC_CTYPE = "en_US.UTF-8";
+      LC_COLLATE = "en_US.UTF-8";
+      LC_MESSAGES = "en_US.UTF-8";
+      LC_ADDRESS = "en_US.UTF-8";
+      LC_IDENTIFICATION = "en_US.UTF-8";
+      LC_MEASUREMENT = "de_DE.UTF-8";
+      LC_MONETARY = "en_US.UTF-8";
+      LC_NAME = "en_US.UTF-8";
+      LC_NUMERIC = "en_US.UTF-8";
+      LC_PAPER = "en_US.UTF-8";
+      LC_TELEPHONE = "en_US.UTF-8";
+      LC_TIME = "en_US.UTF-8";
+    };
+
+  };
+  nixpkgs.config.joypixels.acceptLicense = true;
   console = {
     #   font = "Lat2-Terminus16";
     #     keyMap = "uk";
@@ -148,7 +176,7 @@ in {
         unifont
         noto-fonts-emoji
         liberation_ttf
-        #  fira-code
+        fira-code
         fira-code-symbols
         mplus-outline-fonts.githubRelease
         dina-font
@@ -156,6 +184,7 @@ in {
         hachimarupop
         migmix
         ricty
+        noto-fonts-emoji-blob-bin
         noto-fonts-extra
         noto-fonts
         samim-fonts
@@ -172,12 +201,17 @@ in {
         doulos-sil
         source-sans-pro
         source-serif-pro
+        joypixels
         #      nerdfonts # just use all of them..
-
+        #nerd-fonts.caskaydia-cove
       ] ++ builtins.filter lib.attrsets.isDerivation
       (builtins.attrValues pkgs.nerd-fonts);
 
-    fontconfig.enable = true;
+    fontconfig = {
+      enable = true;
+      useEmbeddedBitmaps = true;
+      defaultFonts.emoji = [ "JoyPixels" ];
+    };
     fontDir.enable = true;
   };
 
