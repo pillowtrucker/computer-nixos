@@ -723,8 +723,8 @@ in {
   };
 
   boot.kernelPackages = # with pkgs; [
-    pkgs.linuxPackages_xanmod_latest;
-  #    pkgs.linuxPackages_xanmod;
+    #    pkgs.linuxPackages_xanmod_latest;
+    pkgs.linuxPackages_xanmod; # lts
   #  ];
 
   boot.kernelParams = [ "mitigations=off" ];
