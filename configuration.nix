@@ -298,6 +298,7 @@ in {
         opencolorio = prev.opencolorio.overrideAttrs (attrs: {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
+
         #        webkitgtk = prev.webkitgtk.override {
         #          clangStdenv = myClangStdenv;
         #          enableDebugSymbols = false;
@@ -337,6 +338,31 @@ in {
         nethack = prev.nethack.overrideAttrs (oldattrs: {
           enableParallelBuilding = false;
         }); # it's a concurrent build bug actually
+        lkl = (prev.lkl.override { fuse = prev.fuse3; }).overrideAttrs
+          (oldAttrs: {
+
+            version = "2025-03-20";
+            src = prev.fetchFromGitHub {
+              owner = "lkl";
+              repo = "linux";
+
+              rev = "fd33ab3d21a99a31683ebada5bd3db3a54a58800";
+              sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
+            };
+          });
+        lklWithFirewall =
+          (prev.lklWithFirewall.override { fuse = prev.fuse3; }).overrideAttrs
+          (oldAttrs: {
+
+            version = "2025-03-20";
+            src = prev.fetchFromGitHub {
+              owner = "lkl";
+              repo = "linux";
+
+              rev = "fd33ab3d21a99a31683ebada5bd3db3a54a58800";
+              sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
+            };
+          });
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
             sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
@@ -469,7 +495,7 @@ in {
         mpv
         lutris
         lyx
-        #      vscode # I probably don't need this since I got gluon lsp working with emacs
+        vscode # I probably don't need this since I got gluon lsp working with emacs
       ];
   };
   services.emacs.enable = true;
@@ -718,7 +744,8 @@ in {
     dynamicBoost.enable = true;
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.production;
-    #    package = config.boot.kernelPackages.nvidiaPackages.beta;
+    #package = config.boot.kernelPackages.nvidiaPackages.beta;
+    #package = config.boot.kernelPackages.nvidiaPackages.vulkan_beta;
     #    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
