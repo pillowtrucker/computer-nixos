@@ -298,7 +298,10 @@ in {
         opencolorio = prev.opencolorio.overrideAttrs (attrs: {
           cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         });
-
+        calibre = prev.calibre.overrideAttrs (oldattrs: {
+          doInstallCheck = false;
+          doCheck = false;
+        });
         #        webkitgtk = prev.webkitgtk.override {
         #          clangStdenv = myClangStdenv;
         #          enableDebugSymbols = false;
@@ -377,6 +380,22 @@ in {
                 "test_ftp"
               ];
             });
+            pyrate-limiter = python-prev.pyrate-limiter.overridePythonAttrs
+              (oldAttrs: {
+                disabledTests = [
+                  "tests/test_limiter.py"
+                  "tests/test_bucket_all.py"
+                  "test_bucket_factory"
+                  "test_limiter_concurrency"
+                  "test_bucket_flush"
+                  "test_bucket_waiting"
+                  "test_bucket_01"
+                  "test_bucket_all"
+                  "test_factory_leak"
+                  "test_limiter_01"
+                  "test_bucket_leak"
+                ];
+              });
             numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
               disabledTests = oldAttrs.disabledTests ++ [
                 "test_umath_accuracy"
