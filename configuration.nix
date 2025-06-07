@@ -215,7 +215,7 @@ in {
     fontDir.enable = true;
   };
 
-  services.xserver.enable = true;
+  # services.xserver.enable = true;
   #  services.displayManager.sddm.enable = true;
 
   #  services.xserver.desktopManager.plasma5.enable = true;
@@ -223,7 +223,10 @@ in {
   services.desktopManager.plasma6.enable = true;
   #  services.xserver.displayManager.sx.enable = true;
   #  services.xserver.displayManager.defaultSession = "plasmax11";
-  services.displayManager.defaultSession = "plasmax11";
+  #services.displayManager.defaultSession = "plasmax11";
+  services.displayManager.sddm.enable = true;
+
+  services.displayManager.sddm.wayland.enable = true;
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -238,8 +241,8 @@ in {
     ];
   };
 
-  services.xserver.xkb.layout = "gb";
-  services.xserver.xkb.options = "compose:ralt";
+  #  services.xserver.xkb.layout = "gb";
+  #  services.xserver.xkb.options = "compose:ralt";
   programs.gnupg.agent.pinentryPackage = pkgs.pinentry-qt;
   services.printing.enable = true;
   services.postfix.enable = true;
@@ -598,6 +601,12 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+      #wayland
+      kdePackages.sddm-kcm # Configuration module for SDDM
+      kdePackages.breeze
+      wayland-utils
+      wl-clipboard
+      #end wayland
       fish
 
       dig
@@ -769,7 +778,7 @@ in {
   };
 
   boot.kernelPackages = # with pkgs; [
-    #    pkgs.linuxPackages_xanmod_latest;
+    #  pkgs.linuxPackages_xanmod_latest;
     pkgs.linuxPackages_xanmod; # lts
   #  ];
 
