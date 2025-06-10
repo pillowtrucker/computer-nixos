@@ -111,11 +111,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1732831128,
-        "narHash": "sha256-eNd+IcbhbGetQ17+So7q7yX+J8f/cYqGmwXpg2UcbKk=",
+        "lastModified": 1749579609,
+        "narHash": "sha256-Qd/8bvZy60qqoUtHaJNH1W+fvf93zjuRfM5MH/QIomM=",
         "ref": "refs/heads/master",
-        "rev": "6041315f81a69179de81b0f59db272dfd9cf2cad",
-        "revCount": 4,
+        "rev": "a51c10ffb774557ddd9185cc65442c27dbf6e241",
+        "revCount": 5,
         "type": "git",
         "url": "https://invent.kde.org/pillowtrucker/crow-flake"
       },
@@ -995,11 +995,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1729682376,
-        "narHash": "sha256-ZUPZBWsK+o5k8LMKz489qyD5aE6HlOMArYoMdwA9jBM=",
+        "lastModified": 1749246406,
+        "narHash": "sha256-GAhxA9lyNdj9WOZoHAdwlhL0PbhLAqXHb6a5ssW2Uno=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "da466ad6602f7eff6c4ecfa78b3a1e5fb89886e9",
+        "rev": "857c23b52dbcefc4a51f5fa764b215762d4bf9de",
         "type": "github"
       },
       "original": {
