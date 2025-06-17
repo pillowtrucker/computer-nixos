@@ -221,12 +221,15 @@ in {
   #  services.xserver.desktopManager.plasma5.enable = true;
   #  services.xserver.desktopManager.plasma6.enable = true;
   services.desktopManager.plasma6.enable = true;
+  #  services.displayManager.gdm.enable = true;
   #  services.xserver.displayManager.sx.enable = true;
   #  services.xserver.displayManager.defaultSession = "plasmax11";
   #services.displayManager.defaultSession = "plasmax11";
-  services.displayManager.sddm.enable = true;
+  #  services.displayManager.sddm.enable = true;
+  #  services.displayManager.sddm.wayland.enable = true;
+  #  services.displayManager.sddm.wayland.compositor = "kwin";
+  #  services.desktopManager.plasma6.enableQt5Integration = false;
 
-  services.displayManager.sddm.wayland.enable = true;
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -602,8 +605,13 @@ in {
 
     in [
       #wayland
+      kdePackages.kglobalacceld # global shortcuts
+      kdePackages.kwallet
+      kdePackages.kwallet-pam
+      kdePackages.kwalletmanager
       kdePackages.sddm-kcm # Configuration module for SDDM
       kdePackages.breeze
+      kdePackages.qca
       wayland-utils
       wl-clipboard
       #end wayland
@@ -710,6 +718,7 @@ in {
     };
   };
 
+  services.flatpak.enable = true;
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.asusd.enable = true;

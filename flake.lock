@@ -111,11 +111,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1749579609,
-        "narHash": "sha256-Qd/8bvZy60qqoUtHaJNH1W+fvf93zjuRfM5MH/QIomM=",
+        "lastModified": 1749741172,
+        "narHash": "sha256-4Sw0vN+9Ne0NupR7GZ35XfGxCBsK8ba6TX+DTrw8ZUg=",
         "ref": "refs/heads/master",
-        "rev": "a51c10ffb774557ddd9185cc65442c27dbf6e241",
-        "revCount": 5,
+        "rev": "ecf5388b2c83e570b0781a2e719a065c3ed57a24",
+        "revCount": 8,
         "type": "git",
         "url": "https://invent.kde.org/pillowtrucker/crow-flake"
       },
