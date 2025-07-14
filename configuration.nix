@@ -438,6 +438,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        gammaray
         uqm
         #        racket # for emacs # actually no, this should be in flakes
         inform7
@@ -525,6 +526,8 @@ in {
   };
   services.emacs.enable = true;
   services.emacs.defaultEditor = true;
+  services.emacs.package = with pkgs;
+    ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [ epkgs.vterm ]));
   #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
   #  programs.firefox.package = pkgs.firefox-devedition;
@@ -604,6 +607,7 @@ in {
     let pkgs = import inputs.nixpkgs { system = config.system; };
 
     in [
+      claude-code
       #wayland
       kdePackages.kglobalacceld # global shortcuts
       kdePackages.kwallet
@@ -688,6 +692,7 @@ in {
       (git.override { stdenv = myClangStdenv; })
       git-lfs
       (wget.override { stdenv = myClangStdenv; })
+      cargo
       rust-analyzer-nightly # https://github.com/NixOS/nixpkgs/issues/348832
     ];
   # Some programs need SUID wrappers, can be configured further or are
