@@ -10,12 +10,14 @@
 #let my-firefox-fix = import inputs.nixpkgs-my-firefox-patch {system = config.system;};
 #in
 let
+
+  #  myClangStdenv = pkgs.stdenv;
+  myLlvm = pkgs.llvmPackages_20;
   myClangStdenv = pkgs.stdenvAdapters.useMoldLinker
-    (pkgs.stdenvAdapters.overrideCC pkgs.llvmPackages_19.stdenv
-      (pkgs.llvmPackages_19.clang.override {
-        bintools = pkgs.llvmPackages_19.bintools;
-      }));
+    (pkgs.stdenvAdapters.overrideCC myLlvm.stdenv
+      (myLlvm.clang.override { bintools = myLlvm.bintools; }));
 in {
+  #  {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./cachix.nix
@@ -25,11 +27,13 @@ in {
 
   #  nixpkgs.config.replaceStdenv = pkgs.clangStdenv; # doesn't work
 
-  nixpkgs.hostPlatform = {
-    gcc.arch = "znver3";
-    gcc.tune = "znver3";
-    system = "x86_64-linux";
-  };
+  # emergency disable
+  #  nixpkgs.hostPlatform = {
+  #    gcc.arch = "znver3";
+  #    gcc.tune = "znver3";
+  #    system = "x86_64-linux";
+  #  };
+
   #  nixpkgs.buildPlatform = {
   #    gcc.arch = "znver3";
   #    gcc.tune = "znver3";
@@ -51,7 +55,7 @@ in {
   nix.settings.max-jobs = 2;
   nix.settings.experimental-features =
     [ "nix-command" "flakes" "ca-derivations" ];
-  nixpkgs.config.contentAddressedByDefault = true;
+  #  nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
   networking = {
     hostName = "JustinMohnsIPod"; # Define your hostname.
@@ -216,7 +220,7 @@ in {
   };
 
   # services.xserver.enable = true;
-  #  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true;
 
   #  services.xserver.desktopManager.plasma5.enable = true;
   #  services.xserver.desktopManager.plasma6.enable = true;
@@ -228,7 +232,7 @@ in {
   #  services.displayManager.sddm.enable = true;
   #  services.displayManager.sddm.wayland.enable = true;
   #  services.displayManager.sddm.wayland.compositor = "kwin";
-  #  services.desktopManager.plasma6.enableQt5Integration = false;
+  services.desktopManager.plasma6.enableQt5Integration = false;
 
   i18n.inputMethod = {
     enable = true;
@@ -287,7 +291,7 @@ in {
         };
 
       in {
-
+        #coreutils = noricingpkgs.coreutils;
         embree = noricingpkgs.embree;
         blender = noricingpkgs.blender;
 
@@ -301,9 +305,9 @@ in {
         #          configureFlags =
         #            prev.lib.lists.remove "--disable-libs" oldAttrs.configureFlags;
         #        });
-        opencolorio = prev.opencolorio.overrideAttrs (attrs: {
-          cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
-        });
+        #        opencolorio = prev.opencolorio.overrideAttrs (attrs: {
+        #          cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
+        #        });
         calibre = prev.calibre.overrideAttrs (oldattrs: {
           doInstallCheck = false;
           doCheck = false;
@@ -312,107 +316,109 @@ in {
         #          clangStdenv = myClangStdenv;
         #          enableDebugSymbols = false;
         #        };
-        webkitgtk_4_0 = (prev.webkitgtk_4_0.override {
-          clangStdenv = myClangStdenv;
-          #          enableDebugInfo = false;
-        }).overrideAttrs {
-          separateDebugInfo = false;
-          enableDebugInfo = false;
-        };
-        gss = prev.gss.overrideAttrs { doCheck = false; };
+        #        webkitgtk_4_0 = (prev.webkitgtk_4_0.override {
+        #          clangStdenv = myClangStdenv;
+        #          #          enableDebugInfo = false;
+        #        }).overrideAttrs {
+        #          separateDebugInfo = false;
+        #          enableDebugInfo = false;
+        #        };
 
-        mpv-unwrapped = prev.mpv-unwrapped.override {
-          stdenv = myClangStdenv;
-          rubberbandSupport = false;
-        };
-        mpv = final.mpv-unwrapped.wrapper { mpv = final.mpv-unwrapped; };
+        #        gss = prev.gss.overrideAttrs { doCheck = false; };
 
-        umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
-        tzdata = prev.tzdata.overrideAttrs (attrs: {
-          doCheck = false;
-          checkTarget = "";
-        });
-        haskellPackages = prev.haskellPackages.override {
-          overrides = haskellSelf: haskellSuper: {
-            tls = final.haskell.lib.dontCheck haskellSuper.tls;
-            crypton = final.haskell.lib.dontCheck haskellSuper.crypton;
-            x509-validation =
-              final.haskell.lib.dontCheck haskellSuper.x509-validation;
-            crypton-x509-validation =
-              final.haskell.lib.dontCheck haskellSuper.crypton-x509-validation;
-            cryptonite = final.haskell.lib.dontCheck haskellSuper.cryptonite;
-          };
-        };
+        #        mpv-unwrapped = prev.mpv-unwrapped.override {
+        #          stdenv = myClangStdenv;
+        #          rubberbandSupport = false;
+        #        };
+        #        mpv = final.mpv-unwrapped.wrapper { mpv = final.mpv-unwrapped; };
 
-        nethack = prev.nethack.overrideAttrs (oldattrs: {
-          enableParallelBuilding = false;
-        }); # it's a concurrent build bug actually
-        lkl = (prev.lkl.override { fuse = prev.fuse3; }).overrideAttrs
-          (oldAttrs: {
+        #        umockdev = prev.umockdev.overrideAttrs (attrs: { doCheck = false; });
+        #        tzdata = prev.tzdata.overrideAttrs (attrs: {
+        #          doCheck = false;
+        #          checkTarget = "";
+        #        });
+        #        haskellPackages = prev.haskellPackages.override {
+        #          overrides = haskellSelf: haskellSuper: {
+        #            tls = final.haskell.lib.dontCheck haskellSuper.tls;
+        #            crypton = final.haskell.lib.dontCheck haskellSuper.crypton;
+        #            x509-validation =
+        #              final.haskell.lib.dontCheck haskellSuper.x509-validation;
+        #            crypton-x509-validation =
+        #              final.haskell.lib.dontCheck haskellSuper.crypton-x509-validation;
+        #            cryptonite = final.haskell.lib.dontCheck haskellSuper.cryptonite;
+        #          };
+        #        };
 
-            version = "2025-03-20";
-            src = prev.fetchFromGitHub {
-              owner = "lkl";
-              repo = "linux";
+        #       nethack = prev.nethack.overrideAttrs (oldattrs: {
+        #         enableParallelBuilding = false;
+        #       }); # it's a concurrent build bug actually
+        # lkl = (prev.lkl.override { fuse = prev.fuse3; }).overrideAttrs
+        # (oldAttrs: {
 
-              rev = "fd33ab3d21a99a31683ebada5bd3db3a54a58800";
-              sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
-            };
-          });
-        lklWithFirewall =
-          (prev.lklWithFirewall.override { fuse = prev.fuse3; }).overrideAttrs
-          (oldAttrs: {
+        # version = "2025-03-20";
+        # src = prev.fetchFromGitHub {
+        # owner = "lkl";
+        # repo = "linux";
 
-            version = "2025-03-20";
-            src = prev.fetchFromGitHub {
-              owner = "lkl";
-              repo = "linux";
+        # rev = "fd33ab3d21a99a31683ebada5bd3db3a54a58800";
+        # sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
+        # };
+        # });
+        # lklWithFirewall =
+        # (prev.lklWithFirewall.override { fuse = prev.fuse3; }).overrideAttrs
+        # (oldAttrs: {
 
-              rev = "fd33ab3d21a99a31683ebada5bd3db3a54a58800";
-              sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
-            };
-          });
-        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-          (python-final: python-prev: {
-            sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
-              disabledTests = oldAttrs.disabledTests ++ [
-                "test_linkcheck_request_headers_default"
-              ]; # stupid timeout failure on busy machine
-            });
-            mechanize = python-prev.mechanize.overridePythonAttrs (oldAttrs: {
-              disabledTests = oldAttrs.disabledTests ++ [
-                "test/test_urllib2.py::HandlerTests::test_ftp"
-                "HandlerTests::test_ftp"
-                "test_ftp"
-              ];
-            });
-            pyrate-limiter = python-prev.pyrate-limiter.overridePythonAttrs
-              (oldAttrs: {
-                disabledTests = [
-                  "tests/test_limiter.py"
-                  "tests/test_bucket_all.py"
-                  "test_bucket_factory"
-                  "test_limiter_concurrency"
-                  "test_bucket_flush"
-                  "test_bucket_waiting"
-                  "test_bucket_01"
-                  "test_bucket_all"
-                  "test_factory_leak"
-                  "test_limiter_01"
-                  "test_bucket_leak"
-                ];
-              });
-            numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
-              disabledTests = oldAttrs.disabledTests ++ [
-                "test_umath_accuracy"
-                "TestAccuracy::test_validate_transcendentals"
-                "test_validate_transcendentals"
-                "test_structured_object_item_setting"
-                "TestStructuredObjectRefcounting::test_structured_object_item_setting"
-              ];
-            });
-          })
-        ];
+        # version = "2025-03-20";
+        # src = prev.fetchFromGitHub {
+        # owner = "lkl";
+        # repo = "linux";
+
+        # rev = "fd33ab3d21a99a31683ebada5bd3db3a54a58800";
+        # sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
+        # };
+        # });
+        #        assimp = prev.assimp.overrideAttrs { doCheck = false; };
+        #        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+        #          (python-final: python-prev: {
+        #            sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
+        #              disabledTests = oldAttrs.disabledTests ++ [
+        #                "test_linkcheck_request_headers_default"
+        #              ]; # stupid timeout failure on busy machine
+        #            });
+        #            mechanize = python-prev.mechanize.overridePythonAttrs (oldAttrs: {
+        #              disabledTests = oldAttrs.disabledTests ++ [
+        #                "test/test_urllib2.py::HandlerTests::test_ftp"
+        # "HandlerTests::test_ftp"
+        # "test_ftp"
+        # ];
+        # });
+        # pyrate-limiter = python-prev.pyrate-limiter.overridePythonAttrs
+        # (oldAttrs: {
+        # disabledTests = [
+        # "tests/test_limiter.py"
+        # "tests/test_bucket_all.py"
+        # "test_bucket_factory"
+        # "test_limiter_concurrency"
+        # "test_bucket_flush"
+        # "test_bucket_waiting"
+        # "test_bucket_01"
+        # "test_bucket_all"
+        # "test_factory_leak"
+        # "test_limiter_01"
+        # "test_bucket_leak"
+        # ];
+        # });
+        # numpy = python-prev.numpy.overridePythonAttrs (oldAttrs: {
+        # disabledTests = oldAttrs.disabledTests ++ [
+        # "test_umath_accuracy"
+        # "TestAccuracy::test_validate_transcendentals"
+        # "test_validate_transcendentals"
+        # "test_structured_object_item_setting"
+        # "TestStructuredObjectRefcounting::test_structured_object_item_setting"
+        # ];
+        # });
+        # })
+        #        ];
 
       })
 
@@ -496,25 +502,35 @@ in {
         tintin
         scummvm
         calibre
-        (pavucontrol.override { stdenv = myClangStdenv; })
+        pavucontrol
+        #        (pavucontrol.override { stdenv = myClangStdenv; })
         obs-studio
         telegram-desktop # too much of PITA to build with llvm
         ldtk
-        (strawberry.override { stdenv = myClangStdenv; })
+        #        strawberry
+        #        (strawberry.override { stdenv = myClangStdenv; })
         #        yakuake
-        (tree.override { stdenv = myClangStdenv; })
-        (qbittorrent.override { stdenv = myClangStdenv; })
-        (furnace.override { stdenv = myClangStdenv; })
-        (nmap.override { stdenv = myClangStdenv; })
+        tree
+        #        (tree.override { stdenv = myClangStdenv; })
+        qbittorrent
+        #        (qbittorrent.override { stdenv = myClangStdenv; })
+        #        (furnace.override { stdenv = myClangStdenv; })
+        nmap
+        #        (nmap.override { stdenv = myClangStdenv; })
         #      chromium # nah
-        (cmake.override { stdenv = myClangStdenv; })
-        (element-desktop.override { stdenv = myClangStdenv; })
+        cmake
+        #        (cmake.override { stdenv = myClangStdenv; })
+        #        (element-desktop.override { stdenv = myClangStdenv; })
+        element-desktop
         fontforge
-        (gimp.override { stdenv = myClangStdenv; })
-        (lshw.override { stdenv = myClangStdenv; })
+        gimp
+        #        (gimp.override { stdenv = myClangStdenv; })
+        lshw
+        #        (lshw.override { stdenv = myClangStdenv; })
 
         #        libreoffice-qt
-        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
+        #        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
+        wine
         winetricks
         dxvk
         #        inputs.nix-gaming.packages.${system}.dxvk
@@ -527,15 +543,16 @@ in {
   services.emacs.enable = true;
   services.emacs.defaultEditor = true;
   services.emacs.package = with pkgs;
-    ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [ epkgs.vterm ]));
+    ((emacsPackagesFor emacs-pgtk).emacsWithPackages
+      (epkgs: with epkgs; [ vterm treemacs sqlite ]));
   #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
-  #  programs.firefox.package = pkgs.firefox-devedition;
-  programs.firefox.package = pkgs.wrapFirefox
-    (pkgs.firefox-devedition-unwrapped.override {
-      stdenv = myClangStdenv;
-      enableDebugSymbols = false;
-    }) { };
+  programs.firefox.package = pkgs.firefox-devedition;
+  #  programs.firefox.package = pkgs.wrapFirefox
+  #    (pkgs.firefox-devedition-unwrapped.override {
+  #      stdenv = myClangStdenv;
+  #      enableDebugSymbols = false;
+  #    }) { };
   #  programs.firefox.package = pkgs.firefox-devedition-bin;
   programs.direnv.enable = true;
   security.sudo = {
@@ -630,7 +647,7 @@ in {
       #      woeusb-ng
       appimage-run
       file
-      llvmPackages_19.bintools
+      myLlvm.bintools
       radare2
       retdec
       #      ctypes_sh
@@ -654,7 +671,7 @@ in {
       wgetpaste
       binwalk
       w3m
-      llvmPackages_19.clang-tools
+      myLlvm.clang-tools
       #      (bat.override { stdenv = myClangStdenv; })
       nix-tree
       nix-du
@@ -664,34 +681,44 @@ in {
       neomutt
       nixd
       nil
-      (lynx.override { stdenv = myClangStdenv; })
-      (tmux.override { stdenv = myClangStdenv; })
-      (htop.override { stdenv = myClangStdenv; })
-      (btop.override { stdenv = myClangStdenv; })
+      lynx
+      #      (lynx.override { stdenv = myClangStdenv; })
+      tmux
+      #      (tmux.override { stdenv = myClangStdenv; })
+      htop
+      #      (htop.override { stdenv = myClangStdenv; })
+      btop
+      #      (btop.override { stdenv = myClangStdenv; })
       nvtopPackages.full
-      (iftop.override { stdenv = myClangStdenv; })
+      iftop
+      #      (iftop.override { stdenv = myClangStdenv; })
       (ripgrep.override {
         withPCRE2 = true;
-        stdenv = myClangStdenv;
+        #        stdenv = myClangStdenv;
       })
-      (gnutls.override { stdenv = myClangStdenv; }) # for TLS connectivity
+      gnutls
+      #     (gnutls.override { stdenv = myClangStdenv; }) # for TLS connectivity
       fd
       imagemagick
       sysstat
-      (zstd.override {
-        stdenv = myClangStdenv;
-      }) # for undo-fu-session/undo-tree compression
+      zstd
+      #      (zstd.override {
+      #        stdenv = myClangStdenv;
+      #      }) # for undo-fu-session/undo-tree compression
       # :tools lookup & :lang org +roam
-      (sqlite.override { stdenv = myClangStdenv; })
+      sqlite
+      #      (sqlite.override { stdenv = myClangStdenv; })
       # :lang latex & :lang org (latex previews)
       texlive.combined.scheme-medium
-      (openssh.override { stdenv = myClangStdenv; })
-      (mosh.override {
-        stdenv = llvmPackages_18.stdenv;
-      }) # segfault with clang19..
-      (git.override { stdenv = myClangStdenv; })
+      openssh
+      #      (openssh.override { stdenv = myClangStdenv; })
+      mosh
+      #      (mosh.override { stdenv = myClangStdenv; }) # segfault with clang19..
+      git
+      #      (git.override { stdenv = myClangStdenv; })
       git-lfs
-      (wget.override { stdenv = myClangStdenv; })
+      wget
+      #      (wget.override { stdenv = myClangStdenv; })
       cargo
       rust-analyzer-nightly # https://github.com/NixOS/nixpkgs/issues/348832
     ];
