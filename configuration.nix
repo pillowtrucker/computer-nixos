@@ -449,7 +449,7 @@ in {
         #        racket # for emacs # actually no, this should be in flakes
         inform7
         inform6
-        gnome-inform7
+        #        gnome-inform7
         hugo
         graphviz
         nodejs
