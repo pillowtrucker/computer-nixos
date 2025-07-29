@@ -529,8 +529,10 @@ in {
         #        (lshw.override { stdenv = myClangStdenv; })
 
         #        libreoffice-qt
-        #        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-ge
-        wine
+        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-tkg
+        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.umu-launcher
+        #        wineWowPackages.waylandFull
+        #        wine
         winetricks
         dxvk
         #        inputs.nix-gaming.packages.${system}.dxvk
