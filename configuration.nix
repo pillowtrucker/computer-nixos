@@ -444,6 +444,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        just
         gammaray
         uqm
         #        racket # for emacs # actually no, this should be in flakes
