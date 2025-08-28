@@ -444,6 +444,7 @@ in {
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        glab
         just
         gammaray
         uqm
@@ -469,6 +470,7 @@ in {
         gnaural
         tor-browser
         inputs.crow-translate.packages.${system}.crow-translate
+        inputs.cosmic-screenshot.packages.${system}.cosmic-screenshot
         #        crow-translate
         google-chrome
         weechat
