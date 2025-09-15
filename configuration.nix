@@ -672,7 +672,7 @@ in {
       xclip
       inputs.hnix.defaultPackage.x86_64-linux
       niv
-      nixfmt-classic
+      nixfmt-rfc-style
       wgetpaste
       binwalk
       w3m
