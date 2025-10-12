@@ -2,7 +2,14 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, programs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  programs,
+  inputs,
+  ...
+}:
 #let
 #  inochi-nixpkgs = import "/etc/nixos/inochi-nixpkgs" { };
 
@@ -13,12 +20,14 @@ let
 
   #  myClangStdenv = pkgs.stdenv;
   myLlvm = pkgs.llvmPackages_20;
-  myClangStdenv = pkgs.stdenvAdapters.useMoldLinker
-    (pkgs.stdenvAdapters.overrideCC myLlvm.stdenv
-      (myLlvm.clang.override { bintools = myLlvm.bintools; }));
-in {
+  myClangStdenv = pkgs.stdenvAdapters.useMoldLinker (
+    pkgs.stdenvAdapters.overrideCC myLlvm.stdenv (myLlvm.clang.override { bintools = myLlvm.bintools; })
+  );
+in
+{
   #  {
-  imports = [ # Include the results of the hardware scan.
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./cachix.nix
   ];
@@ -50,11 +59,17 @@ in {
   nix.settings.keep-derivations = true;
   nix.settings.keep-outputs = true;
   #  nix.settings.auto-optimise-store = true;
-  nix.settings.trusted-users = [ "root" "wrath" ];
+  nix.settings.trusted-users = [
+    "root"
+    "wrath"
+  ];
   nix.settings.cores = 8;
   nix.settings.max-jobs = 2;
-  nix.settings.experimental-features =
-    [ "nix-command" "flakes" "ca-derivations" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+    "ca-derivations"
+  ];
   #  nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
   networking = {
@@ -96,11 +111,13 @@ in {
     };
     nat = {
       internalInterfaces = [ "tornet " ];
-      forwardPorts = [{
-        destination = "127.0.0.1:5353";
-        proto = "udp";
-        sourcePort = 53;
-      }];
+      forwardPorts = [
+        {
+          destination = "127.0.0.1:5353";
+          proto = "udp";
+          sourcePort = 53;
+        }
+      ];
     };
     firewall = {
       enable = true;
@@ -153,7 +170,8 @@ in {
     useXkbConfig = true; # use xkb.options in tty.
   };
   fonts = {
-    packages = with pkgs;
+    packages =
+      with pkgs;
       [
         material-icons
         material-design-icons
@@ -208,8 +226,8 @@ in {
         joypixels
         #      nerdfonts # just use all of them..
         #nerd-fonts.caskaydia-cove
-      ] ++ builtins.filter lib.attrsets.isDerivation
-      (builtins.attrValues pkgs.nerd-fonts);
+      ]
+      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
 
     fontconfig = {
       enable = true;
@@ -277,10 +295,10 @@ in {
 
   nixpkgs.overlays = [
     #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
-    (import
-      "${inputs.fenix}/overlay.nix") # remember to re-enable when they fix https://github.com/NixOS/nixpkgs/issues/348832
+    (import "${inputs.fenix}/overlay.nix") # remember to re-enable when they fix https://github.com/NixOS/nixpkgs/issues/348832
     (import inputs.emacs-overlay)
-    (final_solution: prev:
+    (
+      final_solution: prev:
       let
         pkgs = import inputs.nixpkgs { system = config.system; };
         noricingpkgs = import inputs.nixpkgs {
@@ -290,17 +308,22 @@ in {
           };
         };
 
-      in {
+      in
+      {
         #coreutils = noricingpkgs.coreutils;
         embree = noricingpkgs.embree;
         blender = noricingpkgs.blender;
 
-      })
+      }
+    )
 
-    (final: prev:
-      let pkgs = import inputs.nixpkgs { system = config.system; };
+    (
+      final: prev:
+      let
+        pkgs = import inputs.nixpkgs { system = config.system; };
 
-      in {
+      in
+      {
         #        racket = prev.racket.overrideAttrs (oldAttrs: {
         #          configureFlags =
         #            prev.lib.lists.remove "--disable-libs" oldAttrs.configureFlags;
@@ -311,6 +334,16 @@ in {
         calibre = prev.calibre.overrideAttrs (oldattrs: {
           doInstallCheck = false;
           doCheck = false;
+        });
+        crow-translate = prev.crow-translate.overrideAttrs (oldAttrs: {
+          postInstall = ''
+            grep -v "X-KDE-Shortcuts" $out/share/applications/org.kde.CrowTranslate.desktop > $out/share/applications/org.kde.CrowTranslate-Dev.desktop
+            substituteInPlace $out/share/applications/org.kde.CrowTranslate-Dev.desktop \
+              --replace 'Exec=crow' "Exec=/home/wrath/crow-flake/crow-translate/build-debug/crow"
+            substituteInPlace $out/share/applications/org.kde.CrowTranslate.desktop \
+              --replace 'Exec=crow' "Exec=$out/bin/crow"
+          '';
+
         });
         #        webkitgtk = prev.webkitgtk.override {
         #          clangStdenv = myClangStdenv;
@@ -420,7 +453,8 @@ in {
         # })
         #        ];
 
-      })
+      }
+    )
 
   ];
 
@@ -429,7 +463,9 @@ in {
   nixpkgs.config.allowUnfree = true;
   programs.zsh.enable = true;
 
-  services.ergochat = { enable = true; };
+  services.ergochat = {
+    enable = true;
+  };
 
   users.defaultUserShell = pkgs.zsh;
   users.users.root.initialHashedPassword = "";
@@ -438,8 +474,14 @@ in {
     initialHashedPassword = "";
     isNormalUser = true;
     home = "/home/wrath";
-    extraGroups = [ "wheel" "libvirtd" "adbusers" "nixseparatedebuginfod" ];
-    packages = with pkgs;
+    extraGroups = [
+      "wheel"
+      "libvirtd"
+      "adbusers"
+      "nixseparatedebuginfod"
+    ];
+    packages =
+      with pkgs;
       with inputs;
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
@@ -469,7 +511,7 @@ in {
         #        sbagen # 32-bit only??
         gnaural
         tor-browser
-        inputs.crow-translate.packages.${system}.crow-translate
+        #        inputs.crow-translate.packages.${system}.crow-translate
         inputs.cosmic-screenshot.packages.${system}.cosmic-screenshot
         #        crow-translate
         google-chrome
@@ -547,9 +589,15 @@ in {
   };
   services.emacs.enable = true;
   services.emacs.defaultEditor = true;
-  services.emacs.package = with pkgs;
-    ((emacsPackagesFor emacs-pgtk).emacsWithPackages
-      (epkgs: with epkgs; [ vterm treemacs sqlite ]));
+  services.emacs.package =
+    with pkgs;
+    ((emacsPackagesFor emacs-pgtk).emacsWithPackages (
+      epkgs: with epkgs; [
+        vterm
+        treemacs
+        sqlite
+      ]
+    ));
   #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
   programs.firefox.package = pkgs.firefox-devedition;
@@ -565,12 +613,14 @@ in {
     wheelNeedsPassword = false;
   };
 
-  security.pam.loginLimits = [{
-    domain = "*";
-    type = "soft";
-    item = "nofile";
-    value = "65536";
-  }];
+  security.pam.loginLimits = [
+    {
+      domain = "*";
+      type = "soft";
+      item = "nofile";
+      value = "65536";
+    }
+  ];
   #services.tlp = {
   #  enable = true;
   #  settings = {
@@ -578,7 +628,7 @@ in {
   #    CPU_DRIVER_OPMODE_ON_BAT="active";
   #    CPU_SCALING_GOVERNOR_ON_AC = "performance";
   #    CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-  #    
+  #
   #    CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
   #    CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
   #    CPU_HWP_DYN_BOOST_ON_AC=1;
@@ -620,15 +670,22 @@ in {
   };
   programs.bat = {
     enable = true;
-    extraPackages = with pkgs.bat-extras; [ batdiff batman prettybat ];
+    extraPackages = with pkgs.bat-extras; [
+      batdiff
+      batman
+      prettybat
+    ];
   };
   programs.virt-manager.enable = true;
   services.nixseparatedebuginfod.enable = true;
   #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
-  environment.systemPackages = with pkgs;
-    let pkgs = import inputs.nixpkgs { system = config.system; };
+  environment.systemPackages =
+    with pkgs;
+    let
+      pkgs = import inputs.nixpkgs { system = config.system; };
 
-    in [
+    in
+    [
       claude-code
       #wayland
       kdePackages.kglobalacceld # global shortcuts
@@ -737,14 +794,17 @@ in {
   programs.steam = {
     protontricks.enable = true;
     enable = true;
-    remotePlay.openFirewall =
-      true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall =
-      true; # Open ports in the firewall for Source Dedicated Server
-    extraPackages = with pkgs; [ mangohud gamescope ];
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    extraPackages = with pkgs; [
+      mangohud
+      gamescope
+    ];
   };
   # List services that you want to enable:
-  programs.firejail = { enable = true; };
+  programs.firejail = {
+    enable = true;
+  };
   services.tor = {
     enable = true;
     openFirewall = true;
@@ -768,7 +828,10 @@ in {
   #  };
   systemd.services.systemd-networkd-wait-online = {
     serviceConfig = {
-      ExecStart = [ "" "${pkgs.networkmanager}/bin/nm-online -q" ];
+      ExecStart = [
+        ""
+        "${pkgs.networkmanager}/bin/nm-online -q"
+      ];
     };
   };
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
@@ -790,7 +853,11 @@ in {
     #    package = config.hardware.nvidia.package;
   };
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = [ "nvidia" "amdgpu" "radeonsi" ];
+  services.xserver.videoDrivers = [
+    "nvidia"
+    "amdgpu"
+    "radeonsi"
+  ];
 
   hardware.nvidia = {
 
@@ -805,9 +872,9 @@ in {
 
     # Use the NVidia open source kernel module (not to be confused with the
     # independent third-party "nouveau" open source driver).
-    # Support is limited to the Turing and later architectures. Full list of 
-    # supported GPUs is at: 
-    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+    # Support is limited to the Turing and later architectures. Full list of
+    # supported GPUs is at:
+    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
     # Only available from driver 515.43.04+
     # Currently alpha-quality/buggy, so false is currently the recommended setting.
     open = false;
@@ -829,7 +896,9 @@ in {
   #  ];
 
   boot.kernelParams = [ "mitigations=off" ];
-  boot.kernel.sysctl = { "net.ipv4.conf.tornet.route_localnet" = 1; };
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.tornet.route_localnet" = 1;
+  };
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
