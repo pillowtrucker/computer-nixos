@@ -13,11 +13,10 @@
     fenix.url = "github:nix-community/fenix/main";
     emacs-overlay.url = "github:nix-community/emacs-overlay/master";
     simplex-chat.url = "github:simplex-chat/simplex-chat/stable";
-    gluon_language-server.url =
-      "github:pillowtrucker/gluon_language-server/nix";
+    gluon_language-server.url = "github:pillowtrucker/gluon_language-server/nix";
     hnix.url = "github:haskell-nix/hnix/master";
     nur.url = "github:nix-community/NUR";
-    crow-translate.url = "git+https://invent.kde.org/pillowtrucker/crow-flake";
+    #    crow-translate.url = "git+https://invent.kde.org/pillowtrucker/crow-flake";
     cosmic-screenshot.url = "github:pillowtrucker/cosmic-flake";
     #    nixpkgs-llvm18-update.url =
     #      "github:ExpidusOS/nixpkgs/1c5df86c3d30e6a8d43113f1400641cdd7709da9";
@@ -26,11 +25,21 @@
 
   # The `self` parameter is special, it refers to
   # the attribute set returned by the `outputs` function itself.
-  outputs = { self, nixpkgs, nur, ... }@inputs: {
-    nixosConfigurations.JustinMohnsIPod = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-      modules = [ nur.modules.nixos.default ./configuration.nix ];
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nur,
+      ...
+    }@inputs:
+    {
+      nixosConfigurations.JustinMohnsIPod = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          nur.modules.nixos.default
+          ./configuration.nix
+        ];
+      };
     };
-  };
 }

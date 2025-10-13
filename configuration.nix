@@ -513,7 +513,7 @@ in
         tor-browser
         #        inputs.crow-translate.packages.${system}.crow-translate
         inputs.cosmic-screenshot.packages.${system}.cosmic-screenshot
-        #        crow-translate
+        crow-translate
         google-chrome
         weechat
         qt6ct
@@ -528,14 +528,14 @@ in
         #        config.nur.repos.chigyutendies.suyu-dev
         #        config.nur.repos.chigyutendies.yuzu-early-access
         #        config.nur.repos.chigyutendies.citra-nightly
-        inochi-session
-        inochi-creator
+        #        inochi-session
+        #        inochi-creator
 
         gitAndTools.gh
         simplex-chat.packages.${system}."exe:simplex-chat"
         gluon_language-server.packages.${system}.onCrane
         android-studio
-        gargoyle
+        #        gargoyle
         ffmpeg
         yt-dlp
         nethack
@@ -653,15 +653,7 @@ in
       package = pkgs.qemu_kvm;
       runAsRoot = true;
       swtpm.enable = true;
-      ovmf = {
-        enable = true;
-        packages = [
-          (pkgs.OVMF.override {
-            secureBoot = true;
-            tpmSupport = true;
-          }).fd
-        ];
-      };
+
     };
   };
   programs.wireshark = {
@@ -711,7 +703,7 @@ in
       file
       myLlvm.bintools
       radare2
-      retdec
+      #      retdec
       #      ctypes_sh
       tcpdump
       #      ghidra
