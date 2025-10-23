@@ -338,8 +338,11 @@ in
         crow-translate = prev.crow-translate.overrideAttrs (oldAttrs: {
           postInstall = ''
             grep -v "X-KDE-Shortcuts" $out/share/applications/org.kde.CrowTranslate.desktop > $out/share/applications/org.kde.CrowTranslate-Dev.desktop
+            grep -v "X-KDE-Shortcuts" $out/share/applications/org.kde.CrowTranslate.desktop > $out/share/applications/org.kde.CrowTranslate-Test.desktop
             substituteInPlace $out/share/applications/org.kde.CrowTranslate-Dev.desktop \
               --replace 'Exec=crow' "Exec=/home/wrath/crow-flake/crow-translate/build-debug/crow"
+            substituteInPlace $out/share/applications/org.kde.CrowTranslate-Test.desktop \
+              --replace 'Exec=crow' "Exec=/home/wrath/crow-flake/crow-translate/build-debug/tests/test_translation"
             substituteInPlace $out/share/applications/org.kde.CrowTranslate.desktop \
               --replace 'Exec=crow' "Exec=$out/bin/crow"
           '';
