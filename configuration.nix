@@ -672,7 +672,8 @@ in
     ];
   };
   programs.virt-manager.enable = true;
-  services.nixseparatedebuginfod.enable = true;
+  #  services.nixseparatedebuginfod.enable = true;
+  services.nixseparatedebuginfod2.enable = true;
   #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
   environment.systemPackages =
     with pkgs;
