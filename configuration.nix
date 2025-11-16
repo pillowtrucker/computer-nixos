@@ -196,7 +196,7 @@ in
         freefont_ttf
         gyre-fonts # TrueType substitutes for standard PostScript fonts
         unifont
-        noto-fonts-emoji
+        #        noto-fonts-emoji
         liberation_ttf
         fira-code
         fira-code-symbols
@@ -207,7 +207,7 @@ in
         migmix
         ricty
         noto-fonts-emoji-blob-bin
-        noto-fonts-extra
+        #        noto-fonts-extra
         noto-fonts
         samim-fonts
         sahel-fonts
@@ -260,8 +260,9 @@ in
       qt6Packages.fcitx5-qt
       #      fcitx5-mozc # broken download link, don't care enough to fix
       fcitx5-table-other
-      fcitx5-chinese-addons
-      fcitx5-configtool
+      qt6Packages.fcitx5-chinese-addons
+
+      qt6Packages.fcitx5-configtool
       fcitx5-table-extra
     ];
   };
@@ -519,7 +520,7 @@ in
         crow-translate
         google-chrome
         weechat
-        qt6ct
+        qt6Packages.qt6ct
         ida-free
         pigz
         unrar
@@ -534,7 +535,7 @@ in
         #        inochi-session
         #        inochi-creator
 
-        gitAndTools.gh
+        gh
         simplex-chat.packages.${system}."exe:simplex-chat"
         gluon_language-server.packages.${system}.onCrane
         android-studio
@@ -720,7 +721,7 @@ in
       gist
       jq
       kdePackages.filelight
-      clasp
+      clingo
       angle-grinder
       xclip
       inputs.hnix.defaultPackage.x86_64-linux
