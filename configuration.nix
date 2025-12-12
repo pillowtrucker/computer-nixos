@@ -250,7 +250,7 @@ in
   #  services.displayManager.sddm.enable = true;
   #  services.displayManager.sddm.wayland.enable = true;
   #  services.displayManager.sddm.wayland.compositor = "kwin";
-  services.desktopManager.plasma6.enableQt5Integration = false;
+  services.desktopManager.plasma6.enableQt5Integration = true; # needed for lyx..
 
   i18n.inputMethod = {
     enable = true;
@@ -768,7 +768,7 @@ in
       sqlite
       #      (sqlite.override { stdenv = myClangStdenv; })
       # :lang latex & :lang org (latex previews)
-      texlive.combined.scheme-medium
+      texlive.combined.scheme-full
       openssh
       #      (openssh.override { stdenv = myClangStdenv; })
       mosh
