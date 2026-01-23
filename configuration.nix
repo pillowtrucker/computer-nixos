@@ -684,6 +684,9 @@ in
     in
     [
       claude-code
+      perf
+      bpftrace
+      fio
       #wayland
       kdePackages.kglobalacceld # global shortcuts
       kdePackages.kwallet
