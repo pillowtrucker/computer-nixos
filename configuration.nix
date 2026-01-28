@@ -19,7 +19,7 @@
 let
 
   #  myClangStdenv = pkgs.stdenv;
-  myLlvm = pkgs.llvmPackages_20;
+  myLlvm = pkgs.llvmPackages;
   myClangStdenv = pkgs.stdenvAdapters.useMoldLinker (
     pkgs.stdenvAdapters.overrideCC myLlvm.stdenv (myLlvm.clang.override { bintools = myLlvm.bintools; })
   );
@@ -312,8 +312,8 @@ in
       in
       {
         #coreutils = noricingpkgs.coreutils;
-        embree = noricingpkgs.embree;
-        blender = noricingpkgs.blender;
+        #        embree = noricingpkgs.embree;
+        #        blender = noricingpkgs.blender;
 
       }
     )
@@ -539,6 +539,7 @@ in
         simplex-chat.packages.${system}."exe:simplex-chat"
         gluon_language-server.packages.${system}.onCrane
         android-studio
+        android-tools
         #        gargoyle
         ffmpeg
         yt-dlp
@@ -579,7 +580,7 @@ in
 
         #        libreoffice-qt
         inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.wine-tkg
-        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.umu-launcher
+        inputs.nix-gaming.packages.${pkgs.hostPlatform.system}.umu-launcher-git
         #        wineWowPackages.waylandFull
         #        wine
         winetricks
@@ -650,7 +651,7 @@ in
 
   #  };
   #};
-  programs.adb.enable = true;
+  #  programs.adb.enable = true;
   virtualisation.libvirtd = {
     enable = true;
     qemu = {
@@ -727,7 +728,7 @@ in
       clingo
       angle-grinder
       xclip
-      inputs.hnix.defaultPackage.x86_64-linux
+      inputs.hnix.packages.${hostPlatform.system}.default
       niv
       nixfmt-rfc-style
       wgetpaste
