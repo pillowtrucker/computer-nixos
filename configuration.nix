@@ -605,12 +605,11 @@ in
     ));
   #  services.emacs.package = pkgs.emacs-git;
   programs.firefox.enable = true;
-  programs.firefox.package = pkgs.firefox-devedition;
-  #  programs.firefox.package = pkgs.wrapFirefox
-  #    (pkgs.firefox-devedition-unwrapped.override {
-  #      stdenv = myClangStdenv;
-  #      enableDebugSymbols = false;
-  #    }) { };
+  #  programs.firefox.package = pkgs.firefox-devedition;
+  programs.firefox.package = pkgs.wrapFirefox (pkgs.firefox-devedition-unwrapped.override {
+    stdenv = myClangStdenv;
+    enableDebugSymbols = false;
+  }) { };
   #  programs.firefox.package = pkgs.firefox-devedition-bin;
   programs.direnv.enable = true;
   security.sudo = {
