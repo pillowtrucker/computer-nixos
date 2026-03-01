@@ -490,6 +490,8 @@ in
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        # okular is just bad at djvu and epub..
+        koreader
         glab
         just
         gammaray
