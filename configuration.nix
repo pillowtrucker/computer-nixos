@@ -491,7 +491,8 @@ in
       #      in [
       [
         # okular is just bad at djvu and epub..
-        koreader
+        #        koreader
+        webcamoid
         glab
         just
         gammaray
