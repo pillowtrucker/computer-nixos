@@ -332,10 +332,10 @@ in
         #        opencolorio = prev.opencolorio.overrideAttrs (attrs: {
         #          cmakeFlags = attrs.cmakeFlags ++ [ "-DOCIO_BUILD_TESTS=OFF" ];
         #        });
-        calibre = prev.calibre.overrideAttrs (oldattrs: {
-          doInstallCheck = false;
-          doCheck = false;
-        });
+        #        calibre = prev.calibre.overrideAttrs (oldattrs: {
+        #          doInstallCheck = false;
+        #          doCheck = false;
+        #        });
         crow-translate = prev.crow-translate.overrideAttrs (oldAttrs: {
           postInstall = ''
             grep -v "X-KDE-Shortcuts" $out/share/applications/org.kde.CrowTranslate.desktop > $out/share/applications/org.kde.CrowTranslate-Dev.desktop
@@ -822,7 +822,7 @@ in
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.asusd.enable = true;
-  services.asusd.enableUserService = true;
+  #  services.asusd.enableUserService = true;
   services.supergfxd.enable = true;
   #  systemd.services.NetworkManager-wait-online = {
   #    serviceConfig = {
