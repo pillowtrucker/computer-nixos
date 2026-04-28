@@ -687,7 +687,10 @@ in
     in
     [
       claude-code
+      gemini-cli
       perf
+      perf-tools # execsnoop is broken anyway but w/e
+      tinyxxd
       bpftrace
       fio
       #wayland
