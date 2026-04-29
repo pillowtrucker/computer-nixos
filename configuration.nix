@@ -590,7 +590,7 @@ in
         dxvk
         #        inputs.nix-gaming.packages.${system}.dxvk
         mpv
-        lutris
+        #        lutris # need to disable tests again probably
         lyx
         vscode # I probably don't need this since I got gluon lsp working with emacs
       ];
