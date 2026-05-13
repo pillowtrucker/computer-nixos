@@ -68,7 +68,7 @@ in
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
-    "ca-derivations"
+    #    "ca-derivations"
   ];
   #  nixpkgs.config.contentAddressedByDefault = true;
   nix.settings.allow-import-from-derivation = true;
@@ -573,8 +573,8 @@ in
         #      chromium # nah
         cmake
         #        (cmake.override { stdenv = myClangStdenv; })
-        #        (element-desktop.override { stdenv = myClangStdenv; })
-        element-desktop
+        #        (elementt-desktop.override { stdenv = myClangStdenv; })
+        #        element-desktop
         fontforge
         gimp
         #        (gimp.override { stdenv = myClangStdenv; })
