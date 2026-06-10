@@ -1,3 +1,4 @@
+
 # Edit this configuration file to define what should be installed on
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
@@ -414,9 +415,15 @@ in
         # sha256 = "sha256-3uPkOyL/hoA/H2gKrEEDsuJvwOE2x27vxY5Y2DyNNxU=";
         # };
         # });
+
         #        assimp = prev.assimp.overrideAttrs { doCheck = false; };
-        #        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-        #          (python-final: python-prev: {
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (python-final: python-prev: {
+            uefi-firmware-parser = python-prev.uefi-firmware-parser.override {
+              setuptools = python-prev.setuptools-scm;
+            };
+          })
+        ];
         #            sphinx = python-prev.sphinx.overridePythonAttrs (oldAttrs: {
         #              disabledTests = oldAttrs.disabledTests ++ [
         #                "test_linkcheck_request_headers_default"
@@ -437,8 +444,7 @@ in
         # "test_bucket_factory"
         # "test_limiter_concurrency"
         # "test_bucket_flush"
-        # "test_bucket_waiting"
-        # "test_bucket_01"
+        # "test_bucket_waiting"        # "test_bucket_01"
         # "test_bucket_all"
         # "test_factory_leak"
         # "test_limiter_01"
@@ -735,7 +741,7 @@ in
       xclip
       inputs.hnix.packages.${hostPlatform.system}.default
       niv
-      nixfmt-rfc-style
+      nixfmt
       wgetpaste
       binwalk
       w3m
