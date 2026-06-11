@@ -56,7 +56,7 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/efi";
-  boot.supportedFilesystems = [ "ntfs" ];
+#  boot.supportedFilesystems = [ "ntfs" ];
   nix.settings.keep-derivations = true;
   nix.settings.keep-outputs = true;
   #  nix.settings.auto-optimise-store = true;
@@ -717,8 +717,8 @@ in
 
       mercurial
       remmina
-      ntfs3g
-      #      woeusb-ng
+#      ntfs3g
+            woeusb-ng
       appimage-run
       file
       myLlvm.bintools
