@@ -187,7 +187,7 @@ in
         inconsolata
         lxgw-wenkai
         hack-font
-        cantarell-fonts
+#        cantarell-fonts
         redhat-official-fonts
         source-han-mono
         source-han-sans
@@ -522,7 +522,7 @@ in
         qtcreator
         stress-ng
         #        sbagen # 32-bit only??
-        gnaural
+        #gnaural
         tor-browser
         #        inputs.crow-translate.packages.${system}.crow-translate
         inputs.cosmic-screenshot.packages.${system}.cosmic-screenshot
@@ -582,8 +582,7 @@ in
         #        (elementt-desktop.override { stdenv = myClangStdenv; })
         #        element-desktop
         fontforge
-        gimp
-        #        (gimp.override { stdenv = myClangStdenv; })
+
         lshw
         #        (lshw.override { stdenv = myClangStdenv; })
 
@@ -692,6 +691,10 @@ in
 
     in
     [
+      qwen-code
+      opencode
+      gimp
+      #        (gimp.override { stdenv = myClangStdenv; })
       claude-code
       gemini-cli
       perf
