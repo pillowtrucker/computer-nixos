@@ -295,6 +295,11 @@ in
   # Enable touchpad support (enabled default in most desktopManager).
   services.libinput.enable = true;
 
+  services.ollama = {
+  enable = true;
+  package = pkgs.ollama-cuda;
+};
+
   nixpkgs.overlays = [
     #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")
     (import "${inputs.fenix}/overlay.nix") # remember to re-enable when they fix https://github.com/NixOS/nixpkgs/issues/348832
