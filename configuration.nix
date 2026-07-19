@@ -748,6 +748,7 @@ in
       angle-grinder
       xclip
       inputs.hnix.packages.${hostPlatform.system}.default
+      inputs.comfyui.packages.${hostPlatform.system}.cuda
       niv
       nixfmt
       wgetpaste

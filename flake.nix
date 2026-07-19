@@ -20,6 +20,7 @@
     cosmic-screenshot.url = "github:pillowtrucker/cosmic-flake";
     #    nixpkgs-llvm18-update.url =
     #      "github:ExpidusOS/nixpkgs/1c5df86c3d30e6a8d43113f1400641cdd7709da9";
+    comfyui.url = "github:utensils/comfyui-nix";
 
   };
 
