@@ -501,6 +501,9 @@ in
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        # this runs well enough for streamers to stream bloodborne now?
+        shadps4
+        shadps4-qtlauncher
         # okular is just bad at djvu and epub..
         #        koreader
         webcamoid
