@@ -502,6 +502,11 @@ in
       #      in [
       [
         hermes-agent.packages.${system}.desktop
+        # full CLI package ("full" is an internal let-binding; the output attr
+        # is `default`). Provides the wrapped `hermes` binary on PATH which
+        # self-sets HERMES_BUNDLED_PLUGINS/SKILLS/LOCALES, plus the stable
+        # profile path share/hermes-agent/ used by the gateway service drop-in.
+        hermes-agent.packages.${system}.default
         cua.packages.${system}.cua-driver
         qwen-code
         # this runs well enough for streamers to stream bloodborne now?
