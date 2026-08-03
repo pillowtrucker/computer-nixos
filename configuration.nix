@@ -501,6 +501,7 @@ in
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        hermes-agent.packages.${system}.desktop
         qwen-code
         # this runs well enough for streamers to stream bloodborne now?
         shadps4
