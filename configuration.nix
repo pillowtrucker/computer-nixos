@@ -502,6 +502,7 @@ in
       #      in [
       [
         hermes-agent.packages.${system}.desktop
+        cua.packages.${system}.cua-driver
         qwen-code
         # this runs well enough for streamers to stream bloodborne now?
         shadps4
