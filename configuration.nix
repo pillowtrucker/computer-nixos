@@ -501,6 +501,7 @@ in
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        qwen-code
         # this runs well enough for streamers to stream bloodborne now?
         shadps4
         shadps4-qtlauncher
