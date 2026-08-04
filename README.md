@@ -98,3 +98,36 @@ git add flake.lock configuration.nix && git commit
 
 Commits are terse one-liners describing the change
 (e.g. `hermes: add default (full) package for wrapped hermes binary on PATH`).
+
+## Remote access (VNC/RDP/Wayland)
+
+State of the art on Wayland: capture goes through xdg-desktop-portal
+ScreenCast + PipeWire; input goes through uinput (or the portal's
+RemoteDesktop session). Anything that speaks X11-only (wayvnc, krfb's
+old X11 path) does not see a Wayland session.
+
+What's set up here:
+
+1. **KRDP — KDE's built-in RDP server** (ships with plasma6 module,
+   no extra package). Shadows the *running* Wayland session over RDP.
+   - Config: `~/.config/krdpserverrc` (PAM auth via
+     `SystemUserEnabled=true` → your normal login; TLS cert at
+     `~/.local/share/krdpserver/krdp.{crt,key}`, self-signed 10y).
+   - User unit: `app-org.kde.krdpserver.service` (enabled).
+   - Connect: any RDP client → `<host>:3389`, username `wrath`,
+     login password. Self-signed cert warning is expected.
+   - **LAN-only by design** (laptop is in the router DMZ):
+     `networking.firewall.extraInputRules` accepts 3389 only from
+     `192.168.1.0/24`. Do NOT move 3389 into `allowedTCPPorts`.
+2. **rustdesk-flutter** installed for the user. RustDesk captures
+   Wayland via portal/PipeWire and injects input via uinput. The
+   *flutter* client is required — the sciter client (`rustdesk`)
+   cannot capture Wayland sessions.
+3. **cua-driver (computer-use) on Wayland** needs
+   `CUA_DRIVER_RS_ENABLE_WAYLAND=1`. Set in two places:
+   - `~/.config/environment.d/99-cua-wayland.conf` → systemd user
+     manager (hermes-gateway service).
+   - `~/.config/plasma-workspace/env/99-cua-wayland.sh` → everything
+     started inside the Plasma session (incl. hermes-desktop).
+   KWin support is experimental; per-window portal capture works,
+   whole-screen geometry is flaky.
