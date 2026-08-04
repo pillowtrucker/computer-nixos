@@ -122,6 +122,13 @@ in
     };
     firewall = {
       enable = true;
+      # KRDP (KDE's built-in RDP server) — remote access to the running
+      # Wayland session. This laptop sits in the router's DMZ, so 3389 is
+      # NOT opened globally (allowedTCPPorts would expose it to WAN);
+      # only the local LAN subnet may connect.
+      extraInputRules = ''
+        ip saddr 192.168.1.0/24 tcp dport 3389 accept
+      '';
       interfaces.tornet = {
         allowedTCPPorts = [ 9040 ];
         allowedUDPPorts = [ 5353 ];
@@ -508,6 +515,10 @@ in
         # profile path share/hermes-agent/ used by the gateway service drop-in.
         hermes-agent.packages.${system}.default
         cua.packages.${system}.cua-driver
+        # Wayland-friendly remote access (portal/PipeWire capture + uinput
+        # input injection). Flutter client — the sciter one can't capture
+        # Wayland sessions.
+        rustdesk-flutter
         qwen-code
         # this runs well enough for streamers to stream bloodborne now?
         shadps4
