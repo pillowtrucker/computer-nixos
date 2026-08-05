@@ -514,6 +514,29 @@ in
         # self-sets HERMES_BUNDLED_PLUGINS/SKILLS/LOCALES, plus the stable
         # profile path share/hermes-agent/ used by the gateway service drop-in.
         hermes-agent.packages.${system}.default
+        # Runtime deps of the hermes-ircx-plugin IRC adapter (user plugin in
+        # ~/.hermes/plugins). The sealed uv2nix venv is read-only (no pip) and
+        # the flake's extraPythonPackages hook can't be used here because
+        # ircstates transitively pulls python-dateutil/six, which already ship
+        # in the sealed venv and trip its collision check. So these go into the
+        # user profile and are exposed to the gateway via PYTHONPATH in the
+        # hermes-gateway systemd drop-in. Sourced from the hermes flake's OWN
+        # nixpkgs pin + interpreter (hermes-agent.nix pins python312), so they
+        # always match the interpreter hermes actually runs on — no hardcoded
+        # version here. python-dateutil/six are intentionally NOT listed: they
+        # already resolve from the sealed venv at runtime.
+        (let
+          hermes-py = hermes-agent.inputs.nixpkgs.legacyPackages.${system}.python312Packages;
+        in hermes-py.irctokens)
+        (let
+          hermes-py = hermes-agent.inputs.nixpkgs.legacyPackages.${system}.python312Packages;
+        in hermes-py.ircstates)
+        (let
+          hermes-py = hermes-agent.inputs.nixpkgs.legacyPackages.${system}.python312Packages;
+        in hermes-py.pendulum)
+        (let
+          hermes-py = hermes-agent.inputs.nixpkgs.legacyPackages.${system}.python312Packages;
+        in hermes-py.tzdata)
         cua.packages.${system}.cua-driver
         # Wayland-friendly remote access (portal/PipeWire capture + uinput
         # input injection). Flutter client — the sciter one can't capture

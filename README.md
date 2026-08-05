@@ -85,6 +85,63 @@ is in charge.
 DO NOT run `hermes gateway install` again blindly — it rewrites the base
 unit (the drop-in still wins, but it regenerates a raw-venv ExecStart).
 
+## Hermes user plugins with Python deps (hermes-ircx-plugin)
+
+The gateway's Python is a **sealed uv2nix venv** in /nix/store — read-only,
+no pip. Any user plugin that needs extra Python packages (e.g. the
+[hermes-ircx-plugin](https://github.com/computator1200/hermes-ircx-plugin)
+IRC adapter, which needs `irctokens` + `ircstates`) needs the deps wired in
+from the flake side.
+
+What's set up here (2026-08-05):
+
+1. **Plugin install:** `hermes plugins install
+   "https://github.com/computator1200/hermes-ircx-plugin.git#plugins/platforms/ircx"`
+   — the `#subdir` fragment picks the plugin out of the nested repo layout.
+   Landed in `~/.hermes/plugins/ircx-platform`, enabled via
+   `plugins.enabled` + `platforms.ircx.enabled: true`. Connection config
+   (server/channel/nick/…) lives in `~/.hermes/.env` as `IRCX_*` vars —
+   on the machine only, never committed. Channel logs go to
+   `/opt/data/logs/ircx`.
+
+2. **Deps via user profile (NOT the flake's extraPythonPackages hook).**
+   The hermes flake offers `extraPythonPackages` overrides for exactly this,
+   but it **cannot be used here**: its build-time collision checker hard-fails
+   when an extra package ships something already in the sealed venv, and
+   `ircstates` transitively pulls `python-dateutil` + `six` — both already in
+   the venv. So instead:
+
+   ```nix
+   # configuration.nix — user packages, sourced from the hermes flake's OWN
+   # nixpkgs pin so they track hermes's interpreter (nix/hermes-agent.nix
+   # pins python312) and never drift from what hermes runs on:
+   (let hermes-py = hermes-agent.inputs.nixpkgs.legacyPackages.${system}.python312Packages;
+    in hermes-py.irctokens)   # (+ ircstates, pendulum, tzdata)
+   ```
+
+   These land in the user profile at the stable path
+   `/etc/profiles/per-user/wrath/lib/python3.12/site-packages/`.
+   `python-dateutil`/`six` are deliberately omitted — they resolve from the
+   sealed venv at runtime.
+
+3. **PYTHONPATH in the gateway drop-in** exposes the profile site-packages
+   to the gateway process:
+
+   ```ini
+   Environment="PYTHONPATH=/etc/profiles/per-user/wrath/lib/python3.12/site-packages"
+   ```
+
+   (in `~/.config/systemd/user/hermes-gateway.service.d/override.conf`)
+
+Maintenance: if a hermes flake update changes the venv interpreter's
+major.minor (check `nix/hermes-agent.nix` in the hermes repo — currently
+`python312`), update the `pythonXXXPackages` attribute above and the
+PYTHONPATH path in the drop-in together, then rebuild + restart the gateway.
+
+Verify after a gateway restart: `grep -i ircx ~/.hermes/logs/gateway.log`
+should show `IRCX: connected to <server>:<port> as <nick>; joined
+<channel>` and `✓ ircx connected`.
+
 ## Updating
 
 ```bash
