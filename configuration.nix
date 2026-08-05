@@ -741,12 +741,13 @@ in
 
     in
     [
-      qwen-code
+      qwen-code # this is total dogshit
       opencode
+      opencode-desktop
       gimp
       #        (gimp.override { stdenv = myClangStdenv; })
       claude-code
-      gemini-cli
+      gemini-cli # deprecated
       perf
       perf-tools # execsnoop is broken anyway but w/e
       tinyxxd
