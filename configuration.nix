@@ -292,6 +292,7 @@ in
   #  sound.enable = true; # this is alsa
   #  hardware.pulseaudio.enable = true; # this is actual pulseaudio
   security.rtkit.enable = true;
+  security.pam.services.login.kwallet.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
