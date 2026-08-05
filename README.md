@@ -188,3 +188,27 @@ What's set up here:
      started inside the Plasma session (incl. hermes-desktop).
    KWin support is experimental; per-window portal capture works,
    whole-screen geometry is flaky.
+
+## SSH agent (gpg-agent SSH support + KWallet auto-unlock)
+
+The SSH agent is **gpg-agent's SSH support** (`programs.gnupg.agent.enableSSHSupport`),
+not a standalone ssh-agent. Historically the prezto `ssh` module started its own
+agent and symlinked it onto gpg-agent's `S.gpg-agent.ssh`; that chain is retired.
+All user processes get the socket directly via `~/.config/environment.d/99-ssh-auth.conf`
+(`SSH_AUTH_SOCK=/run/user/1000/gnupg/S.gpg-agent.ssh`).
+
+Why SSH never prompts for passphrases:
+- `~/.gnupg/gpg-agent.conf`: `default-cache-ttl-ssh`/`max-cache-ttl-ssh` = 1 year
+  (the 2h default `max-cache-ttl` was the recurring pinentry prompt) +
+  `allow-preset-passphrase`.
+- `security.pam.services.login.kwallet.enable = true` — SDDM substacks `login`,
+  so pam_kwallet auto-unlocks the KWallet at login when the wallet password
+  matches the login password.
+- `~/.config/plasma-workspace/env/99-ssh-unlock.sh` presets every key in
+  `~/.gnupg/sshcontrol` from KWallet at login (silent).
+- One-time seeding: `~/.config/ssh/seed-kwallet.sh` — stores passphrases in
+  KWallet (entries `ssh-passphrase-<keygrip>`) and presets the agent.
+
+New keys: run `ssh-add <key>` once (pinentry prompt), then re-run the seed
+script. The hermes-gateway unit gets `SSH_AUTH_SOCK` via its drop-in
+(`~/.config/systemd/user/hermes-gateway.service.d/override.conf`).
