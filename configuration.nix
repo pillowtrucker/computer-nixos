@@ -133,8 +133,30 @@ in
         allowedTCPPorts = [ 9040 ];
         allowedUDPPorts = [ 5353 ];
       };
+      # WireGuard VPN: the only WAN-exposed port (router DMZ forwards it).
+      # All other remote-access services (ssh 22, krdp 3389, opencode 4096)
+      # are reachable only via the VPN subnet (10.0.20.0/24) or the LAN.
+      allowedUDPPorts = [ 51820 ];
+      interfaces.wg0 = {
+        allowedTCPPorts = [ 22 3389 4096 ];
+      };
     };
   }; # Easiest to use and most distros use this by default.
+
+  # WireGuard VPN endpoint (remote access from LAN + WAN). The private key
+  # lives at /etc/wireguard/wg0.key (root-only) — NOT in this public repo.
+  # Peer = phone (10.0.20.2), roaming client; laptop is the static endpoint.
+  networking.wireguard.interfaces.wg0 = {
+    privateKeyFile = "/etc/wireguard/wg0.key";
+    listenPort = 51820;
+    ips = [ "10.0.20.1/24" ];
+    peers = [
+      {
+        publicKey = "pm/jg2P/UtcPcpjSpM1agZjI2bBfhmPZ4sv8VObAkUI=";
+        allowedIPs = [ "10.0.20.2/32" ];
+      }
+    ];
+  };
 
   time.timeZone = "Europe/Amsterdam";
 
