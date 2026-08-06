@@ -243,7 +243,7 @@ KRDP:
   (picks IPv6 when the network has it), keepalive 25s. v6-forced test config:
   `~/wireguard-phone-v6.conf` (literal IPv6 endpoint).
 - **opencode over VPN:** launch `opencode web --port 4096 --hostname 0.0.0.0` (or any port in 4096-5016)
-  (firewall restricts to VPN+LAN); set `OPENCODE_SERVER_PASSWORD` if ever
-  bound beyond localhost.
+  (firewall restricts to VPN+LAN). No password by
+  choice (2026-08-06): the LAN+VPN firewall IS the auth boundary.
 - Verify: `sudo wg show wg0` (handshake timers), `sudo nft list ruleset`
   (51820 + wg0 interface rules).
