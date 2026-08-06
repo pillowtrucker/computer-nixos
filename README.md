@@ -223,7 +223,7 @@ KRDP:
   51820, phone peer 10.0.20.2. Private key at `/etc/wireguard/wg0.key`
   (root-only, **not in this repo**).
 - **Firewall model:** UDP 51820 is the ONLY WAN-exposed port. Everything else —
-  SSH 22, KRDP 3389, opencode 4096 — is `iifname "wg0"`-scoped: reachable only
+  SSH 22, KRDP 3389, opencode web 4096-5016 — `iifname "wg0"`-scoped: reachable only
   via the VPN subnet 10.0.20.0/24 or the LAN.
 - **GOTCHA:** nixpkgs master's `services.openssh.openFirewall` defaults to
   `true` — SSH was silently WAN-open until set to `false` (2026-08-06). SSH is
@@ -242,7 +242,7 @@ KRDP:
   split tunnel (only 10.0.20.0/24 via VPN), endpoint <vpn-hostname>:51820
   (picks IPv6 when the network has it), keepalive 25s. v6-forced test config:
   `~/wireguard-phone-v6.conf` (literal IPv6 endpoint).
-- **opencode over VPN:** launch `opencode web --port 4096 --hostname 0.0.0.0`
+- **opencode over VPN:** launch `opencode web --port 4096 --hostname 0.0.0.0` (or any port in 4096-5016)
   (firewall restricts to VPN+LAN); set `OPENCODE_SERVER_PASSWORD` if ever
   bound beyond localhost.
 - Verify: `sudo wg show wg0` (handshake timers), `sudo nft list ruleset`

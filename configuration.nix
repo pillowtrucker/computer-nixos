@@ -127,7 +127,7 @@ in
       # NOT opened globally (allowedTCPPorts would expose it to WAN);
       # only the local LAN subnet may connect.
       extraInputRules = ''
-        ip saddr 192.168.1.0/24 tcp dport { 22, 3389 } accept
+        ip saddr 192.168.1.0/24 tcp dport { 22, 3389, 4096-5016 } accept
       '';
       interfaces.tornet = {
         allowedTCPPorts = [ 9040 ];
@@ -138,7 +138,8 @@ in
       # are reachable only via the VPN subnet (10.0.20.0/24) or the LAN.
       allowedUDPPorts = [ 51820 ];
       interfaces.wg0 = {
-        allowedTCPPorts = [ 22 3389 4096 ];
+        allowedTCPPorts = [ 22 3389 ];
+        allowedTCPPortRanges = [ { from = 4096; to = 5016; } ]; # opencode web UIs
       };
     };
   }; # Easiest to use and most distros use this by default.
