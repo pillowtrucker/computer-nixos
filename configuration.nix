@@ -301,6 +301,7 @@ in
   #  services.xserver.xkb.layout = "gb";
   #  services.xserver.xkb.options = "compose:ralt";
   programs.gnupg.agent.pinentryPackage = pkgs.pinentry-qt;
+  programs.nix-ld.enable = true; # run unpatched dynamically-linked binaries (npx/npm-installed tools like agent-browser)
   services.printing.enable = true;
   services.postfix.enable = true;
   services.smartd = {
