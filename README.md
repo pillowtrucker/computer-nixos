@@ -212,3 +212,38 @@ Why SSH never prompts for passphrases:
 New keys: run `ssh-add <key>` once (pinentry prompt), then re-run the seed
 script. The hermes-gateway unit gets `SSH_AUTH_SOCK` via its drop-in
 (`~/.config/systemd/user/hermes-gateway.service.d/override.conf`).
+
+## WireGuard VPN (remote access from LAN + WAN)
+
+Self-hosted WireGuard endpoint on the laptop — the way to reach the box from
+anywhere (phone, laptop, whatever), including the opencode web UI, SSH, and
+KRDP:
+
+- `networking.wireguard.interfaces.wg0`: laptop = 10.0.20.1/24, listens UDP
+  51820, phone peer 10.0.20.2. Private key at `/etc/wireguard/wg0.key`
+  (root-only, **not in this repo**).
+- **Firewall model:** UDP 51820 is the ONLY WAN-exposed port. Everything else —
+  SSH 22, KRDP 3389, opencode 4096 — is `iifname "wg0"`-scoped: reachable only
+  via the VPN subnet 10.0.20.0/24 or the LAN.
+- **GOTCHA:** nixpkgs master's `services.openssh.openFirewall` defaults to
+  `true` — SSH was silently WAN-open until set to `false` (2026-08-06). SSH is
+  now LAN/VPN-only (22 in the wg0 + LAN rules only).
+- **IPv4 vs IPv6 (verified 2026-08-06):** WAN access works over **IPv6**;
+  inbound IPv4 UDP 51820 is filtered upstream (ISP/router) despite a correct
+  NAT forward — the v4 path is dead from the WAN. The laptop's firewall keeps
+  the v4 rule so it works the moment the upstream filter is lifted.
+- **DDNS:** `~/.local/bin/cloudflare-ddns.sh` + user timer
+  `cloudflare-ddns.timer` (every 5 min) keeps `<vpn-hostname>` pointed at
+  the current WAN IPv4 **and** the laptop's stable (non-temporary) global IPv6
+  — DNS-only / grey cloud (CF proxy cannot carry WireGuard UDP). Token in
+  `~/cloudflare_` (line 2; line 1 ignored — zone ID is resolved from the API).
+  Never commit that file.
+- **Phone config:** `~/wireguard-phone.conf` + QR (`~/wireguard-phone-qr.png`),
+  split tunnel (only 10.0.20.0/24 via VPN), endpoint <vpn-hostname>:51820
+  (picks IPv6 when the network has it), keepalive 25s. v6-forced test config:
+  `~/wireguard-phone-v6.conf` (literal IPv6 endpoint).
+- **opencode over VPN:** launch `opencode web --port 4096 --hostname 0.0.0.0`
+  (firewall restricts to VPN+LAN); set `OPENCODE_SERVER_PASSWORD` if ever
+  bound beyond localhost.
+- Verify: `sudo wg show wg0` (handshake timers), `sudo nft list ruleset`
+  (51820 + wg0 interface rules).
