@@ -127,7 +127,7 @@ in
       # NOT opened globally (allowedTCPPorts would expose it to WAN);
       # only the local LAN subnet may connect.
       extraInputRules = ''
-        ip saddr 192.168.1.0/24 tcp dport 3389 accept
+        ip saddr 192.168.1.0/24 tcp dport { 22, 3389 } accept
       '';
       interfaces.tornet = {
         allowedTCPPorts = [ 9040 ];
@@ -908,6 +908,7 @@ in
   services.flatpak.enable = true;
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  services.openssh.openFirewall = false; # ssh is LAN/VPN-only (see firewall rules)
   services.asusd.enable = true;
   #  services.asusd.enableUserService = true;
   services.supergfxd.enable = true;
