@@ -301,7 +301,6 @@ in
   #  services.xserver.xkb.layout = "gb";
   #  services.xserver.xkb.options = "compose:ralt";
   programs.gnupg.agent.pinentryPackage = pkgs.pinentry-qt;
-  programs.nix-ld.enable = true; # run unpatched dynamically-linked binaries (npx/npm-installed tools like agent-browser)
   services.printing.enable = true;
   services.postfix.enable = true;
   services.smartd = {
@@ -534,6 +533,10 @@ in
       #      in [
       [
         hermes-agent.packages.${system}.desktop
+        # Headless browser driver for the hermes browser_* tools. nixpkgs
+        # ships it already patchelf'd for NixOS (the npx-installed one fails
+        # with a stub-ld error). Hermes finds it via `shutil.which("agent-browser")`.
+        agent-browser
         # full CLI package ("full" is an internal let-binding; the output attr
         # is `default`). Provides the wrapped `hermes` binary on PATH which
         # self-sets HERMES_BUNDLED_PLUGINS/SKILLS/LOCALES, plus the stable
