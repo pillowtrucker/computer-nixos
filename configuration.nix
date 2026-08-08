@@ -133,30 +133,69 @@ in
         allowedTCPPorts = [ 9040 ];
         allowedUDPPorts = [ 5353 ];
       };
-      # WireGuard VPN: the only WAN-exposed port (router DMZ forwards it).
-      # All other remote-access services (ssh 22, krdp 3389, opencode 4096)
-      # are reachable only via the VPN subnet (10.0.20.0/24) or the LAN.
-      allowedUDPPorts = [ 51820 ];
-      interfaces.wg0 = {
-        allowedTCPPorts = [ 22 3389 ];
-        allowedTCPPortRanges = [ { from = 4096; to = 5016; } ]; # opencode web UIs
+      # Remote-access VPN moved to the VPS (2026-08-08): the laptop is now
+      # a WireGuard CLIENT (wg1 below), so NOTHING is exposed to the WAN —
+      # ssh/krdp/opencode reach it only via the VPN subnet (10.0.30.0/24,
+      # relayed through the VPS) or the LAN.
+      # Remote-access surface on the VPS-hosted VPN (wg1): ssh/krdp/
+      # opencode reach the laptop via the VPS relay (phone + laptop both
+      # migrated 2026-08-08). 9900 = hermes A2A (bot-to-bot) endpoint.
+      interfaces.wg1 = {
+        allowedTCPPorts = [ 22 3389 9900 ];
+        allowedTCPPortRanges = [ { from = 4096; to = 5016; } ];
       };
     };
   }; # Easiest to use and most distros use this by default.
 
-  # WireGuard VPN endpoint (remote access from LAN + WAN). The private key
-  # lives at /etc/wireguard/wg0.key (root-only) — NOT in this public repo.
-  # Peer = phone (10.0.20.2), roaming client; laptop is the static endpoint.
-  networking.wireguard.interfaces.wg0 = {
-    privateKeyFile = "/etc/wireguard/wg0.key";
-    listenPort = 51820;
-    ips = [ "10.0.20.1/24" ];
+
+  # VPS-hosted WireGuard VPN (server = the VPS box,
+  # subnet 10.0.30.0/24: vps .1, laptop .2, phone .3). The laptop is a
+  # client here — outbound-only, auto-connects on boot. The hermes bots
+  # (laptop + VPS) talk to each other over this tunnel via the A2A
+  # platform (TCP 9900, opened below on wg1). Endpoint hostname is an
+  # unguessable subdomain of a domain I control (grey cloud, no DDNS needed:
+  # the VPS IPs are static). The laptop-hosted wg0 server was retired
+  # 2026-08-08 once phone + laptop both moved over.
+  networking.wireguard.interfaces.wg1 = {
+    privateKeyFile = "/etc/wireguard/wg-vps.key";
+    ips = [ "10.0.30.2/32" ];
     peers = [
       {
-        publicKey = "pm/jg2P/UtcPcpjSpM1agZjI2bBfhmPZ4sv8VObAkUI=";
-        allowedIPs = [ "10.0.20.2/32" ];
+        publicKey = "mk74t1gJcaAH6H82JeBYz92ZHU7T0m48fnzqBBf/3mw=";
+        allowedIPs = [ "10.0.30.0/24" ];
+        # Endpoint applied at boot by wg1-endpoint.service: the hostname is
+        # unguessable and must not land in the public repo, so it lives in
+        # the machine-local /etc/wireguard/wg1.endpoint (root:root 0640).
+        persistentKeepalive = 25;
       }
     ];
+  };
+  # Apply the unguessable VPS VPN endpoint from the machine-local file
+  # (root:root 0640). wg1 is declared above without an endpoint so nothing
+  # secret lands in the public /etc/nixos repo. Event-driven, NOT oneshot-
+  # once: systemd-networkd recreates the netdev on every activation and
+  # wipes runtime endpoint state (bit us 2026-08-08), so the path unit
+  # re-fires the service whenever the netdev file changes.
+  systemd.services.wg1-endpoint = {
+    description = "Keep wg1 peer endpoint set from /etc/wireguard/wg1.endpoint";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      Restart = "always";
+      RestartSec = 5;
+    };
+    # Tiny self-healing loop: systemd-networkd recreates the wg1 netdev on
+    # activation and wipes runtime endpoint state (bit us 2026-08-08 — a
+    # oneshot/path unit races it). wg set is idempotent; re-apply every 30s.
+    script = ''
+      ep=$(tr -d '\n' < /etc/wireguard/wg1.endpoint)
+      while true; do
+        ${pkgs.wireguard-tools}/bin/wg set wg1 \
+          peer mk74t1gJcaAH6H82JeBYz92ZHU7T0m48fnzqBBf/3mw= \
+          endpoint "$ep" 2>/dev/null || true
+        sleep 30
+      done
+    '';
   };
 
   time.timeZone = "Europe/Amsterdam";
@@ -776,6 +815,7 @@ in
       #        (gimp.override { stdenv = myClangStdenv; })
       claude-code
       gemini-cli # deprecated
+      antigravity-cli
       perf
       perf-tools # execsnoop is broken anyway but w/e
       tinyxxd
@@ -1020,3 +1060,4 @@ in
   system.stateVersion = "24.05"; # Did you read the comment?
 
 }
+

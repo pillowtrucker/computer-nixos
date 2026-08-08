@@ -213,37 +213,38 @@ New keys: run `ssh-add <key>` once (pinentry prompt), then re-run the seed
 script. The hermes-gateway unit gets `SSH_AUTH_SOCK` via its drop-in
 (`~/.config/systemd/user/hermes-gateway.service.d/override.conf`).
 
-## WireGuard VPN (remote access from LAN + WAN)
+## WireGuard VPN (VPS-hosted, laptop = client)
 
-Self-hosted WireGuard endpoint on the laptop — the way to reach the box from
-anywhere (phone, laptop, whatever), including the opencode web UI, SSH, and
-KRDP:
+The VPN moved off the laptop onto the VPS on 2026-08-08 — the laptop's WAN
+ingress was IPv6-only/filtered anyway, and the VPS has clean public v4+v6.
+New topology: subnet 10.0.30.0/24 — VPS .1 (server), laptop .2, phone .3.
+The laptop-hosted server (old 10.0.20.0/24, `wg0` here) was retired once
+phone + laptop both migrated.
 
-- `networking.wireguard.interfaces.wg0`: laptop = 10.0.20.1/24, listens UDP
-  51820, phone peer 10.0.20.2. Private key at `/etc/wireguard/wg0.key`
-  (root-only, **not in this repo**).
-- **Firewall model:** UDP 51820 is the ONLY WAN-exposed port. Everything else —
-  SSH 22, KRDP 3389, opencode web 4096-5016 — `iifname "wg0"`-scoped: reachable only
-  via the VPN subnet 10.0.20.0/24 or the LAN.
-- **GOTCHA:** nixpkgs master's `services.openssh.openFirewall` defaults to
-  `true` — SSH was silently WAN-open until set to `false` (2026-08-06). SSH is
-  now LAN/VPN-only (22 in the wg0 + LAN rules only).
-- **IPv4 vs IPv6 (verified 2026-08-06):** WAN access works over **IPv6**;
-  inbound IPv4 UDP 51820 is filtered upstream (ISP/router) despite a correct
-  NAT forward — the v4 path is dead from the WAN. The laptop's firewall keeps
-  the v4 rule so it works the moment the upstream filter is lifted.
-- **DDNS:** `~/.local/bin/cloudflare-ddns.sh` + user timer
-  `cloudflare-ddns.timer` (every 5 min) keeps `<vpn-hostname>` pointed at
-  the current WAN IPv4 **and** the laptop's stable (non-temporary) global IPv6
-  — DNS-only / grey cloud (CF proxy cannot carry WireGuard UDP). Token in
-  `~/cloudflare_` (line 2; line 1 ignored — zone ID is resolved from the API).
-  Never commit that file.
-- **Phone config:** `~/wireguard-phone.conf` + QR (`~/wireguard-phone-qr.png`),
-  split tunnel (only 10.0.20.0/24 via VPN), endpoint <vpn-hostname>:51820
-  (picks IPv6 when the network has it), keepalive 25s. v6-forced test config:
-  `~/wireguard-phone-v6.conf` (literal IPv6 endpoint).
-- **opencode over VPN:** launch `opencode web --port 4096 --hostname 0.0.0.0` (or any port in 4096-5016)
-  (firewall restricts to VPN+LAN). No password by
-  choice (2026-08-06): the LAN+VPN firewall IS the auth boundary.
-- Verify: `sudo wg show wg0` (handshake timers), `sudo nft list ruleset`
-  (51820 + wg0 interface rules).
+- **VPS server:** WireGuard on the VPS, listens UDP 51820, subnet
+  10.0.30.0/24. Its endpoint hostname is an unguessable subdomain of
+  a domain I control (grey-cloud A record to the VPS IP) — deliberately NOT
+  written here; it lives in machine-local files only.
+- **Laptop client:** `networking.wireguard.interfaces.wg1` (10.0.30.2/32),
+  outbound-only, auto-connects. Private key `/etc/wireguard/wg-vps.key`
+  (root-only, not in repo). The peer endpoint is applied at boot by
+  `wg1-endpoint.service` reading `/etc/wireguard/wg1.endpoint` (root-only) —
+  pure flake evaluation can't read files outside the repo, so no
+  `builtins.readFile` trick; the unguessable hostname never lands here.
+- **Firewall model:** the laptop exposes NOTHING to the WAN anymore.
+  SSH 22, KRDP 3389, opencode web 4096-5016, hermes A2A 9900 — all
+  `interfaces.wg1`-scoped: reachable only via the VPN subnet or the LAN.
+  The old UDP-51820 WAN rule is gone.
+- **Bot-to-bot:** both Hermes gateways talk over the tunnel via the A2A
+  platform (laptop hermes <-> vps hermes, port 9900, bearer tokens in each
+  side's .env). Verified both ways 2026-08-08.
+- **Phone config:** `~/wireguard-phone-vps.conf` + QR, same keypair as
+  before (just new server pubkey/address/endpoint), split tunnel
+  (10.0.30.0/24 only), keepalive 25s. Old laptop-based configs
+  (`wireguard-phone.conf`, `-v6.conf`) are retired.
+- **DDNS retired:** `~/.local/bin/cloudflare-ddns.sh` + timer are disabled —
+  the VPS IPs are static, no dynamic hostname needed. (The old A/AAAA
+  records for the laptop hostname stay as harmless leftovers or can be
+  deleted.)
+- Verify: `sudo wg show wg1` (handshake + endpoint 51820),
+  `systemctl status wg1-endpoint`, ping 10.0.30.1.
