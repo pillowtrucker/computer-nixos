@@ -1,1 +1,4 @@
 .#*
+
+# locally-patched hermes-agent checkout (flakes: path input); never publish
+hermes-agent/
