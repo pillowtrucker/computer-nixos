@@ -903,17 +903,14 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1786041058,
-        "narHash": "sha256-mjBd8SFjm55g5oul3NJv4945NKGPSgHmcFZgFbzlo5Y=",
-        "owner": "NousResearch",
-        "repo": "hermes-agent",
-        "rev": "0957277f2f468bac22bbfcfa7c43029858c9597e",
-        "type": "github"
+        "lastModified": 1786294647,
+        "narHash": "sha256-ZNJurBPTZdQGV+Cwfm6+OAMNspttRjdTDartLt7Gams=",
+        "path": "/etc/nixos/hermes-agent",
+        "type": "path"
       },
       "original": {
-        "owner": "NousResearch",
-        "repo": "hermes-agent",
-        "type": "github"
+        "path": "/etc/nixos/hermes-agent",
+        "type": "path"
       }
     },
     "hls": {
