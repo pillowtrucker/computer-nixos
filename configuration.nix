@@ -141,7 +141,7 @@ in
       # opencode reach the laptop via the VPS relay (phone + laptop both
       # migrated 2026-08-08). 9900 = hermes A2A (bot-to-bot) endpoint.
       interfaces.wg1 = {
-        allowedTCPPorts = [ 22 3389 9900 ];
+        allowedTCPPorts = [ 22 3389 9900 19999 ];
         allowedTCPPortRanges = [ { from = 4096; to = 5016; } ];
       };
     };
@@ -351,6 +351,17 @@ in
     };
   };
 
+  # Netdata: resource monitoring agent + built-in web dashboard on :19999
+  # (reachable over the wg1 VPN subnet). See todo: monitoring setup.
+  services.netdata = {
+    enable = true;
+    config = {
+      web = {
+        "bind to" = "*";
+      };
+    };
+  };
+
   #  sound.enable = true; # this is alsa
   #  hardware.pulseaudio.enable = true; # this is actual pulseaudio
   security.rtkit.enable = true;
@@ -550,7 +561,23 @@ in
 
   services.ergochat = {
     enable = true;
+    # TLS listener for the IRC CertFP tests (2026-08-10):
+    # self-signed local CA; keys live outside this (public) repo.
+    settings.server.listeners.":6697" = {
+      tls = {
+        enabled = true;
+        cert = "/etc/ergo/server.crt";
+        # DynamicUser service reads its key via LoadCredential below.
+        key = "/run/credentials/ergochat.service/server-key";
+      };
+    };
   };
+
+  # ergo runs with DynamicUser=true, so hand it the TLS key via
+  # credentials (root-owned 600 file, readable only by the service).
+  systemd.services.ergochat.serviceConfig.LoadCredential = [
+    "server-key:/etc/ergo/server.key"
+  ];
 
   users.defaultUserShell = pkgs.zsh;
   users.users.root.initialHashedPassword = "";
