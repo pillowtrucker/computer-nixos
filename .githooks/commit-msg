@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Block commit messages that carry a cross-identity reference.
+# pre-commit cannot see the message, so this is a separate hook.
+exec "$(dirname "$0")/identity-guard.sh" --msg "$1"

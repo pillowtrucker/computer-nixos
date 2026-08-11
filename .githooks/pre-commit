@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Block staged content that carries a cross-identity reference.
+exec "$(dirname "$0")/identity-guard.sh" --staged

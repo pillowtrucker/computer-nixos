@@ -156,6 +156,28 @@ git add flake.lock configuration.nix && git commit
 Commits are terse one-liners describing the change
 (e.g. `hermes: add default (full) package for wrapped hermes binary on PATH`).
 
+This repo is public and must only ever carry one identity. `.githooks/`
+enforces that: `pre-commit` scans staged content and filenames, `commit-msg`
+scans the message, and both check the author/committer git will actually
+stamp. Enabled per-clone with:
+
+    git config core.hooksPath .githooks
+
+The banned-pattern list is deliberately **not** tracked here — committing it
+would republish the very strings it exists to keep out. It lives machine-local
+at `/etc/nixos-identity-guard/patterns.txt` (override with
+`$IDENTITY_GUARD_PATTERNS`), same reasoning as `/etc/wireguard/wg1.endpoint`.
+The guard fails closed: no readable pattern file means no commit.
+
+Audit all existing history (blobs, messages, and author/committer fields) with
+`.githooks/identity-guard.sh --all`.
+
+Watch out for `GIT_AUTHOR_NAME` / `GIT_AUTHOR_EMAIL` / `GIT_COMMITTER_*` in the
+environment: they override `~/.gitconfig` silently, so `git config user.email`
+can report the right identity while every commit is recorded under a different
+one. The hooks check the effective identity precisely because config alone is
+not enough.
+
 ## Remote access (VNC/RDP/Wayland)
 
 State of the art on Wayland: capture goes through xdg-desktop-portal
