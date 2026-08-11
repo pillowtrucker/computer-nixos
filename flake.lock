@@ -903,8 +903,8 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1786294647,
-        "narHash": "sha256-ZNJurBPTZdQGV+Cwfm6+OAMNspttRjdTDartLt7Gams=",
+        "lastModified": 1786447826,
+        "narHash": "sha256-4TYpGKxxUmtwufrgftatXOFINaB7ybFRoE7TRhhwmh8=",
         "path": "/etc/nixos/hermes-agent",
         "type": "path"
       },
