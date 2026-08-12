@@ -377,9 +377,18 @@ in
   services.libinput.enable = true;
 
   services.ollama = {
-  enable = true;
-  package = pkgs.ollama-cuda;
-};
+    enable = true;
+    package = pkgs.ollama-cuda;
+    # CORS origins are loaded from a machine-local env file (not committed)
+    # so the allowed domains never land in the public repo. The file format
+    # is systemd EnvironmentFile: KEY=value, one per line.
+    # See /etc/nixos/README.md § "Ollama CORS origins".
+  };
+
+  # Ollama CORS origins: OLLAMA_ORIGINS is a comma-separated list of
+  # allowed origin patterns. The domains live in a machine-local file
+  # (same pattern as /etc/wireguard/wg1.endpoint — never committed).
+  systemd.services.ollama.serviceConfig.EnvironmentFile = "/etc/ollama/origins.env";
 
   nixpkgs.overlays = [
     #                       (import "${inputs.nixpkgs-mozilla}/firefox-overlay.nix")

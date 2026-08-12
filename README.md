@@ -270,3 +270,26 @@ phone + laptop both migrated.
   deleted.)
 - Verify: `sudo wg show wg1` (handshake + endpoint 51820),
   `systemctl status wg1-endpoint`, ping 10.0.30.1.
+
+## Ollama CORS origins
+
+The ollama service needs `OLLAMA_ORIGINS` set so browser-based clients
+(web apps + browser extensions) can reach the local API. The allowed
+domains live in a **machine-local env file** (same pattern as the
+WireGuard endpoint/key files — never committed to this public repo):
+
+- File: `/etc/ollama/origins.env` (root:root 0640)
+- Format: systemd `EnvironmentFile` (`KEY=value`, one per line)
+- Key: `OLLAMA_ORIGINS` — comma-separated origin patterns (glob-style,
+  ollama uses Go `path.Match`)
+
+The committed `configuration.nix` references only the file path via
+`systemd.services.ollama.serviceConfig.EnvironmentFile`; the actual
+origin list is in the machine-local file only.
+
+Systemd `EnvironmentFile=` values override `Environment=` for the same
+key, so all origins (including non-secret ones like extension schemes)
+go in the file.
+
+To add a new origin: edit `/etc/ollama/origins.env` and restart the
+service: `sudo systemctl restart ollama`.
