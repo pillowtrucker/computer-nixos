@@ -293,3 +293,11 @@ go in the file.
 
 To add a new origin: edit `/etc/ollama/origins.env` and restart the
 service: `sudo systemctl restart ollama`.
+
+## kdotool, dotool, ydotool
+
+System-wide packages for KDE Wayland window control and input injection.
+`kdotool` (not in nixpkgs) is built from `github:jinliu/kdotool` via a
+`buildRustPackage` let-binding in `configuration.nix`; `dotool` and
+`ydotool` are from nixpkgs. Full usage docs and cua-driver workaround
+recipe: `kdotool` Hermes skill.

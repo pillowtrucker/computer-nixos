@@ -24,6 +24,30 @@ let
   myClangStdenv = pkgs.stdenvAdapters.useMoldLinker (
     pkgs.stdenvAdapters.overrideCC myLlvm.stdenv (myLlvm.clang.override { bintools = myLlvm.bintools; })
   );
+  # kdotool: xdotool-workalike for KDE Wayland (KWin D-Bus scripting API).
+  # Not in nixpkgs — built from upstream via buildRustPackage. Pair with
+  # dotool/ydotool for kernel-level input injection (/dev/uinput) to work
+  # around cua-driver's X11-only key-combo delivery on native Wayland.
+  # See skill: kdotool, and /etc/nixos/README.md § kdotool+dotool.
+  kdotool = pkgs.rustPlatform.buildRustPackage {
+    pname = "kdotool";
+    version = "0.2.1";
+    src = pkgs.fetchFromGitHub {
+      owner = "jinliu";
+      repo = "kdotool";
+      rev = "1ad61acb56c0707df53a4d9ce10153a87f08523b";
+      hash = "sha256-zGuq8YjxLRSd26UfRgBfKveesZy6ruVLQlTbGN/afoE=";
+    };
+    cargoHash = "sha256-CZr/aPAPFjeJdlF8wvf1c16bBGhzGhVW3WnZJ8TC68A=";
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = [ pkgs.dbus ];
+    meta = {
+      description = "xdotool clone for KDE Wayland via KWin scripting API";
+      homepage = "https://github.com/jinliu/kdotool";
+      license = pkgs.lib.licenses.mit;
+      mainProgram = "kdotool";
+    };
+  };
 in
 {
   #  {
@@ -751,6 +775,20 @@ in
         #        lutris # need to disable tests again probably
         lyx
         vscode # I probably don't need this since I got gluon lsp working with emacs
+        # KDE Wayland window control + input injection trio:
+        # kdotool = activate/query/move/resize native Wayland windows via KWin
+        #           scripting API (xdotool-workalike, no X11 needed). Built from
+        #           upstream — see the `let` binding above.
+        # dotool  = kernel-level key/mouse input via /dev/uinput (no daemon).
+        #           The compositor sees these as real physical events — works on
+        #           native Wayland surfaces where cua-driver's X11/XTest path can't.
+        # ydotool = same idea as dotool but needs ydotoold daemon; kept as fallback.
+        # Together: kdotool windowactivate + dotool key combos bypass cua-driver's
+        # X11-only foreground delivery on Wayland. ACL for /dev/uinput is already
+        # set (user:wrath:rw-). See README.md § kdotool+dotool.
+        kdotool
+        dotool
+        ydotool
       ];
   };
   services.emacs.enable = true;
@@ -848,6 +886,24 @@ in
 
     in
     [
+      # claude-desktop with SSH_AUTH_SOCK forced into the bwrap sandbox.
+      # The buildFHSEnv container-init strips SSH_AUTH_SOCK before exec'ing
+      # the Electron binary, so gpg-agent is invisible to claude-desktop's
+      # own SSH features (integrated SSH shell). --setenv injects it inside
+      # the sandbox namespace, after container-init's env sanitization.
+      (let
+        cd = inputs.claude-desktop.packages.${system}.claude-desktop;
+      in buildFHSEnv {
+        name = "claude-desktop";
+        targetPkgs = pkgs: with pkgs; [
+          docker glibc openssl nodejs uv glib gvfs xdg-utils
+        ];
+        runScript = "${cd}/bin/claude-desktop";
+        extraBwrapArgs = [
+          "--setenv" "SSH_AUTH_SOCK" "/run/user/1000/ssh-agent"
+        ];
+      })
+      
       hunspellDicts.en_GB-ise
       hunspellDicts.en_US  # fallback
 
@@ -967,8 +1023,11 @@ in
   programs.mtr.enable = true;
   programs.gnupg.agent = {
     enable = true;
-    enableSSHSupport = true;
+    # SSH support DISABLED — gpg-agent pops pinentry for passphrase-less SSH keys.
+    # Using programs.ssh.startAgent instead.
+    # enableSSHSupport = true;
   };
+  programs.ssh.startAgent = true;
   programs.steam = {
     protontricks.enable = true;
     enable = true;
