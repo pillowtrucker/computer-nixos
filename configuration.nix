@@ -220,7 +220,7 @@ in
       LC_ALL = "en_US.UTF-8";
       LC_CTYPE = "en_US.UTF-8";
       LC_COLLATE = "en_US.UTF-8";
-      LC_MESSAGES = "en_US.UTF-8";
+      LC_MESSAGES = "en_GB.UTF-8";
       LC_ADDRESS = "en_US.UTF-8";
       LC_IDENTIFICATION = "en_US.UTF-8";
       LC_MEASUREMENT = "de_DE.UTF-8";
@@ -772,6 +772,10 @@ in
     enableDebugSymbols = false;
   }) { };
   #  programs.firefox.package = pkgs.firefox-devedition-bin;
+  # Spellchecker: British English
+  programs.firefox.preferences = {
+    "spellchecker.dictionary" = "en-GB";
+  };
   programs.direnv.enable = true;
   security.sudo = {
     enable = true;
@@ -844,6 +848,9 @@ in
 
     in
     [
+      hunspellDicts.en_GB-ise
+      hunspellDicts.en_US  # fallback
+
       qwen-code # this is total dogshit
       opencode
       opencode-desktop
