@@ -680,6 +680,9 @@ in
         # Bugzilla CLI (python-bugzilla), auth via API key in
         # ~/.bugzillarc (machine-local, never committed).
         python3Packages.python-bugzilla
+        # kbz — thin wrapper around the bugzilla CLI presetting
+        # bugs.kde.org + REST backend (see kbz.sh for the why).
+        (writeShellScriptBin "kbz" (builtins.readFile ./kbz.sh))
         just
         gammaray
         uqm
