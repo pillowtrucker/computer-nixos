@@ -2513,18 +2513,17 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1786708098,
-        "narHash": "sha256-ZGrq/CoiqYGXJvXE2+qr61agf6eXfr+t6sMq1D/EXlk=",
-        "ref": "fix-parse-record-id-cross-account-ids",
-        "rev": "c0775613ba48df4fb4ef53ebf5a54e688dc2b1ae",
-        "revCount": 70,
+        "lastModified": 1786711910,
+        "narHash": "sha256-YMv7r4C+hkLUedqCYZfKfXpv6Az3aVe8Zc/Sv0b9P9g=",
+        "ref": "refs/heads/fix-parse-record-id-cross-account-ids",
+        "rev": "20f20ce6acfc7631e573eb07dd4012167c76032f",
+        "revCount": 74,
         "type": "git",
-        "url": "https://knot.tangled.example.invalid/DID-OPERATOR-REDACTED"
+        "url": "file:///home/wrath/impro_flake/tangled-cli"
       },
       "original": {
-        "ref": "fix-parse-record-id-cross-account-ids",
         "type": "git",
-        "url": "https://knot.tangled.example.invalid/DID-OPERATOR-REDACTED"
+        "url": "file:///home/wrath/impro_flake/tangled-cli"
       }
     },
     "utils": {

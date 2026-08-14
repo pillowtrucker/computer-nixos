@@ -29,18 +29,12 @@
     claude-desktop.url = "github:heytcass/claude-desktop-linux-flake";
     # Tangled CLI (`tang`) — decentralized git collaboration platform client
     # on AT Protocol. Used for pushing to tangled.org remotes.
-    # PINNED (2026-08-14) to a fork+branch fixing two real bugs that block
-    # addressing any pull/issue record authored by someone other than the
-    # caller (`tang pull show/review/merge <at-uri-or-did:rkey>` and
-    # `--target owner/repo` for a fork's upstream both failed). PR open
-    # upstream: https://tangled.org/DID-OPERATOR-REDACTED/tangled-cli/pulls
-    # (rkey 3mt23o5wzy42u). Points at the knot directly by repoDid rather
-    # than the fork's own handle/reponame path - the latter 404s for a
-    # just-created repo (frontend indexing lag), while the knot itself
-    # already serves it fine. Rollback: revert to
-    # "git+https://tangled.org/jubishop.bsky.social/tangled-cli", re-lock,
-    # rebuild. Once the PR merges upstream, switch back to that same line.
-    tangled-cli.url = "git+https://knot.tangled.example.invalid/DID-OPERATOR-REDACTED?ref=fix-parse-record-id-cross-account-ids";
+    # Sourced from the local checkout (~/impro_flake/tangled-cli, the same fork
+    # tag + branch this machine's user profile installs) instead of a remote
+    # knot/handle URL, so the operator's DID handle never lands in flake.lock.
+    # Rollback: point back at the upstream repo, re-lock, rebuild.
+    #   tangled-cli.url = "git+https://tangled.org/jubishop.bsky.social/tangled-cli";
+    tangled-cli.url = "git+file:///home/wrath/impro_flake/tangled-cli";
 
   };
 
