@@ -677,6 +677,9 @@ in
         #        koreader
         webcamoid
         glab
+        # Bugzilla CLI (python-bugzilla), auth via API key in
+        # ~/.bugzillarc (machine-local, never committed).
+        python3Packages.python-bugzilla
         just
         gammaray
         uqm

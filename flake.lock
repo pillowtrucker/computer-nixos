@@ -2513,17 +2513,18 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1783854689,
-        "narHash": "sha256-24pzSgXqZXW3xWKNOD/AeVy+sSYkUSEMZZ6nqPWrT4c=",
-        "ref": "refs/heads/main",
-        "rev": "ffcd4aadba0e213ab16f15af386eed89f99864eb",
-        "revCount": 68,
+        "lastModified": 1786708098,
+        "narHash": "sha256-ZGrq/CoiqYGXJvXE2+qr61agf6eXfr+t6sMq1D/EXlk=",
+        "ref": "fix-parse-record-id-cross-account-ids",
+        "rev": "c0775613ba48df4fb4ef53ebf5a54e688dc2b1ae",
+        "revCount": 70,
         "type": "git",
-        "url": "https://tangled.org/jubishop.bsky.social/tangled-cli"
+        "url": "https://knot.tangled.example.invalid/DID-OPERATOR-REDACTED"
       },
       "original": {
+        "ref": "fix-parse-record-id-cross-account-ids",
         "type": "git",
-        "url": "https://tangled.org/jubishop.bsky.social/tangled-cli"
+        "url": "https://knot.tangled.example.invalid/DID-OPERATOR-REDACTED"
       }
     },
     "utils": {
