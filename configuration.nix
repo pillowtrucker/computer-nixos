@@ -146,6 +146,7 @@ in
     };
     firewall = {
       enable = true;
+      trustedInterfaces = [ "virbr0" ];
       # KRDP (KDE's built-in RDP server) — remote access to the running
       # Wayland session. This laptop sits in the router's DMZ, so 3389 is
       # NOT opened globally (allowedTCPPorts would expose it to WAN);
