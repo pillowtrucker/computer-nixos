@@ -26,6 +26,10 @@
     # Full story: patches/hermes-telegram-exactly-once.patch.
     hermes-agent.url = "path:/etc/nixos/hermes-agent";
     cua.url = "github:trycua/cua";
+    claude-desktop.url = "github:heytcass/claude-desktop-linux-flake";
+    # Tangled CLI (`tang`) — decentralized git collaboration platform client
+    # on AT Protocol. Used for pushing to tangled.org remotes.
+    tangled-cli.url = "git+https://tangled.org/jubishop.bsky.social/tangled-cli";
 
   };
 
