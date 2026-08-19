@@ -376,17 +376,6 @@ in
     };
   };
 
-  # Netdata: resource monitoring agent + built-in web dashboard on :19999
-  # (reachable over the wg1 VPN subnet). See todo: monitoring setup.
-  services.netdata = {
-    enable = true;
-    config = {
-      web = {
-        "bind to" = "*";
-      };
-    };
-  };
-
   #  sound.enable = true; # this is alsa
   #  hardware.pulseaudio.enable = true; # this is actual pulseaudio
   security.rtkit.enable = true;
