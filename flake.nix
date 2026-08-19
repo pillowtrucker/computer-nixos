@@ -22,9 +22,12 @@
     #      "github:ExpidusOS/nixpkgs/1c5df86c3d30e6a8d43113f1400641cdd7709da9";
     comfyui.url = "github:utensils/comfyui-nix";
     # LOCAL PATCHED checkout (2026-08-09): telegram exactly-once inbound fix.
+    # git+file (not path:) so ignored churn (__pycache__ etc.) can't drift the
+    # input hash; only committed content is hashed. (Hit 2026-08-19: path input
+    # NAR-mismatched after pycache regenerated in the clone.)
     # Rollback: revert to "github:NousResearch/hermes-agent", re-lock, rebuild.
     # Full story: patches/hermes-telegram-exactly-once.patch.
-    hermes-agent.url = "path:/etc/nixos/hermes-agent";
+    hermes-agent.url = "git+file:///etc/nixos/hermes-agent";
     cua.url = "github:trycua/cua";
     claude-desktop.url = "github:heytcass/claude-desktop-linux-flake";
     # Tangled CLI (`tang`) — decentralized git collaboration platform client
