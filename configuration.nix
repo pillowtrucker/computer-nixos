@@ -768,12 +768,20 @@ in
         dxvk
         #        inputs.nix-gaming.packages.${system}.dxvk
         mpv
+        # music players
+        strawberry
+        amarok
         #        lutris # need to disable tests again probably
         lyx
         vscode # I probably don't need this since I got gluon lsp working with emacs
         # Tangled CLI (`tang`) — client for tangled.org (AT Protocol git
         # hosting). From the project's own flake (packages.default).
         inputs.tangled-cli.packages.${system}.default
+        # tcl-lsp - own Tcl/Tk language server, from the project flake
+        # (git+file local input). Wrapper bakes Tcl/Tk runtime paths plus
+        # nagelfar + tclint/tclfmt as defaults. Emacs client loads from the
+        # working tree (init.el :load-path ~/tcl-lsp-flake/editors/emacs).
+        inputs.tcl-lsp.packages.${system}.tcl-lsp
         # KDE Wayland window control + input injection trio:
         # kdotool = activate/query/move/resize native Wayland windows via KWin
         #           scripting API (xdotool-workalike, no X11 needed). Built from

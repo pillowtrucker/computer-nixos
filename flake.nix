@@ -38,6 +38,10 @@
     # Rollback: point back at the upstream repo, re-lock, rebuild.
     #   tangled-cli.url = "git+https://tangled.org/jubishop.bsky.social/tangled-cli";
     tangled-cli.url = "git+file:///home/wrath/impro_flake/tangled-cli";
+    # tcl-lsp - own Tcl/Tk language server (Rust, links libtcl and uses
+    # Tcl's own parser). git+file local input: only committed content is
+    # hashed, so commit before rebuilding after edits to the project.
+    tcl-lsp.url = "git+file:///home/wrath/tcl-lsp-flake";
 
   };
 

@@ -301,3 +301,15 @@ System-wide packages for KDE Wayland window control and input injection.
 `buildRustPackage` let-binding in `configuration.nix`; `dotool` and
 `ydotool` are from nixpkgs. Full usage docs and cua-driver workaround
 recipe: `kdotool` Hermes skill.
+
+## tcl-lsp (own Tcl/Tk language server)
+
+Installed from the local project checkout via a `git+file:///home/wrath/tcl-lsp-flake`
+flake input (`inputs.tcl-lsp.packages.${system}.tcl-lsp` in `users.users.wrath.packages`).
+The Nix wrapper bakes Tcl/Tk runtime paths plus nagelfar and tclint/tclfmt as
+defaults, so the binary is self-contained. The Emacs client is loaded from the
+project working tree (`~/.emacs.d/init.el`, `:load-path
+~/tcl-lsp-flake/editors/emacs/`); it prefers a `tcl-lsp` found on `exec-path`
+(direnv/envrc wins) over the system binary. Commit in the project before
+rebuilding the system, since the flake input only sees committed content.
+Project usage docs live in the project repo itself.
