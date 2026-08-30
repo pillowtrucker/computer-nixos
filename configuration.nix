@@ -447,6 +447,9 @@ in
         #          doCheck = false;
         #        });
         crow-translate = final.callPackage ./crow-translate.nix { };
+        # qwen-code from the upstream release tag (nixpkgs expression is
+        # stale at 0.16.0); bare names in package lists resolve here.
+        qwen-code = final.callPackage ./qwen-code.nix { };
         #        webkitgtk = prev.webkitgtk.override {
         #          clangStdenv = myClangStdenv;
         #          enableDebugSymbols = false;
@@ -881,6 +884,9 @@ in
 
     in
     [
+      # crow-translate: bare name (not callPackage) so it resolves through the
+      # overlay-augmented `with pkgs` (4.1.0 from the release tag, all features).
+        crow-translate
       # claude-desktop with SSH_AUTH_SOCK forced into the bwrap sandbox.
       # The buildFHSEnv container-init strips SSH_AUTH_SOCK before exec'ing
       # the Electron binary, so gpg-agent is invisible to claude-desktop's
