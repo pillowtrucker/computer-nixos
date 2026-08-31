@@ -2607,11 +2607,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1788183929,
-        "narHash": "sha256-Rlj76PvgUHBA0iasB+rVrd6r+rcLKywkohUL6ZSr0KI=",
+        "lastModified": 1788201073,
+        "narHash": "sha256-CN2dIRMVEvJS2XCC064LQA83cOozbP9WodEDHqX+aCo=",
         "ref": "refs/heads/master",
-        "rev": "53e47e32b033bd053acd0ee491a948901a5aa313",
-        "revCount": 20,
+        "rev": "ec6512879c8fd59faeaf9926825389b7f3d4d42f",
+        "revCount": 21,
         "type": "git",
         "url": "file:///home/wrath/tcl-lsp-flake"
       },
