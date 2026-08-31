@@ -354,17 +354,17 @@
         "rust-analyzer-src": "rust-analyzer-src_4"
       },
       "locked": {
-        "lastModified": 1786258988,
-        "narHash": "sha256-HQ9V1XsHy6Qf2pAy6lru1W47NILqLWb6yix4/5IToDA=",
+        "lastModified": 1788006742,
+        "narHash": "sha256-V65dNU5TPx5c/DBdJ2G8rgczvLxB5ROm/ie8CS6WV3w=",
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "36ef6893e18fb070e33a1d17cd5296382c9519d4",
+        "rev": "e0f7f5109090e4ebc9f3c969b961966cd7a61013",
         "type": "github"
       },
       "original": {
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "36ef6893e18fb070e33a1d17cd5296382c9519d4",
+        "rev": "e0f7f5109090e4ebc9f3c969b961966cd7a61013",
         "type": "github"
       }
     },
@@ -2031,17 +2031,17 @@
     },
     "nixpkgs_18": {
       "locked": {
-        "lastModified": 1786106723,
-        "narHash": "sha256-zDSUbpoeo/9ZmD2+wXnzxoo1+uhL8vxc0b8yuYMKYq0=",
+        "lastModified": 1788046979,
+        "narHash": "sha256-SB/ZJ9GNTYBphRn0fkrMBSekYFyn4iUqA1/5Xmzz3Wc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f13ff45afd1bb73e640eaa08a7066dbed07e3238",
+        "rev": "7ef9edb0c2c9d067250a2415c4181015c5fca01b",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f13ff45afd1bb73e640eaa08a7066dbed07e3238",
+        "rev": "7ef9edb0c2c9d067250a2415c4181015c5fca01b",
         "type": "github"
       }
     },
@@ -2607,11 +2607,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1787958498,
-        "narHash": "sha256-hhYpvj3XSL6p4Tfn3WNGX6XgN7hTwZS8E2MDbcTUkq0=",
+        "lastModified": 1788132376,
+        "narHash": "sha256-c06ZcmcFjq/PYj4Y7jdEMnB4Z9CzAk0tmq8jYziOTgY=",
         "ref": "refs/heads/master",
-        "rev": "16320cb7d0ee98c674220762b33ca3af1e479081",
-        "revCount": 16,
+        "rev": "6a3c58b4e6216bbbdc36de7fe57116f6e14a7925",
+        "revCount": 17,
         "type": "git",
         "url": "file:///home/wrath/tcl-lsp-flake"
       },
