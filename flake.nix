@@ -42,7 +42,22 @@
     # Tcl's own parser). git+file local input: only committed content is
     # hashed, so commit before rebuilding after edits to the project.
     tcl-lsp.url = "git+file:///home/wrath/tcl-lsp-flake";
-
+    # veles-agent — own Rust+Tcl agent runtime. Provides the veles CLI
+    # and `services.veles` (nixosModules.default), which also builds and
+    # wires the sandbox artifacts (nspawn rootfs, firecracker guest
+    # kernel + rootfs) for whichever fence is configured.
+    #
+    # git+file (not path:) for the same reason as hermes-agent above:
+    # only COMMITTED content is hashed, so ignored churn cannot drift the
+    # input. Commit in ~/veles-agent before rebuilding, or the rebuild
+    # keeps using the previous commit.
+    #
+    # `?ref=master` since 2026-09-04: every working branch was merged
+    # into master, and a ref left pointing at a merged branch silently
+    # keeps rebuilding an older commit.
+    #
+    # See /etc/nixos/README.md § Veles Agent.
+    veles-agent.url = "git+file:///home/wrath/veles-agent?ref=master";
   };
 
   # The `self` parameter is special, it refers to

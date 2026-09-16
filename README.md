@@ -314,3 +314,229 @@ project working tree (`~/.emacs.d/init.el`, `:load-path
 (direnv/envrc wins) over the system binary. Commit in the project before
 rebuilding the system, since the flake input only sees committed content.
 Project usage docs live in the project repo itself.
+
+## Veles Agent
+
+Own Rust + Tcl agent runtime (`~/veles-agent`). Added 2026-09-04, at
+**user level**: the `veles` CLI is in `users.users.wrath.packages`, the
+gateway is a systemd **user** unit running as wrath against wrath's own
+directories, and anything needing root goes through `sudo`. Nothing runs
+as a system service and nothing touches `/var/lib`.
+
+### What was added
+
+| where | what | why |
+| --- | --- | --- |
+| `flake.nix` | `veles-agent.url = "git+file:///home/wrath/veles-agent?ref=tasks-shells-monitors"` | the `hermes-agent` precedent — `git+file`, not `path:`, so only committed content is hashed |
+| `configuration.nix` imports | `inputs.veles-agent.nixosModules.default` | the `services.veles` module |
+| `users.users.wrath.packages` | `veles-agent.packages.${system}.default` | the wrapped `veles` on wrath's PATH |
+| `users.users.wrath.extraGroups` | `"kvm"` | the firecracker sandbox opens `/dev/kvm` |
+| `users.users.wrath.autoSubUidGidRange` | `true` | rootless podman needs subuid/subgid ranges, or `podman run` dies in `newuidmap` |
+| `virtualisation.podman` / `virtualisation.containers` | enabled | this box had **neither podman nor docker**, so `scripts/build-sandbox-image.sh` could not run here at all |
+| `environment.systemPackages` | `firecracker`, `e2fsprogs` | the microVM fence, and the `mkfs.ext4` it runs per sandboxed run |
+| `services.veles` | enabled, `scope = "user"`, `gateway.enable = true`, `gateway.devTree = "veles-agent"`, `sandbox.backend = "firecracker"` | see below |
+
+### Two gateway units
+
+A gateway is long-lived: it holds the IRC/Telegram adapters, the desktop
+API, and the cron scheduler (the only thing that fires cron jobs). The
+module installs **two** user units and no toggle:
+
+| unit | runs | wanted at login |
+| --- | --- | :-: |
+| `veles-gateway` | the veles nix built — pinned | yes |
+| `veles-gateway-dev` | `~/veles-agent/target/debug/veles` | no |
+
+```sh
+systemctl --user status veles-gateway        # the nix-built one
+systemctl --user start  veles-gateway-dev    # the working tree, this session
+
+# at every login — symlink it from the system store:
+ln -s /etc/systemd/user/veles-gateway-dev.service \
+      ~/.config/systemd/user/default.target.wants/
+systemctl --user disable veles-gateway-dev   # undoes that symlink
+```
+
+Not `systemctl --user enable`: like most NixOS units these are `static`
+(no `[Install]` section — NixOS generates one only from `wantedBy`,
+which would also plant a root-owned symlink under `/etc` that you could
+not remove). `enable` warns there is no installation config and just
+copies the unit into your directory, where it shadows rather than
+enables. `disable` does undo a hand-made symlink.
+
+**Current state on this machine (2026-09-04):** `veles-gateway-dev` is
+symlinked into `~/.config/systemd/user/default.target.wants/` and
+running; `veles-gateway` is installed and stopped.
+
+Run **one at a time**: both hold the same pid file and the same ports.
+The dev unit runs a binary nix did not build and does not own — every
+`cargo build` in `~/veles-agent` replaces the running daemon's
+executable. That is what it is for; a machine you depend on should be on
+`veles-gateway`.
+
+`gateway.devTree` is relative to `$HOME` and reaches the unit as
+systemd's `%h`, so no username appears in the unit file.
+
+Until 2026-09-04 this said `gateway.enable = false` and told you to run
+`systemctl --user start veles`. There was no such unit — `enable = false`
+means the module generates none — and what was actually running was a
+hand-written `~/.config/systemd/user/veles-gateway.service` from
+2026-08-22 pointing at `target/debug/veles`. That file has been deleted:
+a unit in the user's own directory SHADOWS the module's, so leaving it
+would have made this whole section inert.
+
+### The sandbox artifacts are wired, not just configured
+
+`sandbox.backend = "firecracker"` makes the module **build** the guest
+kernel and rootfs and point `[sandbox] kernel_path` / `image` at those
+store paths. A config that names an artifact nobody built is precisely
+the failure this coupling prevents — the backend shipped 2026-09-03 with
+a config contract and no artifacts at all.
+
+The **guest kernel is not this machine's kernel**; firecracker loads its
+own `vmlinux` and the running kernel is untouched. It is built from the
+same source though — `config.boot.kernelPackages.kernel`, i.e. xanmod —
+with one config delta that is the whole reason a custom kernel is
+needed:
+
+```
+CONFIG_VIRTIO_MMIO=m  CONFIG_VIRTIO_BLK=m  CONFIG_EXT4_FS=m     # stock
+CONFIG_VIRTIO_MMIO=y  CONFIG_VIRTIO_BLK=y  CONFIG_EXT4_FS=y     # guest
+```
+
+A firecracker guest boots with no initrd, so it has nowhere to load a
+module from and cannot find its own root device. Expect one kernel build
+the first time; it caches after that.
+
+### Proving it
+
+```sh
+veles doctor              # config, provider route chain, store, Tcl
+veles doctor --sandbox    # resolves the fence AND runs a script through it
+```
+
+`doctor --sandbox` is not a readout: it resolves `[sandbox]`, reports the
+binary and each artifact, then executes `puts [expr {6*7}]` through the
+fence and checks for `42`. Non-zero exit on failure.
+
+Per backend, on this machine:
+
+```sh
+cd ~/veles-agent
+scripts/sandbox_vm_check.sh local      # native, nspawn (sudo), firecracker, podman
+scripts/sandbox_vm_check.sh freebsd    # the jail fence, in ~/crow-ci/ci-freebsd.qcow2
+scripts/build-sandbox-image.sh         # the ubuntu dev-sandbox image, for podman
+```
+
+**nspawn needs a writable rootfs.** `systemd-nspawn` takes a lock *next
+to* the rootfs, so a `/nix/store` path fails with `Failed to lock …:
+Read-only file system`. Stage a copy once (the check script does it for
+you):
+
+```sh
+cp -a "$(nix build ~/veles-agent#nspawnRootfs --no-link --print-out-paths)" \
+   ~/.local/share/veles/sandbox/nspawn-root
+chmod -R u+w ~/.local/share/veles/sandbox/nspawn-root
+```
+
+nspawn is root-gated by the backend itself, so it runs under `sudo` —
+which is the posture for this box, not an oversight.
+
+### Where veles keeps its files
+
+Since 2026-09-04 veles follows XDG, and the old single `~/.veles` was
+migrated automatically on first run:
+
+```
+~/.config/veles        config.toml, .env, secrets.env, themes, commands, plugins, skills
+~/.local/share/veles   state.db, checkpoints, memory.d, media, certs, backups, logs
+~/.cache/veles         regenerable working files
+~/.veles/MOVED-TO-XDG  a breadcrumb naming every destination
+```
+
+`veles migrate-dirs --dry-run` shows the plan without touching anything.
+`VELES_HOME` still forces the old single-directory layout — the OCI
+image (`VELES_HOME=/opt/data`) depends on it.
+
+### Updating
+
+`git+file` hashes **committed** content only:
+
+```sh
+cd ~/veles-agent && git commit -am "…"          # first
+sudo nix flake lock /etc/nixos --update-input veles-agent
+sudo nixos-rebuild switch --flake /etc/nixos#JustinMohnsIPod
+```
+
+Skipping the commit leaves the rebuild on the previous revision, silently.
+
+### Rolling back
+
+Remove the `services.veles` block, the `veles-agent` package line, the
+import and the flake input, then rebuild — or
+`sudo nixos-rebuild switch --rollback`. podman, the `kvm` group and the
+subuid ranges are independently useful and can stay.
+
+## libvirt loses its firewall rules on a `nixos-rebuild switch`
+
+Added 2026-09-04 alongside the veles work, because it is what broke the
+FreeBSD CI VM and it will break any guest on `virbr0`.
+
+libvirt's nftables backend installs `table ip libvirt_network` — the
+forward rules and the masquerade that gives guests on the `default`
+network a route out — **once per daemon lifetime**, and caches the fact
+that it did. NixOS's `firewall.service` flushes the ruleset when it
+(re)starts, which a `nixos-rebuild switch` does. The table goes; libvirtd
+believes it is still there and never puts it back. Nothing is logged.
+
+The symptom is not "no network". The virtual network stays `active`,
+guests keep their DHCP addresses, and they can still reach the host —
+including dnsmasq, so **DNS answers**. Only the outside world is gone:
+every outbound TCP connection hangs. `pkg`/`apt` inside the guest sit in
+`connect()` forever.
+
+What it looks like when you try to fix it by hand:
+
+```
+$ virsh -c qemu:///system net-start default
+error: internal error: Failed to apply firewall command
+  'nft -ae insert rule ip libvirt_network guest_output iif virbr0 counter reject':
+  Error: Could not process rule: No such file or directory
+```
+
+— the *table* the rule targets is missing, not the rule.
+
+Diagnose with `sudo nft list tables`: if `ip libvirt_network` is absent
+while a NAT network is running, this is it. `sudo systemctl restart
+libvirtd` fixes it immediately.
+
+The durable fix, in `configuration.nix`:
+
+```nix
+systemd.services.libvirtd = {
+  after = [ "firewall.service" ];
+  partOf = [ "firewall.service" ];
+};
+```
+
+`partOf` propagates the firewall's restarts to libvirtd, which rebuilds
+its table. Restarting libvirtd does **not** disturb running guests —
+their qemu processes are not children of the daemon.
+
+### The CI VMs on this machine
+
+`ci-freebsd` (192.168.122.60) and `ci-linux` (192.168.122.50) are
+libvirt domains on the `default` network, cloud-init provisioned with a
+`ci` account and `~/.ssh/ci-vm`, reachable as `ssh ci-freebsd` /
+`ssh ci-linux` through `~/.ssh/config`. veles' `scripts/sandbox_vm_check.sh`
+uses those domains; its old code booted the qcow2 by hand with qemu user
+networking, which puts the guest on 10.0.2.x with no seed drive and
+makes the provisioned accounts look absent.
+
+One more trap worth writing down: a guest whose `/etc/resolv.conf`
+points at an unreachable nameserver **accepts the TCP connection on port
+22 and never sends an SSH banner**, because FreeBSD's sshd does a
+reverse lookup through libwrap first. `ssh` reports "Connection timed out
+during banner exchange", which reads like a broken sshd. `ci-freebsd`
+had `nameserver 10.0.2.3` — QEMU user-mode's DNS — left behind by an
+ad-hoc boot.

@@ -55,6 +55,8 @@ in
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./cachix.nix
+    # services.veles — see the § Veles Agent section of README.md.
+    inputs.veles-agent.nixosModules.default
   ];
   boot.tmp.useTmpfs = false; # webkit explodes this, firefox nearly does
   boot.tmp.cleanOnBoot = true; # old gcroots trash
@@ -609,13 +611,28 @@ in
       "libvirtd"
       "adbusers"
       "nixseparatedebuginfod"
+      # veles' firecracker sandbox backend opens /dev/kvm. It is 0666 on
+      # this box today, so this is belt-and-braces rather than the thing
+      # that makes it work — but a udev rule change should not silently
+      # take the fence out.
+      "kvm"
     ];
+    # Rootless podman needs subuid/subgid ranges for the user namespace.
+    # Without them `podman run` fails with a newuidmap error, which is
+    # not an obvious symptom of a missing range.
+    autoSubUidGidRange = true;
     packages =
       with pkgs;
       with inputs;
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        # veles: the wrapped `veles` binary (TCL_LIBRARY, TCLLIBPATH, wish,
+        # and git/ssh/ripgrep/image-decoders on its PATH prefix). USER
+        # level, per the 2026-09-04 decision — root work goes through
+        # sudo. services.veles (below) adds the same package system-wide
+        # for the unit; naming it here is what puts it on the login user's PATH.
+        veles-agent.packages.${system}.default
         hermes-agent.packages.${system}.desktop
         # Headless browser driver for the hermes browser_* tools. nixpkgs
         # ships it already patchelf'd for NixOS (the npx-installed one fails
@@ -869,6 +886,32 @@ in
 
     };
   };
+  # libvirt's nftables backend installs `table ip libvirt_network` (the
+  # forward rules and the masquerade that gives guests on virbr0 their
+  # way out) ONCE per daemon lifetime, and caches the fact. NixOS's
+  # firewall.service flushes the ruleset when it (re)starts — after a
+  # nixos-rebuild switch, say — which deletes that table, and libvirtd,
+  # still believing it is installed, never puts it back. Nothing logs an
+  # error. The virtual network stays "active", guests keep their IPs and
+  # can still reach the host (dnsmasq, so DNS answers, which makes it
+  # look like networking works), and every connection to the outside
+  # world hangs on the missing masquerade.
+  #
+  # Hit 2026-09-04: ci-freebsd resolved names fine and could not fetch a
+  # single package; `nft list tables` had no libvirt_network at all, and
+  # `virsh net-start` failed with
+  #   Failed to apply firewall command 'nft -ae insert rule ip
+  #   libvirt_network guest_output …': No such file or directory
+  # because the table the rule targets was gone.
+  #
+  # partOf ties libvirtd's lifecycle to the firewall's: whenever the
+  # firewall restarts, libvirtd restarts too and rebuilds its table.
+  # Restarting libvirtd does not disturb running guests — their qemu
+  # processes are not children of the daemon.
+  systemd.services.libvirtd = {
+    after = [ "firewall.service" ];
+    partOf = [ "firewall.service" ];
+  };
   programs.wireshark = {
     enable = true;
     package = pkgs.wireshark-qt;
@@ -882,6 +925,79 @@ in
     ];
   };
   programs.virt-manager.enable = true;
+
+  # ── Veles Agent ─────────────────────────────────────────────────────
+  #
+  # USER-LEVEL install (2026-09-04): the veles CLI lands in the login
+  # user's profile, the gateway is a systemd USER unit running as that
+  # user against their own XDG directories (~/.config/veles,
+  # ~/.local/share/veles), and anything needing root — the nspawn fence
+  # — goes through sudo. Nothing here runs as a system service or
+  # touches /var/lib.
+  #
+  # TWO UNITS (2026-09-04), and no toggle:
+  #
+  #   veles-gateway      the veles nix built — wanted at login
+  #   veles-gateway-dev  ~/veles-agent/target/debug/veles — started by
+  #                      hand, and replaced by every `cargo build` there
+  #
+  # devTree is RELATIVE to $HOME and reaches the unit as systemd's %h,
+  # so no username appears in the unit. Which one a login runs is
+  # `systemctl --user enable`; run one at a time, they share a pid file
+  # and ports.
+  #
+  # Before this, a hand-written
+  # ~/.config/systemd/user/veles-gateway.service from 2026-08-22 ran the
+  # debug binary while this module generated no unit at all. That file
+  # is deleted — a unit in the user's own directory SHADOWS the
+  # module's, so leaving it would make this block inert.
+  #
+  # backend = "firecracker" is the interesting part: choosing it makes
+  # the module BUILD the guest kernel (from this machine's own
+  # boot.kernelPackages source, with virtio-mmio/virtio-blk/ext4 forced
+  # from =m to =y — a microVM with no initrd cannot load modules) and
+  # the ext4 guest rootfs, then point [sandbox] kernel_path and image at
+  # those store paths. A config naming an artifact nobody built is
+  # exactly the failure that coupling prevents.
+  #
+  # Prove it with:  veles doctor --sandbox
+  services.veles = {
+    enable = true;
+    scope = "user";
+    gateway.enable = true;
+    gateway.devTree = "veles-agent";
+    sandbox = {
+      backend = "firecracker";
+      # firecracker has no tap devices; the module asserts this rather
+      # than letting the backend fail at run time.
+      network = false;
+      memory_mb = 512;
+    };
+  };
+
+  # Rootless podman for the veles `podman` sandbox backend and the
+  # dev-sandbox image (sandbox/Dockerfile — ubuntu LTS, apt/pip/npm
+  # working, which is what models were RL'd on). Until 2026-09-04 this
+  # laptop had neither podman nor docker, so scripts/build-sandbox-image.sh
+  # could not run here at all and said so in its own error message.
+  virtualisation.podman = {
+    enable = true;
+    # No dockerCompat: nothing here wants a `docker` shim, and shadowing
+    # the name would be a surprise.
+    defaultNetwork.settings.dns_enabled = true;
+  };
+  virtualisation.containers = {
+    enable = true;
+    # podman on NixOS ships NO unqualified-search registries, so a bare
+    # `podman pull ubuntu:24.04` fails with "short-name did not resolve
+    # to an alias". veles' own sandbox/Dockerfile names the registry in
+    # full so it does not depend on this — but ad-hoc podman use does.
+    #
+    # `registries.search` is deprecated (it warns on every evaluation);
+    # `registries.settings` is the registries.conf v2 TOML, and the
+    # module maps the old option onto exactly this shape.
+    registries.settings.registries.search.registries = [ "docker.io" ];
+  };
   #  services.nixseparatedebuginfod.enable = true;
   services.nixseparatedebuginfod2.enable = true;
   #services.nixseparatedebuginfod.extra-allowed-users = [ "wrath" ];
@@ -892,6 +1008,15 @@ in
 
     in
     [
+      # veles sandbox runtimes. The module adds firecracker and
+      # e2fsprogs itself when that backend is chosen; these are the
+      # ones needed to EXERCISE the other fences and build the images:
+      #   qemu     — scripts/sandbox_vm_check.sh's VM arms (already here
+      #              via libvirtd, named for clarity)
+      #   e2fsprogs— mkfs.ext4, which the firecracker backend runs per
+      #              run to build the work drive
+      firecracker
+      e2fsprogs
       # crow-translate: bare name (not callPackage) so it resolves through the
       # overlay-augmented `with pkgs` (4.1.0 from the release tag, all features).
         crow-translate
