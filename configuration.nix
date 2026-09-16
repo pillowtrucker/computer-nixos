@@ -450,6 +450,10 @@ in
         # qwen-code from the upstream release tag (nixpkgs expression is
         # stale at 0.16.0); bare names in package lists resolve here.
         qwen-code = final.callPackage ./qwen-code.nix { };
+        # bailian-cli (`bl`/`bailian`, Aliyun Model Studio CLI) from the
+        # pinned npm tarball — not in nixpkgs. See the file header for the
+        # npm-monorepo quirks (e2e@0.0.0, no lockfile, postinstall).
+        bailian-cli = final.callPackage ./bailian-cli.nix { };
         #        webkitgtk = prev.webkitgtk.override {
         #          clangStdenv = myClangStdenv;
         #          enableDebugSymbols = false;
@@ -651,6 +655,10 @@ in
         # Wayland sessions.
         rustdesk-flutter
         qwen-code
+        # bailian-cli (`bl`) — Aliyun Model Studio CLI, pinned npm tarball
+        # via ./bailian-cli.nix (not in nixpkgs). Console auth:
+        # `bl auth login --console --console-site international`.
+        bailian-cli
         # this runs well enough for streamers to stream bloodborne now?
         shadps4
         shadps4-qtlauncher

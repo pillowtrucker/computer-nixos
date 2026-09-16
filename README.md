@@ -11,6 +11,7 @@ nixpkgs `master` (unstable channel, pinned via flake.lock).
 | `configuration.nix` | The entire system module (big, ~30KB). |
 | `hardware-configuration.nix` | Generated hardware bits. |
 | `xz.nix` | Local xz overrides. |
+| `qwen-code.nix`, `crow-translate.nix`, `bailian-cli.nix` + `bailian-cli-package-lock.json` | Locally packaged upstream software via the overlay (qwen-code: GitHub tag; crow: local checkout; bailian-cli `bl`: pinned npm tarball — not in nixpkgs). |
 | `cachix.nix` + `cachix/` | Binary caches. |
 | `.gitmodules` | Legacy submodules (firefox-overlay, hnix, inochi-nixpkgs) — mostly historical, the flake uses direct inputs now. |
 
