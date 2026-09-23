@@ -627,6 +627,12 @@ in
       #      let inochi-nixpkgs = import inputs.nixpkgs-inochi { inherit system; };
       #      in [
       [
+        tcl-8_6
+        tclPackages.tcllib
+        tclPackages.tclx
+        tclPackages.tclcurl
+        uv
+        python3
         # veles: the wrapped `veles` binary (TCL_LIBRARY, TCLLIBPATH, wish,
         # and git/ssh/ripgrep/image-decoders on its PATH prefix). USER
         # level, per the 2026-09-04 decision — root work goes through
@@ -914,7 +920,7 @@ in
   };
   programs.wireshark = {
     enable = true;
-    package = pkgs.wireshark-qt;
+    package = pkgs.wireshark;
   };
   programs.bat = {
     enable = true;
@@ -1047,7 +1053,7 @@ in
       gimp
       #        (gimp.override { stdenv = myClangStdenv; })
       claude-code
-      gemini-cli # deprecated
+      #      gemini-cli # deprecated
       antigravity-cli
       perf
       perf-tools # execsnoop is broken anyway but w/e
