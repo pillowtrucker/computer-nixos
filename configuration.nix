@@ -449,8 +449,10 @@ in
         #          doCheck = false;
         #        });
         crow-translate = final.callPackage ./crow-translate.nix { };
-        # qwen-code from the upstream release tag (nixpkgs expression is
-        # stale at 0.16.0); bare names in package lists resolve here.
+        # qwen-code from the upstream release tag; bare names in package
+        # lists resolve here. nixpkgs lags (0.23.4 on this pin, npm-based),
+        # and upstream retired package-lock.json in 0.24.2, so this recipe
+        # builds the pnpm workspace - see qwen-code.nix.
         qwen-code = final.callPackage ./qwen-code.nix { };
         # bailian-cli (`bl`/`bailian`, Aliyun Model Studio CLI) from the
         # pinned npm tarball — not in nixpkgs. See the file header for the
