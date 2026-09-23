@@ -45,14 +45,14 @@
 
 buildNpmPackage (finalAttrs: {
   pname = "bailian-cli";
-  version = "1.25.0";
+  version = "2.0.1";
 
   # fetchzip (not fetchurl): the hash below is of the UNPACKED tree
   # (nix store prefetch-file --unpack). The npm tarball unpacks into a
   # top-level package/ directory.
   src = fetchzip {
     url = "https://registry.npmjs.org/bailian-cli/-/bailian-cli-${finalAttrs.version}.tgz";
-    hash = "sha256-1a5Kj+fRCXjpftvBqx3qFzco9xSZSqYFO/11VPV0toI=";
+    hash = "sha256-MnYc9+Lw+3bGrAl7eTlqptHZxVD0PpQk600e/KE7Kqk=";
   };
 
   # qwen-code precedent: npm 11 (shipped with newer nodejs) breaks
@@ -60,7 +60,7 @@ buildNpmPackage (finalAttrs: {
   nodejs = nodejs_22;
 
   npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-5H0w9r7C0g8r+ll3LzkpcMamL5Mcl28h1XUID9G3hJQ=";
+  npmDepsHash = "sha256-XIhAK9tzlStRv6UZjJw+dZ0A7PUwqOh2fL2qak9ZA7Q=";
 
   nativeBuildInputs = [ jq ];
 
