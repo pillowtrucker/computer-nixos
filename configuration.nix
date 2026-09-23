@@ -632,7 +632,35 @@ in
         tclPackages.tclx
         tclPackages.tclcurl
         uv
-        python3
+        # Python 3.14 + the batteries an agent reaches for. ONE withPackages
+        # env, not bare separate entries: the env provides bin/python and
+        # bin/python3 itself, and modules installed as separate profile
+        # entries would not land on the interpreter's sys.path anyway. This
+        # env IS the interpreter.
+        #
+        # No pip: the store is read-only, so `pip install` can only fail. uv
+        # (above) is the venv tool - `uv venv` + `uv pip install` write into a
+        # project venv, not the store.
+        (python3.withPackages (ps: with ps; [
+          # web / scraping
+          requests httpx aiohttp urllib3 certifi dnspython six python-dateutil pytz
+          beautifulsoup4 lxml html5lib markdownify html2text cssselect
+          readability-lxml trafilatura
+          # serialization / config
+          pyyaml toml tomli tomli-w jsonschema xmltodict humanize
+          # CLI ergonomics
+          rich click typer tqdm tabulate colorama
+          # documents / files / images
+          python-magic openpyxl pypdf pdfplumber python-docx markdown
+          pillow qrcode sqlalchemy
+          # system / remote / crypto
+          paramiko psutil distro cryptography
+          # dev / testing / REPL
+          pexpect ipython textual pytest flask
+          setuptools wheel packaging filelock watchdog
+          # scientific stack
+          numpy pandas scipy matplotlib
+        ]))
         # veles: the wrapped `veles` binary (TCL_LIBRARY, TCLLIBPATH, wish,
         # and git/ssh/ripgrep/image-decoders on its PATH prefix). USER
         # level, per the 2026-09-04 decision — root work goes through

@@ -11,7 +11,7 @@ nixpkgs `master` (unstable channel, pinned via flake.lock).
 | `configuration.nix` | The entire system module (big, ~30KB). |
 | `hardware-configuration.nix` | Generated hardware bits. |
 | `xz.nix` | Local xz overrides. |
-| `qwen-code.nix`, `crow-translate.nix`, `bailian-cli.nix` + `bailian-cli-package-lock.json` | Locally packaged upstream software via the overlay (qwen-code: GitHub tag; crow: local checkout; bailian-cli `bl`: pinned npm tarball — not in nixpkgs). |
+| `qwen-code.nix`, `crow-translate.nix`, `bailian-cli.nix` + `bailian-cli-package-lock.json` | Locally packaged upstream software via the overlay (qwen-code: GitHub tag, pnpm workspace — upstream retired package-lock.json in 0.24.2; crow: local checkout; bailian-cli `bl`: pinned npm tarball — not in nixpkgs). |
 | `cachix.nix` + `cachix/` | Binary caches. |
 | `.gitmodules` | Legacy submodules (firefox-overlay, hnix, inochi-nixpkgs) — mostly historical, the flake uses direct inputs now. |
 
@@ -151,6 +151,19 @@ nix flake update                    # update flake.lock
 sudo nixos-rebuild switch --flake . # build + activate
 git add flake.lock configuration.nix && git commit
 ```
+
+## Python for agents
+
+`users.users.wrath.packages` carries ONE python env:
+`(python3.withPackages (ps: with ps; [ requests httpx rich pyyaml pillow numpy pandas
+... ]))`. Not a bare `python3` plus separate `python-*` entries: the env
+provides `bin/python` and `bin/python3` itself, and modules installed as
+separate profile entries would not land on that interpreter's sys.path.
+
+No pip in the env on purpose - the store is read-only, so `pip install` can
+only ever fail. `uv` (also in the profile) is the venv tool for per-project
+dependencies. Add a module by appending it to the withPackages list and
+rebuilding.
 
 ## Git history conventions
 
