@@ -31,14 +31,14 @@ let
   # See skill: kdotool, and /etc/nixos/README.md § kdotool+dotool.
   kdotool = pkgs.rustPlatform.buildRustPackage {
     pname = "kdotool";
-    version = "0.2.1";
+    version = "0.3.0";
     src = pkgs.fetchFromGitHub {
       owner = "jinliu";
       repo = "kdotool";
-      rev = "1ad61acb56c0707df53a4d9ce10153a87f08523b";
-      hash = "sha256-zGuq8YjxLRSd26UfRgBfKveesZy6ruVLQlTbGN/afoE=";
+      rev = "be03ce90c09350898556436bac74ed35fe928617";
+      hash = "sha256-PQAw7I0Lpi0+JMNZGlmyDDkelkSYUX/sZVEh3PjR8VM=";
     };
-    cargoHash = "sha256-CZr/aPAPFjeJdlF8wvf1c16bBGhzGhVW3WnZJ8TC68A=";
+    cargoHash = "sha256-11V+J8/LlHGdA/FSc7aD9IeVBIFwYM0LXXiFtc/FuLY=";
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [ pkgs.dbus ];
     meta = {
