@@ -1175,7 +1175,7 @@ in
       sqlite
       #      (sqlite.override { stdenv = myClangStdenv; })
       # :lang latex & :lang org (latex previews)
-      texlive.combined.scheme-full
+      texliveFull
       openssh
       #      (openssh.override { stdenv = myClangStdenv; })
       mosh
